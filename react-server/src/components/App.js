@@ -3,7 +3,7 @@ class App extends React.Component {
    render() {
       return (
          <div>
-            Hello World ReactJS!!!
+            <a href="/chat">Hello World ReactJS!!!</a>
          </div>
       );
    }

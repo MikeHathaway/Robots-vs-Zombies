@@ -1,12 +1,17 @@
 import React from 'react';
-import { Router, Route } from 'react-router';
+import { BrowserRouter, Route } from 'react-router-dom';
 
 import App from './components/App.js';
+import Chat from './components/Chat.js';
+
 
 const Routes = (props) => (
-  <Router {...props}>
-    <Route path="/" component={App} />
-  </Router>
+  <BrowserRouter {...props}>
+    <div>
+      <Route path="/" component={App} />
+      <Route path="/chat" component={Chat} />
+    </div>  
+  </BrowserRouter>
 );
 
 export default Routes;
