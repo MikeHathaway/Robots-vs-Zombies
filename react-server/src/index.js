@@ -13,6 +13,7 @@ import App from './components/App.js';
 //   document.getElementById('root')
 // );
 const root = document.getElementById('root')
-console.log(root)
+const appDiv = document.getElementById('app')
 
-ReactDOM.render(<App />, root);
+console.log(appDiv)
+ReactDOM.render(<App />, appDiv);

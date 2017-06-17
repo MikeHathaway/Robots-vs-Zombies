@@ -14,7 +14,7 @@ app.use(bodyparser.json())
 // ReactAPI(app)
 
 // Serve static assets
-// app.use(express.static(path.resolve(__dirname, '..', 'public', 'build')));
+app.use(express.static(path.resolve(__dirname, '..', 'public')));
 
 // Always return the main index.html, so react-router render the route in the client
 app.get('*', (req, res) => {
