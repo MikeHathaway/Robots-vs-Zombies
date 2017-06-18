@@ -1,18 +1,9 @@
-const feathers = require('feathers')
-const bodyParser = require('body-parser')
-const path = require('path')
-const socketio = require('feathers-socketio')
-const postgresService = require('feathers-postgres')
+'use strict';
 
-const app = feathers()
-  // Enable REST services
-  .configure(rest())
-  .configure(socketio());
+const app = require('../app');
+const port = app.get('port');
+const server = app.listen(port);
 
-  // Turn on JSON parser for REST services
-  .use(bodyParser.json())
-  // Turn on URL-encoded parser for REST services
-  .use(bodyParser.urlencoded({ extended: true }));
-  .configure(services)
-
-function services(){}
+server.on('listening', () =>
+  console.log(`Feathers application started on ${app.get('host')}:${port}`)
+);
