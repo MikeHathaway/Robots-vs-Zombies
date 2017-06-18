@@ -7,9 +7,10 @@ class User extends React.Component {
          <div>
             <h3>Personalized User Dashboard</h3>
 
-            <Button color="primary" href="/chat">Talk to other players</Button>
+            <Button color="success" href="/chat">Talk to other players</Button>
          </div>
       )
    }
 }
+
 export default User
