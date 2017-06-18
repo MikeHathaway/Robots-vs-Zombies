@@ -5,5 +5,12 @@
   "paginate": {
     "default": 10,
     "max": 50
-  }
+  },
+  "auth": {
+    "secret": "super secret key",
+    "strategies": [
+      "jwt"
+    ]
+  },
+  "nedb": "../data"
 }

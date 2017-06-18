@@ -1,0 +1,3 @@
+{"$$indexCreated":{"fieldName":"email","unique":true,"sparse":false}}
+{"email":"email@gmail.com","password":"$2a$10$97PFTWO/wDUVZkbCJg3DW.n2vbc7FRFUvSs7K/xk.xoGU7y/c5fZq","avatar":"https://s.gravatar.com/avatar/1919bfc4fa95c7f6b231e583da677a17?s=60","_id":"Y91uvKctLpU740FZ"}
+{"email":"balls@mcgee","password":"$2a$10$Low25cQek1aEvt4F.mSareRQy7VboS8Yhk2S94NFdAe0IfFbGGOfm","avatar":"https://s.gravatar.com/avatar/afbb105876cebfdf93a5f5bbb69ea5b3?s=60","_id":"hyUl90yLiOIVn2QG"}

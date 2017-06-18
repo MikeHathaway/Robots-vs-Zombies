@@ -6,7 +6,8 @@ const local = require('feathers-authentication-local')
 
 module.exports = function() {
   const app = this
-  const config = app.get('authentication')
+  const config = app.get('auth')
+  console.log(config)
 
   // Set up authentication with the secret
   app.configure(authentication(config))

@@ -20,7 +20,7 @@ const notFound = require('feathers-errors/not-found')
   // ^ good example
 
 
-// const middleware = require('./middleware')
+const middleware = require('./middleware')
 const services = require('./services')
 const appHooks = require('./app.hooks')
 
