@@ -41,20 +41,19 @@ app.use(compress())
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
 
+app.use('/api', feathers.static(app.get('public')));
+
 // Configure API
 app.configure(hooks());
 app.configure(rest())
 app.configure(socketio())
 
-app.use('/api', feathers.static(app.get('public')));
-
-// app.configure(services);
-
 // Configure error handler
 app.use(notFound());
 app.use(handler());
 
-// app.configure(middleware);
+app.configure(services);
+app.configure(middleware);
 app.hooks(appHooks);
 
 
