@@ -20,10 +20,14 @@
     "feathers-configuration": "^0.4.1",
     "feathers-errors": "^2.8.1",
     "feathers-hooks": "^2.0.1",
+    "feathers-hooks-common": "^3.5.1",
+    "feathers-nedb": "^2.6.2",
     "feathers-reactive": "^0.4.1",
     "feathers-rest": "^1.7.3",
     "feathers-socketio": "^2.0.0",
     "helmet": "^3.6.1",
-    "path": "^0.12.7"
+    "nedb": "^1.8.0",
+    "path": "^0.12.7",
+    "winston": "^2.3.1"
   }
 }

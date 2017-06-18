@@ -34,3 +34,7 @@ Rethinkdb designed for realtime, but its slow
 
 ElasticSearch for db solution
   -super fast?
+
+
+Frontend for the react chat app
+  https://github.com/feathersjs/feathers-chat-react

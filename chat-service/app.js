@@ -16,11 +16,13 @@ const reactive = require('feathers-reactive')
 const handler = require('feathers-errors/handler')
 const notFound = require('feathers-errors/not-found')
 
+//https://github.com/feathersjs/feathers-chat/
+  // ^ good example
 
-// Need to configure this myself
+
 // const middleware = require('./middleware')
 const services = require('./services')
-// const appHooks = require('./app.hooks')
+const appHooks = require('./app.hooks')
 
 // Instantiate Featers
 const app = feathers()
@@ -44,7 +46,7 @@ app.configure(hooks());
 app.configure(rest())
 app.configure(socketio())
 
-app.use('/test', feathers.static(app.get('public')));
+app.use('/api', feathers.static(app.get('public')));
 
 // app.configure(services);
 
@@ -53,7 +55,7 @@ app.use(notFound());
 app.use(handler());
 
 // app.configure(middleware);
-// app.hooks(appHooks);
+app.hooks(appHooks);
 
 
 module.exports = app
