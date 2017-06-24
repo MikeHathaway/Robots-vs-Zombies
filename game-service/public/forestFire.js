@@ -59,6 +59,3 @@ function forestFire() {
 
 	return world;
 }
-
-
-export default forestFire
