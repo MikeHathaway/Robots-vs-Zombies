@@ -2,11 +2,59 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <title></title>
+    <title>Cellular Automata Test</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/4.5.1/pixi.min.js"></script>
   </head>
   <body>
-    <h1>Basic feathers app</h1>
+    <h1>Cellular Automatons!</h1>
+    <!-- <canvas id="myCanvas"></canvas> -->
     <script src="cellauto.js"></script>
     <script src="forestFire.js"></script>
+    <script>
+
+      //make use of a Pixi texture cache for optimization purposes
+
+      //Aliases for Pixi.js API
+      const Container = PIXI.Container
+      const autoDetectRenderer = PIXI.autoDetectRenderer
+      const loader = PIXI.loader
+      const resources = PIXI.loader.resources
+      const Sprite = PIXI.Sprite
+
+      //Create a container object called the `stage`
+      const stage = new Container()
+
+      //Create the renderer
+      const renderer = autoDetectRenderer(512, 512)
+
+      //Add the canvas to the HTML document
+      document.body.appendChild(renderer.view)
+
+
+      loader
+        .add("images/Zombie_Sprite.png")
+        .on('progress', loadProgressHandler)
+        .load(setup)
+
+      //use this to render loading bar or somesuch
+      function loadProgressHandler(){
+        console.log("loading")
+      }
+
+      function setup(){
+        const zombie = new Sprite(loader.resources["images/Zombie_Sprite.png"].texture)
+
+        stage.addChild(zombie)
+
+        //Tell the `renderer` to `render` the `stage`
+        renderer.render(stage)
+
+      }
+
+      // const myCanvas = document.getElementById('myCanvas')
+      // myCanvas.width = world.cellSize * world.width
+      // myCanvas.height = world.cellSize * world.height
+
+    </script>
   </body>
 </html>
