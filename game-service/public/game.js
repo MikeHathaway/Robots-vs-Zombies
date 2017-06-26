@@ -21,6 +21,7 @@ let map
 let layer
 let zombie
 let cursors
+let collisionLayer //not yet hooked up - need to properly reference in tilemap
 
 function create(){
 
@@ -36,6 +37,17 @@ function create(){
 
   player = game.add.sprite(32, game.world.height - 150, 'zombie')
 
+  // next create the collision layer - this will abstract away all the areas that cant be moved over
+  collisionLayer = map.createLayer('Collision');
+
+  // collisionLayer.visible = false;
+
+  // inform phaser that our collision layer is our collision tiles
+  // in our case, since we separated out the collision tiles into its own layer
+  // we pass an empty array and passing in true to enable collision
+  map.setCollisionByExclusion([], true, collisionLayer);
+
+
   //  We need to enable physics on the player
   game.physics.arcade.enable(player)
 
@@ -47,6 +59,8 @@ function create(){
 }
 
 function update(){
+
+  //game.physics.arcade.collide(this.player, this.collisionLayer);
 
   player.body.velocity.x = 0;
   player.body.velocity.y = 0;
