@@ -11,17 +11,17 @@ const game = new Phaser.Game(800, 600, Phaser.AUTO, '', {
 })
 
 function preload(){
-  game.load.tilemap('desert', '/assets/tilemaps/desert.json', null, Phaser.Tilemap.TILED_JSON)
+  game.load.tilemap('desert', 'assets/tilemaps/desert.json', null, Phaser.Tilemap.TILED_JSON)
   game.load.image('tiles', 'assets/tilemaps/tmw_desert_spacing.png')
   game.load.image('zombie', 'assets/Zombie_Sprite.png')
   game.load.spritesheet('zombies', 'assets/zombie_sheet.png', 32, 48)
 }
 
-let map
-let layer
-let player
-let cursors
-let collisionLayer //not yet hooked up - need to properly reference in tilemap
+var map
+var layer
+var player
+var cursors
+var collisionLayer //not yet hooked up - need to properly reference in tilemap
 
 function create(){
 
@@ -33,7 +33,7 @@ function create(){
 
   layer = map.createLayer('Ground')
 
-  layer.resizeWorld()
+  // layer.resizeWorld()
 
   player = game.add.sprite(32, game.world.height - 150, 'zombie')
 

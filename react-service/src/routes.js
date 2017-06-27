@@ -3,6 +3,7 @@ import { Switch, BrowserRouter, Route } from 'react-router-dom';
 
 import App from './components/App.js';
 import Chat from './components/Chat.js';
+import Game from './components/Game.js'
 import User from './components/User.js';
 
 
