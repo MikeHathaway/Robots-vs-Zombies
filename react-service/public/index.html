@@ -2,13 +2,22 @@
 <html lang="en">
    <head>
       <meta charset="UTF-8">
-      <title>Occupy Mars</title>
+      <title>Civilization Zombie</title>
+      <link rel="stylesheet" href="style.css">
+      <script defer src="https://cdn.jsdelivr.net/phaser/2.6.2/phaser.js"></script>
+      <script defer type="text/javascript" src="game/index.js"></script>
+
    </head>
    <body>
-      <h1>Go Interplanetary</h1>
-      <div id="root"></div>
-      <script type="text/javascript" src="porthole.min.js"></script>
-      <!-- <script src="//cdn.jsdelivr.net/phaser/2.6.2/phaser.js"></script> -->
-      <script src="build/bundle.js"></script>
+      <h1>Rebuild Civilization</h1>
+
+      <div class="container">
+        <div id="game-container"></div>
+
+        <!-- React Components -->
+        <div id="root"></div>
+        <script src="build/bundle.js"></script>
+      </div>
+
    </body>
 </html>

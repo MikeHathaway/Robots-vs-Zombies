@@ -38,24 +38,36 @@ class Chat extends Component {
     const { users, messages } = this.props;
 
     return <main className="flex flex-column">
-      <header className="title-bar flex flex-row flex-center"></header>
-
-      <header className="flex flex-row flex-center">
-        <h4 className="font-300 text-center">
-          <span className="font-600 online-count">{users.length}</span> users
-        </h4>
+      <header className="title-bar flex flex-row flex-center">
+        <div className="title-wrapper block center-element">
+          <img className="logo" src="http://feathersjs.com/img/feathers-logo-wide.png"
+            alt="Feathers Logo" />
+          <span className="title">Chat</span>
+        </div>
       </header>
 
-      {users.map(user => <li key={user._id}>
-        <a className="block relative" href="#">
-          <img src={user.avatar} alt={user.email} className="avatar" />
-          <span className="absolute username">{user.email}</span>
-        </a>
-      </li>)}
+      <div className="flex flex-row flex-1 clear">
+        <aside className="sidebar col col-3 flex flex-column flex-space-between">
+          <header className="flex flex-row flex-center">
+            <h4 className="font-300 text-center">
+              <span className="font-600 online-count">{users.length}</span> users
+            </h4>
+          </header>
 
-      <a href="#" onClick={() => client.logout()} className="button button-primary">
-        Sign Out
-      </a>
+          <ul className="flex flex-column flex-1 list-unstyled user-list">
+            {users.map(user => <li key={user._id}>
+              <a className="block relative" href="#">
+                <img src={user.avatar} alt={user.email} className="avatar" />
+                <span className="absolute username">{user.email}</span>
+              </a>
+            </li>)}
+          </ul>
+          <footer className="flex flex-row flex-center">
+            <a href="#" onClick={() => client.logout()} className="button button-primary">
+              Sign Out
+            </a>
+          </footer>
+        </aside>
 
         <div className="flex flex-column col col-9">
           <main className="chat flex flex-column flex-1 clear" ref={main => { this.chat = main; }}>
@@ -76,7 +88,7 @@ class Chat extends Component {
             <button className="button-primary" type="submit">Send</button>
           </form>
         </div>
-        
+      </div>
     </main>;
   }
 }
