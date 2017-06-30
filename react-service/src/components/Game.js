@@ -1,12 +1,11 @@
 import React, { Component } from 'react';
-import moment from 'moment';
-import game from '../game.js'
+import Iframe from 'react-iframe'
 
 class Game extends Component {
   render() {
     return(
       <div>
-        <game/>
+        <Iframe url="http://localhost:9000" />
       </div>
     )
   }

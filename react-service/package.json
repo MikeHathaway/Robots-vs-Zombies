@@ -25,6 +25,7 @@
     "react": "^15.6.1",
     "react-bootstrap": "^0.31.0",
     "react-dom": "^15.6.1",
+    "react-iframe": "^1.0.7",
     "react-router-dom": "^4.1.1",
     "socket.io-client": "^2.0.3",
     "style-loader": "^0.18.2",

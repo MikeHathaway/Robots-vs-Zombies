@@ -1,7 +1,7 @@
 const feathers = require('feathers')
 const path = require('path')
 const configuration = require('feathers-configuration')
-const port = process.env.PORT || 3000
+const port = process.env.PORT || 9000
 
 const app = feathers()
 

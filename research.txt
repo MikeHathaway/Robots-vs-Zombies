@@ -37,3 +37,9 @@ ElasticSearch for db solution
 
 Guide to working with cellular automata
   http://cell-auto.com
+
+https://atendesigngroup.com/blog/redux-outside-react
+
+
+porthole.js to supply a game i frame within the react ui
+https://jakearchibald.com/2016/fun-hacks-faster-content/
