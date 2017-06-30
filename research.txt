@@ -38,8 +38,8 @@ ElasticSearch for db solution
 Guide to working with cellular automata
   http://cell-auto.com
 
-https://atendesigngroup.com/blog/redux-outside-react
+Phaser Quest Tutorials
+https://github.com/Jerenaux/phaserquest
 
-
-porthole.js to supply a game i frame within the react ui
-https://jakearchibald.com/2016/fun-hacks-faster-content/
+https://phaser.io/news/2017/04/interest-management-for-mmos
+https://phaser.io/news/2017/04/clients-synchronization-tutorial

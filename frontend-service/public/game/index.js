@@ -20,6 +20,22 @@ current topdown tutorial
       render: render
   })
 
+  const bullet = function(game, key){
+    Phaser.Sprite.call(this, game, 0, 0, key)
+
+    this.texture.baseTexture.scaleMode = PIXI.scaleModes.NEAREST;
+
+    this.anchor.set(0.5);
+
+    this.checkWorldBounds = true;
+    this.outOfBoundsKill = true;
+    this.exists = false;
+
+    this.tracking = false;
+    this.scaleSpeed = 0;
+  }
+
+
   function preload(){
     game.load.tilemap('desert', './game/assets/tilemaps/desert.json', null, Phaser.Tilemap.TILED_JSON)
     game.load.image('tiles', './game/assets/tilemaps/tmw_desert_spacing.png')
@@ -67,6 +83,8 @@ current topdown tutorial
 
 
     cursors = game.input.keyboard.createCursorKeys();
+    fireButton = this.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR);
+
 
   }
 
@@ -89,6 +107,11 @@ current topdown tutorial
     if (cursors.up.isDown)
     {
         player.body.velocity.copyFrom(game.physics.arcade.velocityFromAngle(player.angle, 300));
+    }
+
+    if (fireButton.isDown)
+    {
+      weapon.fire();
     }
 
   }
