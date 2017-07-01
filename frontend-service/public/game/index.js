@@ -28,7 +28,8 @@ current topdown tutorial
     game.load.tilemap('desert', './game/assets/tilemaps/desert.json', null, Phaser.Tilemap.TILED_JSON)
     game.load.image('tiles', './game/assets/tilemaps/tmw_desert_spacing.png')
     game.load.image('zombie', './game/assets/Zombie_Sprite.png')
-    game.load.image('bullet', './game/assets/blood_bullet.png');
+    game.load.image('bullet', './game/assets/singleBullet.png');
+    game.load.image('lazer', './game/assets/lazer.png');
     game.load.spritesheet('zombies', './game/assets/zombie_sheet.png', 32, 48)
   }
 
@@ -38,10 +39,22 @@ current topdown tutorial
   let player
   let cursors
   let firebutton
+  let changeKey
   let collisionLayer //not yet hooked up - need to properly reference in tilemap
 
   const weapons = []
   const players = []
+
+  function changeWeapon(player){
+    if(player.currentWeapon === 1){
+      player.currentWeapon = 0
+    }
+
+    if(player.currentWeapon === 0){
+      player.currentWeapon = 1
+    }
+
+  }
 
 
   function create(){
@@ -59,8 +72,10 @@ current topdown tutorial
 
     player = this.game.add.sprite(32, game.world.height - 150, 'zombie')
     player.weapons = weapons
+    player.currentWeapon = 0
 
     weapons.push(new Weapon.SingleBullet(this.game));
+    weapons.push(new Weapon.Beam(this.game));
 
     // next create the collision layer - this will abstract away all the areas that cant be moved over
     collisionLayer = map.createLayer('Collision');
@@ -81,8 +96,7 @@ current topdown tutorial
 
     cursors = game.input.keyboard.createCursorKeys();
     fireButton = this.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR);
-
-
+    changeKey = this.input.keyboard.addKey(Phaser.Keyboard.ENTER);
   }
 
   function update(){
@@ -92,26 +106,28 @@ current topdown tutorial
     player.body.velocity.y = 0;
     player.body.angularVelocity = 0;
 
-    if (cursors.left.isDown)
-    {
+    if (cursors.left.isDown){
         player.body.angularVelocity = -200;
     }
-    else if (cursors.right.isDown)
-    {
+    else if (cursors.right.isDown){
         player.body.angularVelocity = 200;
     }
 
-    if (cursors.up.isDown)
-    {
+    if (cursors.up.isDown){
         player.body.velocity.copyFrom(game.physics.arcade.velocityFromAngle(player.angle, 300));
     }
 
-    if (fireButton.isDown)
-    {
+    if (fireButton.isDown){
       console.log('pew pew pew')
       // weapon.fire()
-      player.weapons[0].fire(player);
+      player.weapons[player.currentWeapon].fire(player);
     }
+
+    if(changeKey.isDown){
+      changeWeapon(player)
+    }
+
+
 
   }
 
