@@ -37,19 +37,15 @@ class Chat extends Component {
   render() {
     const { users, messages } = this.props;
 
-    return <main className="flex flex-column">
+    return <main>
       <header className="title-bar flex flex-row flex-center"></header>
 
-      <header className="flex flex-row flex-center">
-        <h4 className="font-300 text-center">
-          <span className="font-600 online-count">{users.length}</span> users
-        </h4>
-      </header>
+        <h4><span>{users.length}</span> users</h4>
 
       {users.map(user => <li key={user._id}>
         <a className="block relative" href="#">
           <img src={user.avatar} alt={user.email} className="avatar" />
-          <span className="absolute username">{user.email}</span>
+          <span>{user.email}</span>
         </a>
       </li>)}
 
@@ -57,9 +53,9 @@ class Chat extends Component {
         Sign Out
       </a>
 
-        <div className="flex flex-column col col-9">
-          <main className="chat flex flex-column flex-1 clear" ref={main => { this.chat = main; }}>
-            {messages.map(message => <div key={message._id} className="message flex flex-row">
+        <div>
+          <main ref={main => { this.chat = main; }}>
+            {messages.map(message => <div key={message._id}>
               <img src={message.user.avatar} alt={message.user.email} className="avatar" />
               <div className="message-wrapper">
                 <p className="message-header">
@@ -76,7 +72,7 @@ class Chat extends Component {
             <button className="button-primary" type="submit">Send</button>
           </form>
         </div>
-        
+
     </main>;
   }
 }

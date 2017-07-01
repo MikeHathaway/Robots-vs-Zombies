@@ -43,3 +43,6 @@ https://github.com/Jerenaux/phaserquest
 
 https://phaser.io/news/2017/04/interest-management-for-mmos
 https://phaser.io/news/2017/04/clients-synchronization-tutorial
+
+Bullet pics
+https://opengameart.org/content/bullet-collection-2-m484-games

@@ -11,6 +11,8 @@ current topdown tutorial
    //secret to react integration may lie in container component patter: https://medium.com/@learnreact/container-components-c0e67432e005
    //https://github.com/Xesenix/game-webpack-react-phaser-scaffold/tree/master/src/js/game/states
 
+// import { Weapon } from "game/weapon"
+
 (function startGame(){
 
   const game = new Phaser.Game(1000, 800, Phaser.AUTO, 'game-container', {
@@ -20,26 +22,13 @@ current topdown tutorial
       render: render
   })
 
-  const bullet = function(game, key){
-    Phaser.Sprite.call(this, game, 0, 0, key)
-
-    this.texture.baseTexture.scaleMode = PIXI.scaleModes.NEAREST;
-
-    this.anchor.set(0.5);
-
-    this.checkWorldBounds = true;
-    this.outOfBoundsKill = true;
-    this.exists = false;
-
-    this.tracking = false;
-    this.scaleSpeed = 0;
-  }
-
-
   function preload(){
+    //game.load.crossOrigin = 'anonymous'
+
     game.load.tilemap('desert', './game/assets/tilemaps/desert.json', null, Phaser.Tilemap.TILED_JSON)
     game.load.image('tiles', './game/assets/tilemaps/tmw_desert_spacing.png')
     game.load.image('zombie', './game/assets/Zombie_Sprite.png')
+    game.load.image('bullet', './game/assets/blood_bullet.png');
     game.load.spritesheet('zombies', './game/assets/zombie_sheet.png', 32, 48)
   }
 
@@ -48,7 +37,12 @@ current topdown tutorial
   let layer
   let player
   let cursors
+  let firebutton
   let collisionLayer //not yet hooked up - need to properly reference in tilemap
+
+  const weapons = []
+  const players = []
+
 
   function create(){
 
@@ -64,6 +58,9 @@ current topdown tutorial
     layer.resizeWorld()
 
     player = this.game.add.sprite(32, game.world.height - 150, 'zombie')
+    player.weapons = weapons
+
+    weapons.push(new Weapon.SingleBullet(this.game));
 
     // next create the collision layer - this will abstract away all the areas that cant be moved over
     collisionLayer = map.createLayer('Collision');
@@ -111,7 +108,9 @@ current topdown tutorial
 
     if (fireButton.isDown)
     {
-      weapon.fire();
+      console.log('pew pew pew')
+      // weapon.fire()
+      player.weapons[0].fire(player);
     }
 
   }

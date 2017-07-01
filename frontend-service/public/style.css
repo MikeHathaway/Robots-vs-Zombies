@@ -1,10 +1,21 @@
 .container {
   display: flex;
   flex-direction: row;
+  justify-content: space-between;
   align-items: center;
+  width: 100%;
 }
 
 #game-container {
+  display: flex;
   position: auto;
-  left: 5%;
+  width: 70%;
+}
+
+#chat-container {
+  display: flex;
+  position: auto;
+  width: 30%;
+  height: 500px;
+  flex-shrink: 1;
 }
