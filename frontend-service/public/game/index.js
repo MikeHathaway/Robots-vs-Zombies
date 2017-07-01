@@ -11,6 +11,9 @@ current topdown tutorial
    //secret to react integration may lie in container component patter: https://medium.com/@learnreact/container-components-c0e67432e005
    //https://github.com/Xesenix/game-webpack-react-phaser-scaffold/tree/master/src/js/game/states
 
+//Use for strategic view and or capital tactical traversal
+  //https://opengameart.org/content/colony-sim-assets
+
 // import { Weapon } from "game/weapon"
 
 (function startGame(){
@@ -28,6 +31,7 @@ current topdown tutorial
     game.load.tilemap('desert', './game/assets/tilemaps/desert.json', null, Phaser.Tilemap.TILED_JSON)
     game.load.image('tiles', './game/assets/tilemaps/tmw_desert_spacing.png')
     game.load.image('zombie', './game/assets/Zombie_Sprite.png')
+    game.load.image('human', './game/assets/dude.png')
     game.load.image('bullet', './game/assets/singleBullet.png');
     game.load.image('lazer', './game/assets/lazer.png');
     game.load.spritesheet('zombies', './game/assets/zombie_sheet.png', 32, 48)
@@ -44,14 +48,15 @@ current topdown tutorial
 
   const weapons = []
   const players = []
+  const enemies = []
 
   function changeWeapon(player){
     if(player.currentWeapon === 1){
-      player.currentWeapon = 0
+      return player.currentWeapon = 0
     }
 
     if(player.currentWeapon === 0){
-      player.currentWeapon = 1
+      return player.currentWeapon = 1
     }
 
   }
@@ -70,12 +75,15 @@ current topdown tutorial
 
     layer.resizeWorld()
 
-    player = this.game.add.sprite(32, game.world.height - 150, 'zombie')
+    player = this.game.add.sprite(32, game.world.height - 150, 'human')
     player.weapons = weapons
     player.currentWeapon = 0
 
     weapons.push(new Weapon.SingleBullet(this.game));
     weapons.push(new Weapon.Beam(this.game));
+
+    enemies.push(new Enemy(this.game,player.x,player.y))
+
 
     // next create the collision layer - this will abstract away all the areas that cant be moved over
     collisionLayer = map.createLayer('Collision');
@@ -101,7 +109,7 @@ current topdown tutorial
 
   function update(){
 
-    //game.physics.arcade.collide(this.player, this.collisionLayer);
+    // game.physics.arcade.collide(this.player, this.collisionLayer);
     player.body.velocity.x = 0;
     player.body.velocity.y = 0;
     player.body.angularVelocity = 0;
@@ -118,16 +126,12 @@ current topdown tutorial
     }
 
     if (fireButton.isDown){
-      console.log('pew pew pew')
-      // weapon.fire()
       player.weapons[player.currentWeapon].fire(player);
     }
 
     if(changeKey.isDown){
       changeWeapon(player)
     }
-
-
 
   }
 
