@@ -19,7 +19,10 @@ current topdown tutorial
 
 (function startGame(){
 
-  const game = new Phaser.Game(1000, 800, Phaser.AUTO, 'game-container', {
+  const gameWidth = 1000
+  const gameHeight = 800
+
+  const game = new Phaser.Game(gameWidth, gameHeight, Phaser.AUTO, 'game-container', {
       preload: preload,
       create: create,
       update: update,
@@ -83,7 +86,7 @@ current topdown tutorial
     weapons.push(new Weapon.SingleBullet(this.game));
     weapons.push(new Weapon.Beam(this.game));
 
-    enemies.push(new Enemy(this.game,player.x,player.y))
+    enemies.push(new Enemy(this.game,gameWidth,gameHeight))
 
 
     // next create the collision layer - this will abstract away all the areas that cant be moved over
@@ -111,8 +114,8 @@ current topdown tutorial
   function update(){
 
     // game.physics.arcade.collide(this.player, this.collisionLayer);
-    player.body.velocity.x = 2;
-    player.body.velocity.y = 2;
+    player.body.velocity.x = 10;
+    player.body.velocity.y = 10;
     // player.body.angularVelocity = 0;
 
     if (cursors.left.isDown){
