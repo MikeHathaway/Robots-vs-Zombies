@@ -1,3 +1,4 @@
+
 /*
 current topdown tutorial
   https://www.programmingmind.com/phaser/topdown-layers-moving-and-collision
@@ -110,19 +111,24 @@ current topdown tutorial
   function update(){
 
     // game.physics.arcade.collide(this.player, this.collisionLayer);
-    player.body.velocity.x = 0;
-    player.body.velocity.y = 0;
-    player.body.angularVelocity = 0;
+    player.body.velocity.x = 2;
+    player.body.velocity.y = 2;
+    // player.body.angularVelocity = 0;
 
     if (cursors.left.isDown){
-        player.body.angularVelocity = -200;
+
+      player.body.x -= player.body.velocity.x
     }
     else if (cursors.right.isDown){
-        player.body.angularVelocity = 200;
+      player.body.x += player.body.velocity.x
     }
 
     if (cursors.up.isDown){
-        player.body.velocity.copyFrom(game.physics.arcade.velocityFromAngle(player.angle, 300));
+      player.body.y -= player.body.velocity.y
+    }
+
+    if (cursors.down.isDown){
+      player.body.y += player.body.velocity.y
     }
 
     if (fireButton.isDown){
