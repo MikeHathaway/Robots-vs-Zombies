@@ -9,11 +9,11 @@ current topdown tutorial
    //https://opengameart.org/content/trees-bushes
    //^source of free png for generating tilemaps
 
-   //secret to react integration may lie in container component patter: https://medium.com/@learnreact/container-components-c0e67432e005
-   //https://github.com/Xesenix/game-webpack-react-phaser-scaffold/tree/master/src/js/game/states
-
 //Use for strategic view and or capital tactical traversal
   //https://opengameart.org/content/colony-sim-assets
+
+//weapon enemy collisions
+//http://www.html5gamedevs.com/topic/27245-require-help-with-collision-between-weapon-and-enemy-group/
 
 // import { Weapon } from "game/weapon"
 
@@ -33,10 +33,10 @@ current topdown tutorial
     //game.load.crossOrigin = 'anonymous'
 
     // game.load.tilemap('desert', './game/assets/tilemaps/desert.json', null, Phaser.Tilemap.TILED_JSON)
-    // game.load.image('tiles', './game/assets/tilemaps/tmw_desert_spacing.png')
 
     game.load.tilemap('forest', './game/assets/tilemaps/forest.json', null, Phaser.Tilemap.TILED_JSON)
     game.load.image('forestTiles', './game/assets/tilemaps/trees-and-bushes.png')
+    game.load.image('tiles', './game/assets/tilemaps/tmw_desert_spacing.png')
 
     game.load.image('zombie', './game/assets/Zombie_Sprite.png')
     game.load.image('human', './game/assets/dude.png')
@@ -52,7 +52,7 @@ current topdown tutorial
   let cursors
   let firebutton
   let changeKey
-  let collisionLayer //not yet hooked up - need to properly reference in tilemap
+  let collisionLayer
 
   const weapons = []
   const players = []
@@ -72,7 +72,8 @@ current topdown tutorial
   }
 
   function addZombie(){
-    return enemies.push(new Enemy(game,gameWidth,gameHeight))
+    return enemies.push(Enemy.prototype.addEnemy(game,gameWidth,gameHeight))
+    // return enemies.push(new Enemy(game,gameWidth,gameHeight))
   }
 
 
@@ -91,20 +92,19 @@ current topdown tutorial
 
     /* old desert map */
     // map = game.add.tilemap('desert')
-    // map.addTilesetImage('Desert', 'tiles')
     // layer = map.createLayer('Ground')
     // layer.resizeWorld()
 
 
     /* new forest test map */
     map = game.add.tilemap('forest')
-    // map.addTilesetImage('Forest', 'forestTiles')
+    map.addTilesetImage('forestTiles', 'forestTiles')
+    map.addTilesetImage('tmw_desert_spacing', 'tiles')
 
     layer = map.createLayer('MapLayer')
 
     collisionLayer = map.createLayer('CollisionLayer');
     collisionLayer.visible = false;
-
     map.setCollisionByExclusion([], true, collisionLayer);
 
     layer.resizeWorld()
@@ -112,7 +112,7 @@ current topdown tutorial
 
 
 
-    player = this.game.add.sprite(32, game.world.height / 2, 'human')
+    player = this.game.add.sprite(32, game.world.height / 2, 'zombie')
     player.weapons = weapons
     player.currentWeapon = 0
 
@@ -135,13 +135,17 @@ current topdown tutorial
 
   function update(){
 
-    // game.physics.arcade.collide(this.player, this.collisionLayer);
+    game.physics.arcade.collide(player, collisionLayer);
+
+    /* Collide weaponry with enemies */
+    game.physics.arcade.overlap(player.weapons[player.currentWeapon], enemies[0], Enemy.hitEnemy, null, this);
+
+
     player.body.velocity.x = 10;
     player.body.velocity.y = 10;
     // player.body.angularVelocity = 0;
 
     if (cursors.left.isDown){
-
       player.body.x -= player.body.velocity.x
     }
     if (cursors.right.isDown){
