@@ -32,8 +32,12 @@ current topdown tutorial
   function preload(){
     //game.load.crossOrigin = 'anonymous'
 
-    game.load.tilemap('desert', './game/assets/tilemaps/desert.json', null, Phaser.Tilemap.TILED_JSON)
-    game.load.image('tiles', './game/assets/tilemaps/tmw_desert_spacing.png')
+    // game.load.tilemap('desert', './game/assets/tilemaps/desert.json', null, Phaser.Tilemap.TILED_JSON)
+    // game.load.image('tiles', './game/assets/tilemaps/tmw_desert_spacing.png')
+
+    game.load.tilemap('forest', './game/assets/tilemaps/forest.json', null, Phaser.Tilemap.TILED_JSON)
+    game.load.image('forestTiles', './game/assets/tilemaps/trees-and-bushes.png')
+
     game.load.image('zombie', './game/assets/Zombie_Sprite.png')
     game.load.image('human', './game/assets/dude.png')
     game.load.image('bullet', './game/assets/singleBullet.png');
@@ -85,14 +89,28 @@ current topdown tutorial
 
     game.physics.startSystem(Phaser.Physics.ARCADE)
 
-    map = game.add.tilemap('desert')
+    /* old desert map */
+    // map = game.add.tilemap('desert')
+    // map.addTilesetImage('Desert', 'tiles')
+    // layer = map.createLayer('Ground')
+    // layer.resizeWorld()
 
 
-    map.addTilesetImage('Desert', 'tiles')
+    /* new forest test map */
+    map = game.add.tilemap('forest')
+    // map.addTilesetImage('Forest', 'forestTiles')
 
-    layer = map.createLayer('Ground')
+    layer = map.createLayer('MapLayer')
+
+    collisionLayer = map.createLayer('CollisionLayer');
+    collisionLayer.visible = false;
+
+    map.setCollisionByExclusion([], true, collisionLayer);
 
     layer.resizeWorld()
+
+
+
 
     player = this.game.add.sprite(32, game.world.height / 2, 'human')
     player.weapons = weapons
@@ -100,17 +118,6 @@ current topdown tutorial
 
     weapons.push(new Weapon.SingleBullet(this.game));
     weapons.push(new Weapon.Beam(this.game));
-
-
-    // next create the collision layer - this will abstract away all the areas that cant be moved over
-    collisionLayer = map.createLayer('Collision');
-
-    // collisionLayer.visible = false;
-
-    // inform phaser that our collision layer is our collision tiles
-    // in our case, since we separated out the collision tiles into its own layer
-    // we pass an empty array and passing in true to enable collision
-    map.setCollisionByExclusion([], true, collisionLayer);
 
 
     //  We need to enable physics on the player

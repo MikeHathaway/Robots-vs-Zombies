@@ -12,16 +12,13 @@
 *  MongoDB
 *  Docker
 *  AWS ECS
-*  synaptics.js
-
+*  synaptic.js
 
 ## Deployment
 
-Get Docker Running
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
+```
+sudo docker-compose up
+```  
 
 ## Author
 
@@ -30,5 +27,7 @@ Mike Hathaway
 ## Acknowledgments
 
 * Hat tip to anyone who's code was used
-* Inspiration
-* etc
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
