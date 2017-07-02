@@ -1,0 +1,1 @@
+neural net that reacted to a zero player (cellular automata) game outside its control

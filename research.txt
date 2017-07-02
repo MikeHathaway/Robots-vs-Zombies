@@ -3,9 +3,6 @@ https://github.com/feathersjs/feathers-chat-react
 Good article on architecting fullstack react app
 https://www.fullstackreact.com/articles/using-create-react-app-with-a-server/
 
-Add this to package.json of react client:
-  "proxy": "http://localhost:3001/",
-
 Performance optimization for loading images when not used
   https://github.com/loktar00/react-lazy-load
 
@@ -32,8 +29,6 @@ Rethinkdb designed for realtime, but its slow
   https://github.com/feathersjs/feathers-rethinkdb
   https://www.rethinkdb.com/
 
-ElasticSearch for db solution
-  -super fast?
 
 Guide to working with cellular automata
   http://cell-auto.com

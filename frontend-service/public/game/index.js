@@ -56,11 +56,13 @@ current topdown tutorial
 
   function changeWeapon(player){
     if(player.currentWeapon === 1){
-      return player.currentWeapon = 0
+      player.currentWeapon = 0
+      return this
     }
 
     if(player.currentWeapon === 0){
-      return player.currentWeapon = 1
+      player.currentWeapon = 1
+      return this
     }
 
   }
