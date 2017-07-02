@@ -1,7 +1,5 @@
 const Enemy = function(game,gameWidth,gameHeight){
-
   game.add.sprite(genRandomNum(gameWidth),genRandomNum(gameHeight),'zombie')
-
 }
 
 

@@ -135,7 +135,7 @@ current topdown tutorial
 
       player.body.x -= player.body.velocity.x
     }
-    else if (cursors.right.isDown){
+    if (cursors.right.isDown){
       player.body.x += player.body.velocity.x
     }
 

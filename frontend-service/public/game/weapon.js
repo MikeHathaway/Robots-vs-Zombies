@@ -34,8 +34,7 @@ Weapon.Beam = function (game) {
       this.nextFire = 0;
       this.bulletSpeed = 1000;
       this.fireRate = 45;
-      for (var i = 0; i < 64; i++)
-      {
+      for (var i = 0; i < 64; i++){
           this.add(new Bullet(game, 'lazer'), true);
       }
       return this;
