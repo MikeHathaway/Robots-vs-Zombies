@@ -65,6 +65,19 @@ current topdown tutorial
 
   }
 
+  function addZombie(){
+    return enemies.push(new Enemy(game,gameWidth,gameHeight))
+  }
+
+
+  function handleError(err){
+    return console.error(err)
+  }
+
+  const source = Rx.Observable.interval(1000 /* ms */).timeInterval().take(5);
+  const subscription = source.subscribe(addZombie,handleError)
+
+
 
   function create(){
 
@@ -79,14 +92,12 @@ current topdown tutorial
 
     layer.resizeWorld()
 
-    player = this.game.add.sprite(32, game.world.height - 150, 'human')
+    player = this.game.add.sprite(32, game.world.height / 2, 'human')
     player.weapons = weapons
     player.currentWeapon = 0
 
     weapons.push(new Weapon.SingleBullet(this.game));
     weapons.push(new Weapon.Beam(this.game));
-
-    enemies.push(new Enemy(this.game,gameWidth,gameHeight))
 
 
     // next create the collision layer - this will abstract away all the areas that cant be moved over
@@ -110,6 +121,8 @@ current topdown tutorial
     fireButton = this.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR);
     changeKey = this.input.keyboard.addKey(Phaser.Keyboard.ENTER);
   }
+
+
 
   function update(){
 
@@ -141,6 +154,7 @@ current topdown tutorial
     if(changeKey.isDown){
       changeWeapon(player)
     }
+
 
   }
 
