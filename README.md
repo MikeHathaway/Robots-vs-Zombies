@@ -1,7 +1,7 @@
 
 # Rebuild Civilization. Overcome the Zombies.
 
-##Realtime persistent MMORTS
+[Realtime persistent MMORTS](https://github.com/MikeHathaway/occupy-mars)
 
 ### Realtime Infrastructure
 
