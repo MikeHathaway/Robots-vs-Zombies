@@ -55,6 +55,7 @@ current topdown tutorial
   let changeKey
   let collisionLayer
   let enemies
+  let bullets
 
   const weapons = []
   const players = []
@@ -116,6 +117,20 @@ current topdown tutorial
     // const subscription = source.subscribe(addZombie,handleError)
   }
 
+  function addBullets(){
+    // Bullets group
+    bullets = game.add.group();
+    bullets.enableBody = true;
+    bullets.physicsBodyType = Phaser.Physics.ARCADE;
+    bullets.createMultiple(30, 'bullet');
+    bullets.setAll('anchor.x', 0.5);
+    bullets.setAll('anchor.y', 4);
+    bullets.setAll('outOfBoundsKill', true);
+    bullets.setAll('checkWorldBounds', true);
+  }
+
+
+
 
   function addPlayer(){
     player = game.add.sprite(32, game.world.height / 2, 'zombie')
@@ -141,8 +156,10 @@ current topdown tutorial
 
     addMap()
     addEnemies()
-
     addPlayer()
+
+    //Experimental
+    addBullets()
 
     cursors = game.input.keyboard.createCursorKeys();
     fireButton = game.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR);
@@ -155,7 +172,9 @@ current topdown tutorial
     game.physics.arcade.collide(player, collisionLayer);
 
     /* Collide weaponry with enemies */
-    game.physics.arcade.overlap(player.weapons[player.currentWeapon].children, enemies, Enemy.hitEnemy, null, this);
+
+      //layer.weapons[player.currentWeapon].children -> equivalent to bullets
+    game.physics.arcade.overlap(bullets, enemies, this.hitEnemy, null, this);
 
     // console.log(enemies)
 
