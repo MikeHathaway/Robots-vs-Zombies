@@ -53,11 +53,11 @@ current topdown tutorial
   let firebutton
   let changeKey
   let collisionLayer
+  let enemies
 
   const weapons = []
   const players = []
   // const enemies = []
-  const enemies = game.add.group()
 
   function changeWeapon(player){
     if(player.currentWeapon === 1){
@@ -73,9 +73,7 @@ current topdown tutorial
   }
 
   function addZombie(){
-    // return enemies.push(Enemy.prototype.addEnemy(game,gameWidth,gameHeight))
-    return enemies.add(new Enemy())
-    // return enemies.push(new Enemy(game,gameWidth,gameHeight,'zombie'))
+    return enemies.add(new Enemy(game,gameWidth,gameHeight,'zombie')).spawnEnemy(game,gameWidth,gameHeight)
   }
 
 
@@ -87,8 +85,10 @@ current topdown tutorial
   const subscription = source.subscribe(addZombie,handleError)
 
 
-
   function create(){
+
+    enemies = game.add.group()
+
 
     game.physics.startSystem(Phaser.Physics.ARCADE)
 
@@ -139,8 +139,6 @@ current topdown tutorial
   }
 
   function update(){
-
-    checkExistence(enemies)
 
     game.physics.arcade.collide(player, collisionLayer);
 

@@ -15,40 +15,19 @@ class Enemy extends Phaser.Sprite{
   }
 
   hitEnemy(player, enemy){
-
+    enemy.kill();
+    console.log("Hit");
   }
 
-  spawnEnemy(x,y,type){
+  spawnEnemy(game,x,y){
     game.add.sprite(genRandomNum(x),genRandomNum(y),'zombie')
   }
 
   move(){
-    
+
   }
 }
 
-// const Enemy = {}
-//
-// Enemy.prototype = Object.create(Phaser.Sprite.prototype);
-//
-// Enemy.prototype.addEnemy = function(game,gameWidth,gameHeight){
-//
-// }
-//
-// Enemy.prototype.constructor = Enemy;
-//
-// /* Enemy class physics  */
-// Enemy.enableBody = true;
-// Enemy.physicsBodyType = Phaser.Physics.ARCADE;
-//
-// Enemy.prototype.move = function(){}
-//
-// Enemy.prototype.hitEnemy = function(player, enemy){
-//   enemy.kill();
-//   console.log("Hit");
-// }
-//
-//
 function genRandomNum(factor){
   return Math.floor(factor * Math.random())
 }
