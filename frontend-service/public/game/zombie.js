@@ -26,14 +26,12 @@ class Enemy extends Phaser.Sprite{
   }
 
   move(){
-
+    this.x = genRandomNum(this.speed)
+    this.y = genRandomNum(this.speed)
   }
 
   update(){
     this.game.physics.arcade.collide(this, this.game.collisionLayer);
-    this.x = genRandomNum(this.speed)
-    this.y = genRandomNum(this.speed)
-
 
     // if (this.body.blocked.right) {
     //   this.scale.x = -1;

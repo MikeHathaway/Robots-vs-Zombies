@@ -60,8 +60,6 @@ current topdown tutorial
   const players = []
 
 
-
-
   /* ----- Helper Functions ----- */
   function changeWeapon(player){
     if(player.currentWeapon === 1){
@@ -95,6 +93,8 @@ current topdown tutorial
     layer.resizeWorld()
   }
 
+
+
   function addEnemies(){
     enemies = game.add.group()
 
@@ -108,14 +108,31 @@ current topdown tutorial
 
     addZombie()
 
+    // function handleError(err){
+    //   return console.error(err)
+    // }
+    //
+    // const source = Rx.Observable.interval(1000 /* ms */).timeInterval().take(5);
+    // const subscription = source.subscribe(addZombie,handleError)
   }
 
-  // function handleError(err){
-  //   return console.error(err)
-  // }
-  //
-  // const source = Rx.Observable.interval(1000 /* ms */).timeInterval().take(5);
-  // const subscription = source.subscribe(addZombie,handleError)
+
+  function addPlayer(){
+    player = game.add.sprite(32, game.world.height / 2, 'zombie')
+    player.weapons = weapons
+    player.currentWeapon = 0
+
+    // Add Weapons to player
+    weapons.push(new Weapon.SingleBullet(game));
+    weapons.push(new Weapon.Beam(game));
+
+    //  We need to enable physics on the player
+    game.physics.arcade.enable(player)
+
+    game.camera.follow(player)
+  }
+
+
 
 
   function create(){
@@ -125,36 +142,20 @@ current topdown tutorial
     addMap()
     addEnemies()
 
-    player = this.game.add.sprite(32, game.world.height / 2, 'zombie')
-    player.weapons = weapons
-    player.currentWeapon = 0
-
-    weapons.push(new Weapon.SingleBullet(this.game));
-    weapons.push(new Weapon.Beam(this.game));
-
-
-    //  We need to enable physics on the player
-    game.physics.arcade.enable(player)
-
-    game.camera.follow(player)
-
+    addPlayer()
 
     cursors = game.input.keyboard.createCursorKeys();
-    fireButton = this.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR);
-    changeKey = this.input.keyboard.addKey(Phaser.Keyboard.ENTER);
+    fireButton = game.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR);
+    changeKey = game.input.keyboard.addKey(Phaser.Keyboard.ENTER);
   }
 
-  function checkExistence(enemies){
-    if(enemies.length) console.log(enemies[0].x,enemies[0].y)
-    console.log(enemies.length)
-  }
 
   function update(){
 
     game.physics.arcade.collide(player, collisionLayer);
 
     /* Collide weaponry with enemies */
-    game.physics.arcade.overlap(player.weapons[player.currentWeapon], enemies[0], Enemy.hitEnemy, null, this);
+    game.physics.arcade.overlap(player.weapons[player.currentWeapon].children, enemies, Enemy.hitEnemy, null, this);
 
     // console.log(enemies)
 
