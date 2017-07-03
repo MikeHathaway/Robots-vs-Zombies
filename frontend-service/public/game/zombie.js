@@ -9,8 +9,10 @@ class Enemy extends Phaser.Sprite{
     super(game,0,0,'zombie')
     this.x = genRandomNum(x)
     this.y = genRandomNum(y)
+    this.speed = 2
     this.type = type
     this.enableBody = true
+    // this.body.allowGravity = false
     this.physicsBodyType = Phaser.Physics.ARCADE
   }
 
@@ -25,6 +27,21 @@ class Enemy extends Phaser.Sprite{
 
   move(){
 
+  }
+
+  update(){
+    this.game.physics.arcade.collide(this, this.game.collisionLayer);
+    this.x = genRandomNum(this.speed)
+    this.y = genRandomNum(this.speed)
+
+
+    // if (this.body.blocked.right) {
+    //   this.scale.x = -1;
+    //   this.body.x = genRandomNum(this.speed)
+    // } else if (this.body.blocked.left) {
+    //   this.scale.x = 1;
+    //   this.body.velocity.x = genRandomNum(this.speed)
+    // }
   }
 }
 

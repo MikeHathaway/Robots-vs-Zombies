@@ -46,6 +46,7 @@ current topdown tutorial
   }
 
 
+  /* ----- Declares global variables ----- */
   let map
   let layer
   let player
@@ -57,8 +58,11 @@ current topdown tutorial
 
   const weapons = []
   const players = []
-  // const enemies = []
 
+
+
+
+  /* ----- Helper Functions ----- */
   function changeWeapon(player){
     if(player.currentWeapon === 1){
       player.currentWeapon = 0
@@ -69,34 +73,13 @@ current topdown tutorial
       player.currentWeapon = 1
       return this
     }
-
   }
 
-  function addZombie(){
-    return enemies.add(new Enemy(game,gameWidth,gameHeight,'zombie')).spawnEnemy(game,gameWidth,gameHeight)
-  }
-
-
-  function handleError(err){
-    return console.error(err)
-  }
-
-  const source = Rx.Observable.interval(1000 /* ms */).timeInterval().take(5);
-  const subscription = source.subscribe(addZombie,handleError)
-
-
-  function create(){
-
-    enemies = game.add.group()
-
-
-    game.physics.startSystem(Phaser.Physics.ARCADE)
-
+  function addMap(){
     /* old desert map */
     // map = game.add.tilemap('desert')
     // layer = map.createLayer('Ground')
     // layer.resizeWorld()
-
 
     /* new forest test map */
     map = game.add.tilemap('forest')
@@ -110,9 +93,37 @@ current topdown tutorial
     map.setCollisionByExclusion([], true, collisionLayer);
 
     layer.resizeWorld()
+  }
+
+  function addEnemies(){
+    enemies = game.add.group()
+
+    /* ----- Generate Zombies FRP ----- */
+    function addZombie(number = 5){
+      let i = 0
+      while(i++ < number){
+        enemies.add(new Enemy(game,gameWidth,gameHeight,'zombie')).spawnEnemy(game,gameWidth,gameHeight)
+      }
+    }
+
+    addZombie()
+
+  }
+
+  // function handleError(err){
+  //   return console.error(err)
+  // }
+  //
+  // const source = Rx.Observable.interval(1000 /* ms */).timeInterval().take(5);
+  // const subscription = source.subscribe(addZombie,handleError)
 
 
+  function create(){
 
+    game.physics.startSystem(Phaser.Physics.ARCADE)
+
+    addMap()
+    addEnemies()
 
     player = this.game.add.sprite(32, game.world.height / 2, 'zombie')
     player.weapons = weapons
@@ -145,6 +156,7 @@ current topdown tutorial
     /* Collide weaponry with enemies */
     game.physics.arcade.overlap(player.weapons[player.currentWeapon], enemies[0], Enemy.hitEnemy, null, this);
 
+    // console.log(enemies)
 
     player.body.velocity.x = 10;
     player.body.velocity.y = 10;
