@@ -56,7 +56,8 @@ current topdown tutorial
 
   const weapons = []
   const players = []
-  const enemies = []
+  // const enemies = []
+  const enemies = game.add.group()
 
   function changeWeapon(player){
     if(player.currentWeapon === 1){
@@ -72,8 +73,9 @@ current topdown tutorial
   }
 
   function addZombie(){
-    return enemies.push(Enemy.prototype.addEnemy(game,gameWidth,gameHeight))
-    // return enemies.push(new Enemy(game,gameWidth,gameHeight))
+    // return enemies.push(Enemy.prototype.addEnemy(game,gameWidth,gameHeight))
+    return enemies.add(new Enemy())
+    // return enemies.push(new Enemy(game,gameWidth,gameHeight,'zombie'))
   }
 
 
@@ -131,9 +133,14 @@ current topdown tutorial
     changeKey = this.input.keyboard.addKey(Phaser.Keyboard.ENTER);
   }
 
-
+  function checkExistence(enemies){
+    if(enemies.length) console.log(enemies[0].x,enemies[0].y)
+    console.log(enemies.length)
+  }
 
   function update(){
+
+    checkExistence(enemies)
 
     game.physics.arcade.collide(player, collisionLayer);
 
