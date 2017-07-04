@@ -16,11 +16,6 @@ class Enemy extends Phaser.Sprite{
     this.physicsBodyType = Phaser.Physics.ARCADE
   }
 
-  hitEnemy(player, enemy){
-    enemy.kill();
-    console.log("Hit");
-  }
-
   spawnEnemy(game,x,y){
     game.add.sprite(genRandomNum(x),genRandomNum(y),'zombie')
   }

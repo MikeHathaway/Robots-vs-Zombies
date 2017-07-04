@@ -4,6 +4,9 @@ class Bullet extends Phaser.Sprite{
     this.game = game
     this.type = type
 
+    this.enableBody = true
+    this.physicsBodyType = Phaser.Physics.ARCADE
+
     this.texture.baseTexture.scaleMode = PIXI.scaleModes.NEAREST
 
     this.anchor.set(0.5)
