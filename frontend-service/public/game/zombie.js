@@ -1,8 +1,6 @@
-// const Enemy = function(game,gameWidth,gameHeight){
-//   game.add.sprite(genRandomNum(gameWidth),genRandomNum(gameHeight),'zombie')
-// }
-
 //http://metroid.niklasberg.se/2016/02/12/phaser-making-and-using-a-generic-enemy-class-es6es2015/
+
+//https://phaser.io/examples/v2/games/tanks
 
 class Enemy extends Phaser.Sprite{
   constructor(game,x,y,type){
@@ -11,11 +9,8 @@ class Enemy extends Phaser.Sprite{
     this.y = genRandomNum(y)
     this.speed = 2
     this.type = type
+    this.health = 30
     game.physics.enable(this)
-
-    // this.enableBody = true
-    // this.body.allowGravity = false
-    // this.physicsBodyType = Phaser.Physics.ARCADE
   }
 
   spawnEnemy(game,x,y){
@@ -23,8 +18,16 @@ class Enemy extends Phaser.Sprite{
   }
 
   move(){
-    this.x = genRandomNum(this.speed)
-    this.y = genRandomNum(this.speed)
+    this.x += genMovement(this.speed)
+    this.y += genMovement(this.speed)
+  }
+
+  isAlive(){
+    if(this.health <= 0) this.kill()
+  }
+
+  takeDamage(damage){
+    this.health -= damage
   }
 
   update(){
@@ -42,4 +45,8 @@ class Enemy extends Phaser.Sprite{
 
 function genRandomNum(factor){
   return Math.floor(factor * Math.random())
+}
+
+function genMovement(factor){
+  return Math.floor(factor * (Math.round(Math.random()) * 2 - 1))
 }

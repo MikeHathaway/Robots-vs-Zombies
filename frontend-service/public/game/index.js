@@ -77,9 +77,9 @@
   }
 
 
-  function hitEnemy(player, enemy){
-    console.log('HMMMMM')
-    enemy.kill()
+  function hitEnemy(bullet, enemy){
+    enemy.takeDamage(bullet.parent.damage)
+    bullet.kill()
     console.log("Hit")
   }
 
@@ -89,9 +89,14 @@
     game.physics.arcade.collide(player, collisionLayer)
     game.physics.arcade.collide(enemies, collisionLayer)
 
+    /* Collide weaponry with enemies */
     game.physics.arcade.overlap(player.weapons, enemies, hitEnemy, null, this)
 
-    /* Collide weaponry with enemies */
+    enemies.children.forEach(enemy => {
+        enemy.isAlive()
+        enemy.move()
+    })
+
 
     if (cursors.left.isDown){
       player.body.x -= player.body.velocity.x
@@ -109,7 +114,6 @@
     }
 
     if (fireButton.isDown){
-      // player.weapons[player.currentWeapon].fire(player)
       player.weapons.children[player.currentWeapon].fire(player)
     }
 
@@ -185,14 +189,6 @@
   function addPlayer(){
     player = game.add.sprite(32, game.world.height / 2, 'zombie')
 
-    const bulletGun = new SingleBullet(game,'bullet')
-    const lazerGun = new LazerBeam(game,'lazer')
-
-    // weapons.push(bulletGun,lazerGun)
-    //
-    // player.weapons = weapons
-    // player.currentWeapon = 0
-
     weapons = game.add.group()
     weapons.add(new SingleBullet(game,'bullet'))
     weapons.add(new LazerBeam(game,'lazer'))
@@ -204,10 +200,6 @@
 
     player.body.velocity.x = 10
     player.body.velocity.y = 10
-    // player.body.angularVelocity = 0
-
-    // player.enableBody = true
-    // player.physicsBodyType = Phaser.Physics.ARCADE
 
 
     game.camera.follow(player)
