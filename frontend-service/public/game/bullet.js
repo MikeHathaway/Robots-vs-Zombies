@@ -1,11 +1,12 @@
+// class Bullet extends Phaser.Sprite{
+
 class Bullet extends Phaser.Sprite{
   constructor(game,type){
     super(game,0,0,type)
     this.game = game
     this.type = type
 
-    this.enableBody = true
-    this.physicsBodyType = Phaser.Physics.ARCADE
+    game.physics.enable(this) //defaults to arcade
 
     this.texture.baseTexture.scaleMode = PIXI.scaleModes.NEAREST
 
@@ -24,6 +25,7 @@ class Bullet extends Phaser.Sprite{
     gy = gy || 0
     this.reset(x, y)
     this.scale.set(1)
+    console.log('firing',this,this.body)
     this.game.physics.arcade.velocityFromAngle(angle, speed, this.body.velocity)
     this.angle = angle
     this.body.gravity.set(gx, gy)

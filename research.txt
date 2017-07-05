@@ -41,3 +41,16 @@ https://phaser.io/news/2017/04/clients-synchronization-tutorial
 
 Bullet pics
 https://opengameart.org/content/bullet-collection-2-m484-games
+
+
+
+AWS
+
+-> http://docs.aws.amazon.com/AmazonECS/latest/developerguide/ECS_GetStarted.html
+  --> ensure that the temporary docker login was enabled
+
+-> Modified AWS config file with access key, secret key
+
+-> push each image to repository; make sure not to overwrite on a single tag
+
+https://cloudacademy.com/blog/amazon-ec2-container-service-docker-aws/

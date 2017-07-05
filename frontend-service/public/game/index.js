@@ -7,10 +7,16 @@
   //https://opengameart.org/content/colony-sim-assets
 
 //weapon enemy collisions
-  //http://www.html5gamedevs.com/topic/27245-require-help-with-collision-between-weapon-and-enemy-group/
+  // ** http://www.html5gamedevs.com/topic/27245-require-help-with-collision-between-weapon-and-enemy-group/
   //http://www.christophergallup.com/phaser-physics-arcade-overlap/
   //http://www.html5gamedevs.com/topic/6311-collision-detection-of-two-groups/
   //https://github.com/photonstorm/phaser/issues/1744
+
+  //need to rewrite bullets as a game group
+  //http://phaser.io/docs/2.4.4/Phaser.Physics.Arcade.html#overlap
+
+//http://www.dynetisgames.com/2017/03/06/how-to-make-a-multiplayer-online-game-with-phaser-socket-io-and-node-js/
+    // ^making game multiplayer
 
 (function startGame(){
 
@@ -71,7 +77,7 @@
   }
 
 
-  function hitEnemy(bullet, enemy){
+  function hitEnemy(enemy, bullet){
     console.log('HMMMMM')
     bullet.kill()
     enemy.kill()
@@ -81,13 +87,17 @@
 
   function update(){
 
-    const currentWeapon = player.weapons[player.currentWeapon]
+    // const currentWeapon = player.weapons[player.currentWeapon]
 
     game.physics.arcade.collide(player, collisionLayer)
     game.physics.arcade.collide(enemies, collisionLayer)
 
+    // game.physics.arcade.collide(this.weapon[this.currentWeapon], enemies)
+
+
     /* Collide weaponry with enemies */
-    game.physics.arcade.overlap(currentWeapon, enemies, hitEnemy, null, this)
+    // console.log(player.weapons.children)
+    game.physics.arcade.overlap(player.weapons[0], enemies, hitEnemy, null, this)
 
     if (cursors.left.isDown){
       player.body.x -= player.body.velocity.x
@@ -161,7 +171,7 @@
     function addZombie(number = 5){
       let i = 0
       while(i++ < number){
-        enemies.add(new Enemy(game,gameWidth,gameHeight,'zombie')).spawnEnemy(game,gameWidth,gameHeight)
+        enemies.add(new Enemy(game,gameWidth,gameHeight,'zombie'))//.spawnEnemy(game,gameWidth,gameHeight)
       }
     }
 
@@ -178,8 +188,13 @@
   function addPlayer(){
     player = game.add.sprite(32, game.world.height / 2, 'zombie')
 
+    const bulletGun = new SingleBullet(game,'bullet')
+    const lazerGun = new LazerBeam(game,'lazer')
+
     // weapons = game.add.group()
+    weapons.push(bulletGun,lazerGun)
     // weapons.add(new Weapon.SingleBullet(game))
+    // weapons.add(new Weapon.Beam(game))
 
     player.weapons = weapons
     player.currentWeapon = 0
@@ -195,8 +210,8 @@
     player.body.velocity.y = 10
     // player.body.angularVelocity = 0
 
-    player.enableBody = true
-    player.physicsBodyType = Phaser.Physics.ARCADE
+    // player.enableBody = true
+    // player.physicsBodyType = Phaser.Physics.ARCADE
 
 
     game.camera.follow(player)

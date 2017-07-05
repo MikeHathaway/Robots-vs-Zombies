@@ -20,6 +20,10 @@
 sudo docker-compose up
 ```  
 
+280821530317.dkr.ecr.us-east-2.amazonaws.com/civilization-zombie
+
+http://docs.aws.amazon.com/AmazonECS/latest/developerguide/ECS_GetStarted.html
+
 ## Author
 
 Mike Hathaway
