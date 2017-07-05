@@ -11,9 +11,11 @@ class Enemy extends Phaser.Sprite{
     this.y = genRandomNum(y)
     this.speed = 2
     this.type = type
-    this.enableBody = true
+    game.physics.enable(this)
+
+    // this.enableBody = true
     // this.body.allowGravity = false
-    this.physicsBodyType = Phaser.Physics.ARCADE
+    // this.physicsBodyType = Phaser.Physics.ARCADE
   }
 
   spawnEnemy(game,x,y){

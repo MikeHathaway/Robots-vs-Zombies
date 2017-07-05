@@ -33,7 +33,7 @@ class SingleBullet extends Weapon {
     this.nextFire = 0
     this.bulletSpeed = 600;
     this.fireRate = 100
-    this.bullets = this.addBullets(this,game,type,64)
+    this.addBullets(this,game,type,64)
   }
 }
 
@@ -44,7 +44,7 @@ class LazerBeam extends Weapon {
     this.nextFire = 0
     this.bulletSpeed = 600;
     this.fireRate = 100
-    this.bullets = this.addBullets(this,game,type,64)
+    this.addBullets(this,game,type,64)
   }
 }
 

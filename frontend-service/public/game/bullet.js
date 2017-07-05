@@ -1,5 +1,3 @@
-// class Bullet extends Phaser.Sprite{
-
 class Bullet extends Phaser.Sprite{
   constructor(game,type){
     super(game,0,0,type)
@@ -25,7 +23,6 @@ class Bullet extends Phaser.Sprite{
     gy = gy || 0
     this.reset(x, y)
     this.scale.set(1)
-    console.log('firing',this,this.body)
     this.game.physics.arcade.velocityFromAngle(angle, speed, this.body.velocity)
     this.angle = angle
     this.body.gravity.set(gx, gy)

@@ -31,11 +31,11 @@
   let enemies
   let bullets
 
-  // let weapons
+  let weapons
 
   const gameWidth = 1000
   const gameHeight = 800
-  const weapons = []
+  // const weapons = []
   const players = []
 
 
@@ -77,9 +77,8 @@
   }
 
 
-  function hitEnemy(enemy, bullet){
+  function hitEnemy(player, enemy){
     console.log('HMMMMM')
-    bullet.kill()
     enemy.kill()
     console.log("Hit")
   }
@@ -87,17 +86,12 @@
 
   function update(){
 
-    // const currentWeapon = player.weapons[player.currentWeapon]
-
     game.physics.arcade.collide(player, collisionLayer)
     game.physics.arcade.collide(enemies, collisionLayer)
 
-    // game.physics.arcade.collide(this.weapon[this.currentWeapon], enemies)
-
+    game.physics.arcade.overlap(player.weapons, enemies, hitEnemy, null, this)
 
     /* Collide weaponry with enemies */
-    // console.log(player.weapons.children)
-    game.physics.arcade.overlap(player.weapons[0], enemies, hitEnemy, null, this)
 
     if (cursors.left.isDown){
       player.body.x -= player.body.velocity.x
@@ -115,7 +109,8 @@
     }
 
     if (fireButton.isDown){
-      player.weapons[player.currentWeapon].fire(player)
+      // player.weapons[player.currentWeapon].fire(player)
+      player.weapons.children[player.currentWeapon].fire(player)
     }
 
     if(changeKey.isDown){
@@ -125,7 +120,9 @@
 
   }
 
-  function render(){}
+  function render(){
+    game.debug.spriteInfo(player, 32, 450);
+  }
 
 
 
@@ -191,17 +188,16 @@
     const bulletGun = new SingleBullet(game,'bullet')
     const lazerGun = new LazerBeam(game,'lazer')
 
-    // weapons = game.add.group()
-    weapons.push(bulletGun,lazerGun)
-    // weapons.add(new Weapon.SingleBullet(game))
-    // weapons.add(new Weapon.Beam(game))
+    // weapons.push(bulletGun,lazerGun)
+    //
+    // player.weapons = weapons
+    // player.currentWeapon = 0
 
+    weapons = game.add.group()
+    weapons.add(new SingleBullet(game,'bullet'))
+    weapons.add(new LazerBeam(game,'lazer'))
     player.weapons = weapons
     player.currentWeapon = 0
-
-    // Add Weapons to player
-    // weapons.push(new Weapon.SingleBullet(game))
-    // weapons.push(new Weapon.Beam(game))
 
     //  We need to enable physics on the player
     game.physics.arcade.enable(player)
