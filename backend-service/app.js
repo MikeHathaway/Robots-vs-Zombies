@@ -8,7 +8,7 @@ const bodyParser = require('body-parser')
 const feathers = require('feathers')
 const configuration = require('feathers-configuration')
 const hooks = require('feathers-hooks')
-const rest = require('feathers-rest')
+// const rest = require('feathers-rest')
 const socketio = require('feathers-socketio')
 const reactive = require('feathers-reactive')
 // const postgresService = require('feathers-postgres')
@@ -41,11 +41,11 @@ app.use(compress())
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
 
-app.use('/api', feathers.static(app.get('public')));
+// app.use('/api', feathers.static(app.get('public')));
 
 // Configure API
 app.configure(hooks());
-app.configure(rest())
+// app.configure(rest())
 app.configure(socketio())
 
 // Configure error handler

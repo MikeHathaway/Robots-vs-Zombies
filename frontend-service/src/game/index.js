@@ -9,9 +9,13 @@
 //http://www.dynetisgames.com/2017/03/06/how-to-make-a-multiplayer-online-game-with-phaser-socket-io-and-node-js/
     // ^making game multiplayer
 
+/* ----- Phaser Dependencies ----- */
 import Bullet from './bullet'
 import {SingleBullet, LazerBeam} from './weapon'
 import Enemy from './enemy'
+
+/* ----- Server Dependencies ----- */
+import client from '../feathers'
 
 
 (function startGame(){
@@ -26,14 +30,11 @@ import Enemy from './enemy'
   let collisionLayer
   let enemies
   let bullets
-
   let weapons
 
   const gameWidth = 1000
   const gameHeight = 800
-  // const weapons = []
-  const players = []
-
+  const players = {}
 
   const game = new Phaser.Game(gameWidth, gameHeight, Phaser.AUTO, 'game-container', {
       preload: preload,
@@ -65,6 +66,8 @@ import Enemy from './enemy'
     addMap()
     addEnemies()
     addPlayer()
+
+    client.askNewPlayer()
 
     cursors = game.input.keyboard.createCursorKeys()
     fireButton = game.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR)
@@ -182,6 +185,12 @@ import Enemy from './enemy'
   }
 
   function addPlayer(){
+
+    /* Approach to programmaticaly adding users */
+    // Object.keys(players).forEach(player => {
+    //
+    // })
+
     player = game.add.sprite(32, game.world.height / 2, 'zombie')
 
     weapons = game.add.group()
@@ -198,6 +207,16 @@ import Enemy from './enemy'
 
 
     game.camera.follow(player)
+  }
+
+  //game.playerMap = {} -> alternative approach
+  game.newPlayer = function(id,x,y){
+    players[id] = game.add.sprite(x,y,'zombie')
+  }
+
+  game.removePlayer = function(id){
+    players[id].destroy()
+    delete players[id]
   }
 
 

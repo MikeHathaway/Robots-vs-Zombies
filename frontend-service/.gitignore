@@ -1,2 +1,3 @@
 node_modules
-public/build/bundle.js
+public/build/game.js
+public/build/react.js
