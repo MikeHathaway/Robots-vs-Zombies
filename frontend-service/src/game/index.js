@@ -21,7 +21,7 @@ import Enemy from './enemy'
   let layer
   let player
   let cursors
-  let firebutton
+  let fireButton
   let changeKey
   let collisionLayer
   let enemies
@@ -45,16 +45,16 @@ import Enemy from './enemy'
   function preload(){
     game.load.crossOrigin = 'anonymous'
 
-    game.load.tilemap('desert', './game/assets/tilemaps/desert.json', null, Phaser.Tilemap.TILED_JSON)
-    game.load.tilemap('forest', './game/assets/tilemaps/forest.json', null, Phaser.Tilemap.TILED_JSON)
-    game.load.image('forestTiles', './game/assets/tilemaps/trees-and-bushes.png')
-    game.load.image('tiles', './game/assets/tilemaps/tmw_desert_spacing.png')
+    game.load.tilemap('desert', './assets/tilemaps/desert.json', null, Phaser.Tilemap.TILED_JSON)
+    game.load.tilemap('forest', './assets/tilemaps/forest.json', null, Phaser.Tilemap.TILED_JSON)
+    game.load.image('forestTiles', './assets/tilemaps/trees-and-bushes.png')
+    game.load.image('tiles', './assets/tilemaps/tmw_desert_spacing.png')
 
-    game.load.image('zombie', './game/assets/Zombie_Sprite.png')
-    game.load.image('human', './game/assets/dude.png')
-    game.load.image('bullet', './game/assets/singleBullet.png')
-    game.load.image('lazer', './game/assets/lazer.png')
-    game.load.spritesheet('zombies', './game/assets/zombie_sheet.png', 32, 48)
+    game.load.image('zombie', './assets/Zombie_Sprite.png')
+    game.load.image('human', './assets/dude.png')
+    game.load.image('bullet', './assets/singleBullet.png')
+    game.load.image('lazer', './assets/lazer.png')
+    game.load.spritesheet('zombies', './assets/zombie_sheet.png', 32, 48)
   }
 
 

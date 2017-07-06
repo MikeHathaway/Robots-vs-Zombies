@@ -372,7 +372,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
   var layer = void 0;
   var player = void 0;
   var cursors = void 0;
-  var firebutton = void 0;
+  var fireButton = void 0;
   var changeKey = void 0;
   var collisionLayer = void 0;
   var enemies = void 0;
@@ -395,16 +395,16 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
   function preload() {
     game.load.crossOrigin = 'anonymous';
 
-    game.load.tilemap('desert', './game/assets/tilemaps/desert.json', null, Phaser.Tilemap.TILED_JSON);
-    game.load.tilemap('forest', './game/assets/tilemaps/forest.json', null, Phaser.Tilemap.TILED_JSON);
-    game.load.image('forestTiles', './game/assets/tilemaps/trees-and-bushes.png');
-    game.load.image('tiles', './game/assets/tilemaps/tmw_desert_spacing.png');
+    game.load.tilemap('desert', './assets/tilemaps/desert.json', null, Phaser.Tilemap.TILED_JSON);
+    game.load.tilemap('forest', './assets/tilemaps/forest.json', null, Phaser.Tilemap.TILED_JSON);
+    game.load.image('forestTiles', './assets/tilemaps/trees-and-bushes.png');
+    game.load.image('tiles', './assets/tilemaps/tmw_desert_spacing.png');
 
-    game.load.image('zombie', './game/assets/Zombie_Sprite.png');
-    game.load.image('human', './game/assets/dude.png');
-    game.load.image('bullet', './game/assets/singleBullet.png');
-    game.load.image('lazer', './game/assets/lazer.png');
-    game.load.spritesheet('zombies', './game/assets/zombie_sheet.png', 32, 48);
+    game.load.image('zombie', './assets/Zombie_Sprite.png');
+    game.load.image('human', './assets/dude.png');
+    game.load.image('bullet', './assets/singleBullet.png');
+    game.load.image('lazer', './assets/lazer.png');
+    game.load.spritesheet('zombies', './assets/zombie_sheet.png', 32, 48);
   }
 
   function create() {
