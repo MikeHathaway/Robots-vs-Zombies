@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import Login from './Login';
 import Chat from './Chat';
-import client from '../feathers';
+import client from '../../feathers';
 
 class App extends Component {
   constructor(props) {

@@ -3,7 +3,7 @@
 //https://phaser.io/examples/v2/games/tanks
 
 //http://www.html5gamedevs.com/topic/14281-help-needed-for-better-enemy-ai/
-  //^add functionality for more sophisticated enemy ai 
+  //^add functionality for more sophisticated enemy ai
 
 
 class Enemy extends Phaser.Sprite{
@@ -54,3 +54,5 @@ function genRandomNum(factor){
 function genMovement(factor){
   return Math.floor(factor * (Math.round(Math.random()) * 2 - 1))
 }
+
+export default Enemy

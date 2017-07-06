@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import moment from 'moment';
-import client from '../feathers';
+import client from '../../feathers';
 
 class Chat extends Component {
   sendMessage(ev) {

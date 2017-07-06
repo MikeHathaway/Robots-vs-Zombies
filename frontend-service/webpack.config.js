@@ -3,9 +3,12 @@ const webpack = require('webpack');
 
 module.exports = {
   context: path.resolve(__dirname, 'src'),
-  entry: './react/index.js',
+  entry: {
+    game: './game/index.js',
+    react: './react/index.js'
+  },
   output: {
-    filename: 'bundle.js',
+    filename: '[name].js',
     path: path.resolve(`${__dirname}/public`, 'build'),
     publicPath: '/',
   },

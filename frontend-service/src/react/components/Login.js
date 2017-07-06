@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import client from '../feathers';
+import client from '../../feathers';
 
 export default class Login extends Component {
   constructor(props) {

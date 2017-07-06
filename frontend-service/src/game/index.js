@@ -9,6 +9,11 @@
 //http://www.dynetisgames.com/2017/03/06/how-to-make-a-multiplayer-online-game-with-phaser-socket-io-and-node-js/
     // ^making game multiplayer
 
+import Bullet from './bullet'
+import {SingleBullet, LazerBeam} from './weapon'
+import Enemy from './enemy'
+
+
 (function startGame(){
 
   /* ----- Declares global variables ----- */
