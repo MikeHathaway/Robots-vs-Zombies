@@ -17,15 +17,21 @@ client.configure(authentication({
   storage: window.localStorage
 }))
 
+
 client.askNewPlayer = function(){
   socket.emit('newplayer')
 }
+
+socket.on('newplayer', function(data){
+  console.log(data)
+  console.log(game)
+  game.addNewPlayer(data.id,data.x,data.y);
+})
 
 client.on('newplayer',function(data){
     console.log(data)
     game.addNewPlayer(data.id,data.x,data.y);
 })
-
 
 client.on('allplayers',function(data){
     for(var i = 0; i < data.length; i++){
@@ -40,6 +46,8 @@ client.on('allplayers',function(data){
         game.removePlayer(id);
     });
 });
+
+
 
 
 

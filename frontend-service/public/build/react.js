@@ -10742,6 +10742,7 @@ var _index2 = _interopRequireDefault(_index);
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 //http://www.dynetisgames.com/2017/03/06/how-to-make-a-multiplayer-online-game-with-phaser-socket-io-and-node-js/
+//https://github.com/Jerenaux/basic-mmo-phaser/blob/master/js/client.js
 
 var socket = (0, _socket2.default)('http://localhost:4000');
 var client = (0, _client2.default)();
@@ -10753,9 +10754,14 @@ client.configure((0, _feathersAuthenticationClient2.default)({
 }));
 
 client.askNewPlayer = function () {
-    console.log(client.emit);
     socket.emit('newplayer');
 };
+
+socket.on('newplayer', function (data) {
+    console.log(data);
+    console.log(_index2.default);
+    _index2.default.addNewPlayer(data.id, data.x, data.y);
+});
 
 client.on('newplayer', function (data) {
     console.log(data);
@@ -14375,6 +14381,10 @@ module.exports = yeast;
 "use strict";
 
 
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
 var _bullet = __webpack_require__(69);
 
 var _bullet2 = _interopRequireDefault(_bullet);
@@ -14403,7 +14413,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 // ^making game multiplayer
 
 /* ----- Phaser Dependencies ----- */
-(function startGame() {
+var game = function startGame() {
 
   /* ----- Declares global variables ----- */
   var map = void 0;
@@ -14419,7 +14429,6 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
   var gameWidth = 1000;
   var gameHeight = 800;
-  var players = {};
 
   var game = new Phaser.Game(gameWidth, gameHeight, Phaser.AUTO, 'game-container', {
     preload: preload,
@@ -14444,8 +14453,9 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
   }
 
   function create() {
-
     game.physics.startSystem(Phaser.Physics.ARCADE);
+
+    game.playerMap = {};
 
     addMap();
     addEnemies();
@@ -14586,18 +14596,20 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
     game.camera.follow(player);
   }
 
-  //game.playerMap = {} -> alternative approach
-  game.newPlayer = function (id, x, y) {
-    players[id] = game.add.sprite(x, y, 'zombie');
+  game.addNewPlayer = function (id, x, y) {
+    game.playerMap[id] = game.add.sprite(x, y, 'zombie');
   };
 
   game.removePlayer = function (id) {
-    players[id].destroy();
-    delete players[id];
+    game.playerMap[id].destroy();
+    delete game.playerMap[id];
   };
-})();
+
+  return game; // may not be best practices ... but attempting to contain scope
+}();
 
 /* ----- Server Dependencies ----- */
+exports.default = game;
 
 /***/ }),
 /* 96 */

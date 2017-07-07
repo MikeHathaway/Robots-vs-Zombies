@@ -12,6 +12,8 @@ server.on('listening', () =>
 
 server.on('connection', function(socket){
 
+    socket.emit('newplayer', socket.player = {id: server.lastPlayderID++, x: randomInt(100,400), y: randomInt(100,400)})
+
     socket.on('newplayer',function(){
       console.log('new player!') //not firing for some reason...
         socket.player = {

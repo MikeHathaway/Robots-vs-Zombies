@@ -18,7 +18,7 @@ import Enemy from './enemy'
 import client from '../feathers'
 
 
-(function startGame(){
+const game = (function startGame(){
 
   /* ----- Declares global variables ----- */
   let map
@@ -34,7 +34,6 @@ import client from '../feathers'
 
   const gameWidth = 1000
   const gameHeight = 800
-  const players = {}
 
   const game = new Phaser.Game(gameWidth, gameHeight, Phaser.AUTO, 'game-container', {
       preload: preload,
@@ -60,8 +59,9 @@ import client from '../feathers'
 
 
   function create(){
-
     game.physics.startSystem(Phaser.Physics.ARCADE)
+
+    game.playerMap = {}
 
     addMap()
     addEnemies()
@@ -209,15 +209,17 @@ import client from '../feathers'
     game.camera.follow(player)
   }
 
-  //game.playerMap = {} -> alternative approach
-  game.newPlayer = function(id,x,y){
-    players[id] = game.add.sprite(x,y,'zombie')
+  game.addNewPlayer = function(id,x,y){
+    game.playerMap[id] = game.add.sprite(x,y,'zombie')
   }
 
   game.removePlayer = function(id){
-    players[id].destroy()
-    delete players[id]
+    game.playerMap[id].destroy()
+    delete game.playerMap[id]
   }
 
+  return game // may not be best practices ... but attempting to contain scope
 
 })()
+
+export default game
