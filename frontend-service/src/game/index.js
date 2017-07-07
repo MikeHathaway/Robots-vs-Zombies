@@ -15,7 +15,7 @@ import {SingleBullet, LazerBeam} from './weapon'
 import Enemy from './enemy'
 
 /* ----- Server Dependencies ----- */
-import client from '../feathers'
+import client from '../client'
 
 
 const game = (function startGame(){
@@ -31,6 +31,8 @@ const game = (function startGame(){
   let enemies
   let bullets
   let weapons
+
+  let players //Not properly hooked up yet
 
   const gameWidth = 1000
   const gameHeight = 800
@@ -78,7 +80,13 @@ const game = (function startGame(){
   function hitEnemy(bullet, enemy){
     enemy.takeDamage(bullet.parent.damage)
     bullet.kill()
-    console.log("Hit")
+    console.log("Hit Zombie")
+  }
+
+  function hitPlayer(bullet, player){
+    player.takeDamage(bullet.parent.damage)
+    bullet.kill()
+    console.log("Hit Player")
   }
 
 
@@ -89,6 +97,9 @@ const game = (function startGame(){
 
     /* Collide weaponry with enemies */
     game.physics.arcade.overlap(player.weapons, enemies, hitEnemy, null, this)
+
+    /* Collide weaponry with other players */
+    game.physics.arcade.overlap(player.weapons, players, hitPlayer, null, this)
 
     // controller for enemy actions each game loop
     enemies.children.forEach(enemy => {
@@ -205,9 +216,32 @@ const game = (function startGame(){
     player.body.velocity.x = 10
     player.body.velocity.y = 10
 
-
     game.camera.follow(player)
   }
+
+
+/* ******* Potential refactoring solution ******* */
+  function addWeapons(){
+    weapons = game.add.group()
+    weapons.add(new SingleBullet(game,'bullet'))
+    weapons.add(new LazerBeam(game,'lazer'))
+  }
+
+  function addWeaponToPlayer(player,weapons){
+    return player.weapons = weapons
+  }
+
+  //connect to the above create player + weapons
+  function addPlayers(){
+    const players = game.add.group()
+    return players
+  }
+
+  function addNewPlayerT(){
+    players.add(new Player(game,50,5,'zombie'))
+  }
+
+
 
   game.addNewPlayer = function(id,x,y){
     game.playerMap[id] = game.add.sprite(x,y,'zombie')
