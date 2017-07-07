@@ -15343,9 +15343,7 @@ var _feathersAuthenticationClient2 = _interopRequireDefault(_feathersAuthenticat
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var socket = (0, _socket2.default)('http://localhost:4000'); //http://www.dynetisgames.com/2017/03/06/how-to-make-a-multiplayer-online-game-with-phaser-socket-io-and-node-js/
-//https://github.com/Jerenaux/basic-mmo-phaser/blob/master/js/client.js
-
+var socket = (0, _socket2.default)('http://localhost:4000');
 var client = (0, _client2.default)();
 
 client.configure((0, _feathersHooks2.default)());

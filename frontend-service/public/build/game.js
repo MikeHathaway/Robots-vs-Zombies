@@ -4339,8 +4339,6 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 //Use for strategic view and or capital tactical traversal
 //https://opengameart.org/content/colony-sim-assets
 
-//http://www.dynetisgames.com/2017/03/06/how-to-make-a-multiplayer-online-game-with-phaser-socket-io-and-node-js/
-// ^making game multiplayer
 
 /* ----- Phaser Dependencies ----- */
 var game = function startGame() {
@@ -4361,6 +4359,8 @@ var game = function startGame() {
 
   var gameWidth = 1000;
   var gameHeight = 800;
+
+  var allPlayers = [];
 
   var game = new Phaser.Game(gameWidth, gameHeight, Phaser.AUTO, 'game-container', {
     preload: preload,
@@ -4397,7 +4397,10 @@ var game = function startGame() {
 
     cursors = game.input.keyboard.createCursorKeys();
     fireButton = game.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR);
-    changeKey = game.input.keyboard.addKey(Phaser.Keyboard.ENTER);
+    changeKey = game.input.keyboard.addKey(Phaser.Keyboard.ENTER
+
+    // Start listening for events
+    );setEventHandlers();
   }
 
   function hitEnemy(bullet, enemy) {
@@ -4537,35 +4540,73 @@ var game = function startGame() {
     game.camera.follow(player);
   }
 
-  /* ******* Potential refactoring solution ******* */
-  function addWeapons() {
-    weapons = game.add.group();
-    weapons.add(new _weapon.SingleBullet(game, 'bullet'));
-    weapons.add(new _weapon.LazerBeam(game, 'lazer'));
+  function setEventHandlers() {
+    // Socket connection successful
+    _client2.default.on('connection', onSocketConnected
+
+    // Socket disconnection
+    );_client2.default.on('disconnect', onSocketDisconnect
+
+    // New player message received
+    );_client2.default.on('newPlayer', onNewPlayer
+
+    // Player move message received
+    );_client2.default.on('movePlayer', onMovePlayer
+
+    // Player removed message received
+    );_client2.default.on('removePlayer', onRemovePlayer);
   }
 
-  function addWeaponToPlayer(player, weapons) {
-    return player.weapons = weapons;
+  function onSocketConnected() {
+    console.log('connected!');
+    socket.emit('newPlayer');
   }
 
-  //connect to the above create player + weapons
-  function addPlayers() {
-    var players = game.add.group();
-    return players;
+  function onSocketDisconnect() {
+    console.log('Disconnected from socket server');
   }
 
-  function addNewPlayerT() {
-    players.add(new Player(game, 50, 5, 'zombie'));
+  function onNewPlayer(data) {
+    console.log('New player connected:', data.id);
+
+    var duplicate = playerById(data.id);
+    if (duplicate) {
+      console.log('Duplicate player!');
+      return;
+    }
+    allPlayers.push(new Player(game, gameWidth, gameHeight, 50, 5, 'zombie'));
   }
 
-  game.addNewPlayer = function (id, x, y) {
-    game.playerMap[id] = game.add.sprite(x, y, 'zombie');
-  };
+  function onMovePlayer() {}
 
-  game.removePlayer = function (id) {
-    game.playerMap[id].destroy();
-    delete game.playerMap[id];
-  };
+  function onRemovePlayer(data) {
+    var removePlayer = playerById(data.id
+
+    // Player not found
+    );if (!removePlayer) {
+      console.log('Player not found: ', data.id);
+      return;
+    }
+
+    removePlayer.player.kill();
+    allPlayers.splice(allPlayers.indexOf(removePlayer), 1);
+  }
+
+  function playerById(id) {
+    var identifiedPlayer = allPlayers.filter(function (player) {
+      return player.id === id;
+    })[0];
+    return identifiedPlayer.length > 0 ? identifiedPlayer : false;
+  }
+
+  // game.addNewPlayer = function(id,x,y){
+  //   game.playerMap[id] = game.add.sprite(x,y,'zombie')
+  // }
+  //
+  // game.removePlayer = function(id){
+  //   game.playerMap[id].destroy()
+  //   delete game.playerMap[id]
+  // }
 
   return game; // may not be best practices ... but attempting to contain scope
 }();
@@ -5820,17 +5861,28 @@ var _index2 = _interopRequireDefault(_index);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+//http://www.dynetisgames.com/2017/03/06/how-to-make-a-multiplayer-online-game-with-phaser-socket-io-and-node-js/
+//https://github.com/Jerenaux/basic-mmo-phaser/blob/master/js/client.js
+
+//https://gamedev.stackexchange.com/questions/124434/phaser-io-with-socket-io-what-should-the-server-calculate-and-what-the-client
+
+//https://github.com/fbaiodias/phaser-multiplayer-game
+
 var socket = (0, _socket2.default)('http://localhost:4000');
 
 socket.askNewPlayer = function () {
-    socket.emit('newplayer');
+    socket.emit('newPlayer');
 };
 
-socket.sendClick = function (x, y) {
+socket.sendMove = function (player, direction) {
+    socket.emit('' + direction, player);
+};
+
+socket.sendFire = function (x, y) {
     socket.emit('click', { x: x, y: y });
 };
 
-socket.on('newplayer', function (data) {
+socket.on('newPlayer', function (data) {
     _index2.default.addNewPlayer(data.id, data.x, data.y);
 });
 

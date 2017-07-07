@@ -1,6 +1,3 @@
-//http://www.dynetisgames.com/2017/03/06/how-to-make-a-multiplayer-online-game-with-phaser-socket-io-and-node-js/
-//https://github.com/Jerenaux/basic-mmo-phaser/blob/master/js/client.js
-
 import io from 'socket.io-client'
 import feathers from 'feathers/client'
 import hooks from 'feathers-hooks'

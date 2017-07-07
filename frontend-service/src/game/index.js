@@ -6,8 +6,6 @@
 //Use for strategic view and or capital tactical traversal
   //https://opengameart.org/content/colony-sim-assets
 
-//http://www.dynetisgames.com/2017/03/06/how-to-make-a-multiplayer-online-game-with-phaser-socket-io-and-node-js/
-    // ^making game multiplayer
 
 /* ----- Phaser Dependencies ----- */
 import Bullet from './bullet'
@@ -36,6 +34,8 @@ const game = (function startGame(){
 
   const gameWidth = 1000
   const gameHeight = 800
+
+  const allPlayers = []
 
   const game = new Phaser.Game(gameWidth, gameHeight, Phaser.AUTO, 'game-container', {
       preload: preload,
@@ -74,6 +74,11 @@ const game = (function startGame(){
     cursors = game.input.keyboard.createCursorKeys()
     fireButton = game.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR)
     changeKey = game.input.keyboard.addKey(Phaser.Keyboard.ENTER)
+
+    // Start listening for events
+    setEventHandlers()
+
+
   }
 
 
@@ -220,37 +225,76 @@ const game = (function startGame(){
   }
 
 
-/* ******* Potential refactoring solution ******* */
-  function addWeapons(){
-    weapons = game.add.group()
-    weapons.add(new SingleBullet(game,'bullet'))
-    weapons.add(new LazerBeam(game,'lazer'))
+
+
+
+
+  function setEventHandlers(){
+    // Socket connection successful
+    client.on('connection', onSocketConnected)
+
+    // Socket disconnection
+    client.on('disconnect', onSocketDisconnect)
+
+    // New player message received
+    client.on('newPlayer', onNewPlayer)
+
+    // Player move message received
+    client.on('movePlayer', onMovePlayer)
+
+    // Player removed message received
+    client.on('removePlayer', onRemovePlayer)
   }
 
-  function addWeaponToPlayer(player,weapons){
-    return player.weapons = weapons
+  function onSocketConnected(){
+    console.log('connected!')
+    socket.emit('newPlayer')
   }
 
-  //connect to the above create player + weapons
-  function addPlayers(){
-    const players = game.add.group()
-    return players
+  function onSocketDisconnect(){
+    console.log('Disconnected from socket server')
   }
 
-  function addNewPlayerT(){
-    players.add(new Player(game,50,5,'zombie'))
+  function onNewPlayer(data){
+    console.log('New player connected:', data.id)
+
+    const duplicate = playerById(data.id)
+    if (duplicate) {
+      console.log('Duplicate player!')
+      return
+    }
+    allPlayers.push(new Player(game,gameWidth,gameHeight,50,5,'zombie'))
+  }
+
+  function onMovePlayer(){}
+
+  function onRemovePlayer(data){
+    const removePlayer = playerById(data.id)
+
+    // Player not found
+    if (!removePlayer) {
+      console.log('Player not found: ', data.id)
+      return
+    }
+
+    removePlayer.player.kill()
+    allPlayers.splice(allPlayers.indexOf(removePlayer), 1)
+  }
+
+  function playerById (id) {
+    const identifiedPlayer = allPlayers.filter(player => player.id === id)[0]
+    return identifiedPlayer.length > 0 ? identifiedPlayer : false
   }
 
 
-
-  game.addNewPlayer = function(id,x,y){
-    game.playerMap[id] = game.add.sprite(x,y,'zombie')
-  }
-
-  game.removePlayer = function(id){
-    game.playerMap[id].destroy()
-    delete game.playerMap[id]
-  }
+  // game.addNewPlayer = function(id,x,y){
+  //   game.playerMap[id] = game.add.sprite(x,y,'zombie')
+  // }
+  //
+  // game.removePlayer = function(id){
+  //   game.playerMap[id].destroy()
+  //   delete game.playerMap[id]
+  // }
 
   return game // may not be best practices ... but attempting to contain scope
 

@@ -6,7 +6,7 @@
   "scripts": {
     "build": "webpack --config webpack.config.js",
     "start": "node server",
-    "dev": "nodemon server",
+    "dev": "webpack-dev-server",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
@@ -28,11 +28,11 @@
     "react-router-dom": "^4.1.1",
     "socket.io-client": "^2.0.3",
     "style-loader": "^0.18.2",
-    "webpack": "^2.6.1",
-    "webpack-dev-server": "^2.4.5"
+    "webpack": "^2.6.1"
   },
   "devDependencies": {
     "babel-preset-node6": "^11.0.0",
-    "babel-preset-react": "^6.24.1"
+    "babel-preset-react": "^6.24.1",
+    "webpack-dev-server": "^2.4.5"
   }
 }
