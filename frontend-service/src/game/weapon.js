@@ -22,7 +22,7 @@ class Weapon extends Phaser.Group {
   addBullets(weapon,game,type,instances){
     let count = 0
     while(count++ < instances){
-      weapon.add(new Bullet(game, type), true)
+      weapon.add(new Bullet(game, type, true), true)
     }
   }
 }

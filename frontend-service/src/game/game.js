@@ -1,10 +1,9 @@
-//https://www.joshmorony.com/create-a-running-platformer-game-in-phaser-with-tilemaps/
-  //use tiled to generate tile maps for the gameplay
-   //https://opengameart.org/content/trees-bushes
-    //^source of free png for generating tilemaps
 
-//Use for strategic view and or capital tactical traversal
-  //https://opengameart.org/content/colony-sim-assets
+// excellent set of guides
+  //https://www.joshmorony.com/creating-animated-scoring-in-an-html5-phaser-game/
+
+// minimap guide
+  //http://www.html5gamedevs.com/topic/14182-creating-a-mini-map-in-phaser/
 
 
 /* ----- Phaser Dependencies ----- */
@@ -17,20 +16,19 @@ import client from '../client'
 import eventHandlers from './eventHandlers'
 
 
-
 const game = (function startGame(){
 
   /* ----- Declares global variables ----- */
   let map
-  let layer
-  let player
-  let cursors
-  let fireButton
-  let changeKey
-  let collisionLayer
-  let enemies
-  let bullets
-  let weapons
+    , layer
+    , player
+    , cursors
+    , fireButton
+    , changeKey
+    , collisionLayer
+    , enemies
+    , bullets
+    , weapons
 
   let players //Not properly hooked up yet
 
@@ -38,7 +36,10 @@ const game = (function startGame(){
   const gameHeight = 800
 
   const allPlayers = []
+  const score = 0
 
+
+  /* ----- Start Game Instance ----- */
   const game = new Phaser.Game(gameWidth, gameHeight, Phaser.AUTO, 'game-container', {
       preload: preload,
       create: create,
@@ -68,17 +69,71 @@ const game = (function startGame(){
 
     game.playerMap = {}
 
+
     addMap('desert') // specify map can be: ['desert', 'forest']
     addEnemies()
     addPlayer()
     addInputs()
 
-    // Instantiate player server
-      //need to identify how to incorporate information flow
+    addScore()
+    createScoreAnimation()
+
+    // Instantiate player server - need to identify how to incorporate information flow
     client.askNewPlayer()
 
     // Start listening for events
     eventHandlers.setEventHandlers()
+  }
+
+  function createScoreAnimation(){
+    var me = this;
+
+    const scoreFont = "90px Arial";
+
+    //Create a new label for the score
+    const scoreAnimation = me.game.add.text(x, y, message, {font: scoreFont, fill: "#39d179", stroke: "#ffffff", strokeThickness: 15});
+    scoreAnimation.anchor.setTo(0.5, 0);
+    scoreAnimation.align = 'center';
+
+    //Tween this score label to the total score label
+    const scoreTween = me.game.add.tween(scoreAnimation).to({x:me.game.world.centerX, y: 50}, 800, Phaser.Easing.Exponential.In, true);
+
+    //When the animation finishes, destroy this score label, trigger the total score labels animation and add the score
+    scoreTween.onComplete.add(function(){
+        scoreAnimation.destroy();
+        me.scoreLabelTween.start();
+        me.scoreBuffer += score;
+    }, me);
+  }
+
+  function addScore(){
+    game.score = 0
+    game.scoreBuffer = 0
+    // game.add.text(16, 16, 'score: 0', { fontSize: '32px', fill: '#111' });
+
+    const scoreFont = "100px Arial";
+    let scoreLabel
+
+    //Create the score label
+    scoreLabel = game.add.text(game.world.centerX, 50, `${game.score}`, {font: scoreFont, fill: "#ffffff", stroke: "#535353", strokeThickness: 15});
+    // scoreLabel.anchor.setTo(0.5, 0);
+    scoreLabel.align = 'center';
+
+    //Create a tween to grow / shrink the score label
+    game.scoreLabelTween = game.add.tween(scoreLabel.scale).to({ x: 1.5, y: 1.5}, 200, Phaser.Easing.Linear.In).to({ x: 1, y: 1}, 200, Phaser.Easing.Linear.In);
+  }
+
+  function checkScore(){
+    if(game.scoreBuffer > 0){
+        incrementScore();
+        game.scoreBuffer--
+    }
+  }
+
+  function incrementScore(){
+    game.score += 1;
+    game.scoreLabel.text = game.score;
+
   }
 
 
@@ -86,6 +141,7 @@ const game = (function startGame(){
     checkEnemyActions()
     checkPlayerInputs()
     checkCollisions()
+    checkScore()
   }
 
 
@@ -97,11 +153,11 @@ const game = (function startGame(){
 
 
 
-  /* =============== =============== =============== */
+  /* =============== =============== ===============
 
-  /* =============== UPDATE FUNCTIONS =============== */
+   =============== UPDATE FUNCTIONS ===============
 
-  /* =============== =============== =============== */
+   =============== =============== =============== */
 
 
   function checkPlayerInputs(){
@@ -132,12 +188,12 @@ const game = (function startGame(){
   function changeWeapon(player){
     if(player.currentWeapon === 1){
       player.currentWeapon = 0
-      return this
+      return player
     }
 
     if(player.currentWeapon === 0){
       player.currentWeapon = 1
-      return this
+      return player
     }
   }
 
@@ -154,6 +210,7 @@ const game = (function startGame(){
 
   function hitEnemy(bullet, enemy){
     enemy.takeDamage(bullet.parent.damage)
+    game.score += 5
     bullet.kill()
     console.log("Hit Zombie")
   }
@@ -173,11 +230,11 @@ const game = (function startGame(){
 
 
 
-  /* =============== =============== =============== */
+  /* =============== =============== ===============
 
-  /* =============== CREATE FUNCTIONS =============== */
+   =============== CREATE FUNCTIONS ===============
 
-  /* =============== =============== =============== */
+   =============== =============== =============== */
 
 
   function addInputs(){
@@ -186,10 +243,25 @@ const game = (function startGame(){
     changeKey = game.input.keyboard.addKey(Phaser.Keyboard.ENTER)
   }
 
+  function addInputsTwo(){
+    return {
+      cursors: game.input.keyboard.createCursorKeys(),
+      fireButton: game.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR),
+      changeKey: game.input.keyboard.addKey(Phaser.Keyboard.ENTER)
+    }
+  }
+
 
   function addMap(type){
     if(type === 'desert') desertMap()
     if(type === 'forest') forestMap()
+  }
+
+  function desertMap(){
+    map = game.add.tilemap('desert')
+    map.addTilesetImage('Desert', 'tiles')
+    layer = map.createLayer('Ground')
+    layer.resizeWorld()
   }
 
   function forestMap(){
@@ -202,18 +274,11 @@ const game = (function startGame(){
     map.setCollisionByExclusion([], true, collisionLayer)
   }
 
-  function desertMap(){
-    map = game.add.tilemap('desert')
-    map.addTilesetImage('Desert', 'tiles')
-    layer = map.createLayer('Ground')
-    layer.resizeWorld()
-  }
-
 
   function addEnemies(number){
     enemies = game.add.group()
 
-    function addZombie(number = 5){
+    function addZombie(number = 100){
       let i = 0
       while(i++ < number){
         enemies.add(new Enemy(game,gameWidth,gameHeight,'zombie'))
@@ -223,13 +288,20 @@ const game = (function startGame(){
     addZombie(number)
 
     /* ----- Generate Zombies FRP ----- */
-    // function handleError(err){
-    //   return console.error(err)
-    // }
-    //
     // const source = Rx.Observable.interval(1000 /* ms */).timeInterval().take(5)
     // const subscription = source.subscribe(addZombie,handleError)
   }
+
+
+
+
+
+  /* =============== =============== ===============
+
+   =============== MULTIPLAYER FUNCTIONS ===============
+
+   =============== =============== =============== */
+
 
   function addPlayer(){
     player = game.add.sprite(32, game.world.height / 2, 'zombie')

@@ -1,8 +1,13 @@
 class Bullet extends Phaser.Sprite{
-  constructor(game,type){
+  constructor(game,type,tracking){
     super(game,0,0,type)
     this.game = game
     this.type = type
+
+    //prevent tracking on lazers
+    if(this.type === 'lazer'){
+      tracking = false
+    }
 
     game.physics.enable(this) //defaults to arcade
 
@@ -14,7 +19,7 @@ class Bullet extends Phaser.Sprite{
     this.outOfBoundsKill = true
     this.exists = false
 
-    this.tracking = false
+    this.tracking = tracking || false
     this.scaleSpeed = 0
   }
 
