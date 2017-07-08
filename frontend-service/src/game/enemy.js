@@ -21,9 +21,11 @@ class Enemy extends Phaser.Sprite{
     game.add.sprite(genRandomNum(x),genRandomNum(y),'zombie')
   }
 
-  move(){
-    this.x += genMovement(this.speed)
-    this.y += genMovement(this.speed)
+  move(game,enemy,player){
+    // this.x += genMovement(this.speed)
+    // this.y += genMovement(this.speed)
+
+    game.physics.arcade.moveToObject(enemy, player, 60, 0);
   }
 
   isAlive(){

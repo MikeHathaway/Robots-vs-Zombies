@@ -223,7 +223,7 @@ const game = (function startGame(){
   function checkEnemyActions(){
     enemies.children.forEach(enemy => {
         enemy.isAlive()
-        enemy.move()
+        enemy.move(game,enemy,player)
     })
   }
 

@@ -5642,9 +5642,11 @@ var Enemy = function (_Phaser$Sprite) {
     }
   }, {
     key: 'move',
-    value: function move() {
-      this.x += genMovement(this.speed);
-      this.y += genMovement(this.speed);
+    value: function move(game, enemy, player) {
+      // this.x += genMovement(this.speed)
+      // this.y += genMovement(this.speed)
+
+      game.physics.arcade.moveToObject(enemy, player, 60, 0);
     }
   }, {
     key: 'isAlive',
@@ -6288,7 +6290,7 @@ var game = function startGame() {
   function checkEnemyActions() {
     enemies.children.forEach(function (enemy) {
       enemy.isAlive();
-      enemy.move();
+      enemy.move(game, enemy, player);
     });
   }
 
