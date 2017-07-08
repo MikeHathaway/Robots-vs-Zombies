@@ -2,13 +2,16 @@
   //need to pass in game object
 
 //extend group or sprites?
+// class Player extends Phaser.group {
 
-class Player extends Phaser.group {
-  constructor(game,x,y,health,speed,avatar){
-    super(game)
+class Player{
+  constructor(game,x,y,health,speed,id,avatar){
     this.game = game
+    this.x = x
+    this.y = y
     this.health = 50
     this.speed = 5
+    this.id = id
     this.avatar = 'zombie'
   }
 

@@ -63,7 +63,7 @@
 /******/ 	__webpack_require__.p = "/";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 394);
+/******/ 	return __webpack_require__(__webpack_require__.s = 190);
 /******/ })
 /************************************************************************/
 /******/ ({
@@ -4237,63 +4237,6 @@ function toArray(list, index) {
 
 
 Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-
-var _socket = __webpack_require__(177);
-
-var _socket2 = _interopRequireDefault(_socket);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-var socket = (0, _socket2.default)('http://localhost:4000'); //http://www.dynetisgames.com/2017/03/06/how-to-make-a-multiplayer-online-game-with-phaser-socket-io-and-node-js/
-//https://github.com/Jerenaux/basic-mmo-phaser/blob/master/js/client.js
-
-//https://gamedev.stackexchange.com/questions/124434/phaser-io-with-socket-io-what-should-the-server-calculate-and-what-the-client
-
-//https://github.com/fbaiodias/phaser-multiplayer-game
-
-socket.askNewPlayer = function () {
-    socket.emit('newPlayer');
-};
-
-socket.sendMove = function (player, direction) {
-    socket.emit('' + direction, player);
-};
-
-socket.sendFire = function (x, y) {
-    socket.emit('click', { x: x, y: y });
-};
-
-socket.on('newPlayer', function (data) {
-    game.addNewPlayer(data.id, data.x, data.y);
-});
-
-socket.on('allplayers', function (data) {
-    data.forEach(function (player) {
-        game.addNewPlayer(player.id, player.x, player.y);
-    });
-
-    socket.on('move', function (data) {
-        game.movePlayer(data.id, data.x, data.y);
-    });
-
-    socket.on('remove', function (id) {
-        game.removePlayer(id);
-    });
-});
-
-exports.default = socket;
-
-/***/ }),
-
-/***/ 189:
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
@@ -4364,6 +4307,327 @@ var Bullet = function (_Phaser$Sprite) {
 }(Phaser.Sprite);
 
 exports.default = Bullet;
+
+/***/ }),
+
+/***/ 190:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _bullet = __webpack_require__(188);
+
+var _bullet2 = _interopRequireDefault(_bullet);
+
+var _weapon = __webpack_require__(391);
+
+var _enemy = __webpack_require__(389);
+
+var _enemy2 = _interopRequireDefault(_enemy);
+
+var _eventHandlers = __webpack_require__(390);
+
+var _eventHandlers2 = _interopRequireDefault(_eventHandlers);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+// excellent set of guides
+//https://www.joshmorony.com/creating-animated-scoring-in-an-html5-phaser-game/
+
+// minimap guide
+//http://www.html5gamedevs.com/topic/14182-creating-a-mini-map-in-phaser/
+
+
+/* ----- Phaser Dependencies ----- */
+var game = function startGame() {
+
+  /* ----- Declares global variables ----- */
+  var map = void 0,
+      layer = void 0,
+      player = void 0,
+      cursors = void 0,
+      fireButton = void 0,
+      changeKey = void 0,
+      collisionLayer = void 0,
+      enemies = void 0,
+      bullets = void 0,
+      weapons = void 0;
+
+  var players = void 0; //Not properly hooked up yet
+
+  var gameWidth = 1000;
+  var gameHeight = 800;
+  var score = 0;
+
+  /* ----- Start Game Instance ----- */
+  var game = new Phaser.Game(gameWidth, gameHeight, Phaser.AUTO, 'game-container', {
+    preload: preload,
+    create: create,
+    update: update,
+    render: render
+  });
+
+  function preload() {
+    game.load.crossOrigin = 'anonymous';
+
+    game.load.tilemap('desert', './assets/tilemaps/desert.json', null, Phaser.Tilemap.TILED_JSON);
+    game.load.tilemap('forest', './assets/tilemaps/forest.json', null, Phaser.Tilemap.TILED_JSON);
+    game.load.image('forestTiles', './assets/tilemaps/trees-and-bushes.png');
+    game.load.image('tiles', './assets/tilemaps/tmw_desert_spacing.png');
+
+    game.load.image('zombie', './assets/Zombie_Sprite.png');
+    game.load.image('human', './assets/dude.png');
+    game.load.image('bullet', './assets/singleBullet.png');
+    game.load.image('lazer', './assets/lazer.png');
+    game.load.spritesheet('zombies', './assets/zombie_sheet.png', 32, 48);
+  }
+
+  function create() {
+    game.physics.startSystem(Phaser.Physics.ARCADE);
+
+    addMap('desert' // specify map can be: ['desert', 'forest']
+    );addEnemies();
+    addPlayer();
+    addInputs();
+
+    addScore
+
+    // Instantiate player server - need to identify how to incorporate information flow
+    // client.askNewPlayer()
+
+    // Start listening for events
+    ();(0, _eventHandlers2.default)();
+  }
+
+  function createScoreAnimation(x, y, message, score) {
+    var scoreFont = "90px Arial";
+
+    //Create a new label for the score
+    var scoreAnimation = game.add.text(x, y, message, { font: scoreFont, fill: "#39d179", stroke: "#ffffff", strokeThickness: 15 });
+    scoreAnimation.anchor.setTo(0.5, 0);
+    scoreAnimation.align = 'center';
+
+    //Tween this score label to the total score label
+    var scoreTween = game.add.tween(scoreAnimation).to({ x: game.world.centerX, y: 50 }, 800, Phaser.Easing.Exponential.In, true);
+
+    //When the animation finishes, destroy this score label, trigger the total score labels animation and add the score
+    scoreTween.onComplete.add(function () {
+      scoreAnimation.destroy();
+      game.scoreLabelTween.start();
+      game.scoreBuffer += score;
+    }, game);
+  }
+
+  function addScore() {
+    game.score = 0;
+    game.scoreBuffer = 0;
+    // game.add.text(16, 16, 'score: 0', { fontSize: '32px', fill: '#111' });
+
+    var scoreFont = "100px Arial";
+
+    //Create the score label -> may want to move away from adding it directly on game object?
+    game.scoreLabel = game.add.text(game.world.centerX, 50, '0', { font: scoreFont, fill: "#ffffff", stroke: "#535353", strokeThickness: 15 });
+    // scoreLabel.anchor.setTo(0.5, 0);
+    game.scoreLabel.align = 'center';
+
+    //Create a tween to grow / shrink the score label
+    game.scoreLabelTween = game.add.tween(game.scoreLabel.scale).to({ x: 1.5, y: 1.5 }, 200, Phaser.Easing.Linear.In).to({ x: 1, y: 1 }, 200, Phaser.Easing.Linear.In);
+  }
+
+  function checkScore() {
+    if (game.scoreBuffer > 0) {
+      incrementScore();
+      game.scoreBuffer--;
+    }
+  }
+
+  function incrementScore() {
+    game.score += 1;
+    game.scoreLabel.text = game.score;
+  }
+
+  function update() {
+    checkEnemyActions();
+    checkPlayerInputs();
+    checkCollisions();
+    checkScore();
+  }
+
+  function render() {}
+  //game.debug.spriteInfo(player, 32, 450);
+
+
+  /* =============== =============== ===============
+    =============== UPDATE FUNCTIONS ===============
+    =============== =============== =============== */
+
+  function checkPlayerInputs() {
+    if (cursors.left.isDown) {
+      player.body.x -= player.body.velocity.x;
+    }
+    if (cursors.right.isDown) {
+      player.body.x += player.body.velocity.x;
+    }
+
+    if (cursors.up.isDown) {
+      player.body.y -= player.body.velocity.y;
+    }
+
+    if (cursors.down.isDown) {
+      player.body.y += player.body.velocity.y;
+    }
+
+    if (fireButton.isDown) {
+      player.weapons.children[player.currentWeapon].fire(player);
+    }
+
+    if (changeKey.isDown) {
+      changeWeapon(player);
+    }
+  }
+
+  function changeWeapon(player) {
+    if (player.currentWeapon === 1) {
+      player.currentWeapon = 0;
+      return player;
+    }
+
+    if (player.currentWeapon === 0) {
+      player.currentWeapon = 1;
+      return player;
+    }
+  }
+
+  function checkCollisions() {
+    game.physics.arcade.collide(player, collisionLayer);
+    game.physics.arcade.collide(enemies, collisionLayer
+
+    /* Collide weaponry with enemies */
+    );game.physics.arcade.overlap(player.weapons, enemies, hitEnemy, null, this
+
+    /* Collide weaponry with other players */
+    );game.physics.arcade.overlap(player.weapons, players, hitPlayer, null, this);
+  }
+
+  function hitEnemy(bullet, enemy) {
+    enemy.takeDamage(bullet.parent.damage);
+    bullet.kill();
+    console.log("Hit Zombie");
+
+    var score = bullet.parent.damage;
+    // game.score += 5
+    createScoreAnimation(enemy.x, enemy.y, '' + score, 5);
+  }
+
+  function hitPlayer(bullet, player) {
+    player.takeDamage(bullet.parent.damage);
+    bullet.kill();
+    console.log("Hit Player");
+  }
+
+  function checkEnemyActions() {
+    enemies.children.forEach(function (enemy) {
+      enemy.isAlive();
+      enemy.move(game, enemy, player);
+    });
+  }
+
+  /* =============== =============== ===============
+    =============== CREATE FUNCTIONS ===============
+    =============== =============== =============== */
+
+  function addInputs() {
+    cursors = game.input.keyboard.createCursorKeys();
+    fireButton = game.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR);
+    changeKey = game.input.keyboard.addKey(Phaser.Keyboard.ENTER);
+  }
+
+  function addInputsTwo() {
+    return {
+      cursors: game.input.keyboard.createCursorKeys(),
+      fireButton: game.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR),
+      changeKey: game.input.keyboard.addKey(Phaser.Keyboard.ENTER)
+    };
+  }
+
+  function addMap(type) {
+    if (type === 'desert') desertMap();
+    if (type === 'forest') forestMap();
+  }
+
+  function desertMap() {
+    map = game.add.tilemap('desert');
+    map.addTilesetImage('Desert', 'tiles');
+    layer = map.createLayer('Ground');
+    layer.resizeWorld();
+  }
+
+  function forestMap() {
+    map = game.add.tilemap('forest');
+    map.addTilesetImage('forestTiles', 'forestTiles');
+    map.addTilesetImage('tmw_desert_spacing', 'tiles');
+    layer = map.createLayer('MapLayer');
+    collisionLayer = map.createLayer('CollisionLayer');
+    collisionLayer.visible = false;
+    map.setCollisionByExclusion([], true, collisionLayer);
+  }
+
+  function addEnemies(number) {
+    enemies = game.add.group();
+
+    function addZombie() {
+      var number = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 100;
+
+      var i = 0;
+      while (i++ < number) {
+        enemies.add(new _enemy2.default(game, gameWidth, gameHeight, 'zombie'));
+      }
+    }
+
+    addZombie(number
+
+    /* ----- Generate Zombies FRP ----- */
+    // const source = Rx.Observable.interval(1000 /* ms */).timeInterval().take(5)
+    // const subscription = source.subscribe(addZombie,handleError)
+    );
+  }
+
+  /* =============== =============== ===============
+    =============== MULTIPLAYER FUNCTIONS ===============
+    =============== =============== =============== */
+
+  function addPlayer() {
+    game.allPlayers = [];
+    game.localPlayer = game.add.sprite(32, game.world.height / 2, 'zombie'
+
+    // player = game.add.sprite(32, game.world.height / 2, 'zombie')
+
+    );player = game.localPlayer;
+
+    weapons = game.add.group();
+    weapons.add(new _weapon.SingleBullet(game, 'bullet'));
+    weapons.add(new _weapon.LazerBeam(game, 'lazer'));
+    player.weapons = weapons;
+    player.currentWeapon = 0;
+
+    game.physics.arcade.enable(player);
+
+    player.body.velocity.x = 10;
+    player.body.velocity.y = 10;
+
+    game.camera.follow(player);
+  }
+
+  return game; // may not be best practices ... but attempting to contain scope
+}();
+
+/* ----- Server Dependencies ----- */
+exports.default = game;
 
 /***/ }),
 
@@ -5887,34 +6151,53 @@ function localstorage() {
 "use strict";
 
 
-var _client = __webpack_require__(188);
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
 
-var _client2 = _interopRequireDefault(_client);
+var _socket = __webpack_require__(177);
+
+var _socket2 = _interopRequireDefault(_socket);
+
+var _player = __webpack_require__(394);
+
+var _player2 = _interopRequireDefault(_player);
+
+var _game = __webpack_require__(190);
+
+var _game2 = _interopRequireDefault(_game);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var allPlayers = []; //copy of original in game.
+var socket = (0, _socket2.default)('http://localhost:4000'); //http://www.dynetisgames.com/2017/03/06/how-to-make-a-multiplayer-online-game-with-phaser-socket-io-and-node-js/
+//https://github.com/Jerenaux/basic-mmo-phaser/blob/master/js/client.js
+
+//https://gamedev.stackexchange.com/questions/124434/phaser-io-with-socket-io-what-should-the-server-calculate-and-what-the-client
+
+//https://github.com/fbaiodias/phaser-multiplayer-game
+
+//http://rawkes.com/articles/creating-a-real-time-multiplayer-game-with-websockets-and-node.html
 
 function setEventHandlers() {
   // Socket connection successful
-  _client2.default.on('connection', onSocketConnected
+  socket.on('connection', onSocketConnected
 
   // Socket disconnection
-  );_client2.default.on('disconnect', onSocketDisconnect
+  );socket.on('disconnect', onSocketDisconnect
 
   // New player message received
-  );_client2.default.on('newPlayer', onNewPlayer
+  );socket.on('newPlayer', onNewPlayer
 
   // Player move message received
-  );_client2.default.on('movePlayer', onMovePlayer
+  );socket.on('movePlayer', onMovePlayer
 
   // Player removed message received
-  );_client2.default.on('removePlayer', onRemovePlayer);
+  );socket.on('removePlayer', onRemovePlayer);
 }
 
 function onSocketConnected() {
-  console.log('connected!');
-  socket.emit('newPlayer');
+  console.log("Connected to socket server");
+  socket.emit('newPlayer', { x: _game2.default.localPlayer.x, y: _game2.default.localPlayer.y });
 }
 
 function onSocketDisconnect() {
@@ -5924,15 +6207,27 @@ function onSocketDisconnect() {
 function onNewPlayer(data) {
   console.log('New player connected:', data.id);
 
+  var newPlayer = new _player2.default(_game2.default, data.x, data.y, 50, 5, data.id, 'zombie');
+
   var duplicate = playerById(data.id);
   if (duplicate) {
     console.log('Duplicate player!');
     return;
   }
-  allPlayers.push(new Player(game, gameWidth, gameHeight, 50, 5, 'zombie'));
+  _game2.default.allPlayers.push(newPlayer);
 }
 
-function onMovePlayer() {}
+function onMovePlayer(data) {
+  var movePlayer = playerById(data.id);
+
+  if (!movePlayer) {
+    console.log("Player not found: " + data.id);
+    return;
+  }
+
+  movePlayer.x = data.x;
+  movePlayer.y = data.y;
+}
 
 function onRemovePlayer(data) {
   var removePlayer = playerById(data.id
@@ -5944,7 +6239,8 @@ function onRemovePlayer(data) {
   }
 
   removePlayer.player.kill();
-  allPlayers.splice(allPlayers.indexOf(removePlayer), 1);
+  _game2.default.allPlayers.splice(allPlayers.indexOf(removePlayer), 1);
+  this.broadcast.emit("remove player", { id: data.id });
 }
 
 function playerById(id) {
@@ -5953,6 +6249,8 @@ function playerById(id) {
   })[0];
   return identifiedPlayer.length > 0 ? identifiedPlayer : false;
 }
+
+exports.default = setEventHandlers;
 
 /***/ }),
 
@@ -5969,7 +6267,7 @@ exports.LazerBeam = exports.SingleBullet = undefined;
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _bullet = __webpack_require__(189);
+var _bullet = __webpack_require__(188);
 
 var _bullet2 = _interopRequireDefault(_bullet);
 
@@ -6076,316 +6374,51 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _bullet = __webpack_require__(189);
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _bullet2 = _interopRequireDefault(_bullet);
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var _weapon = __webpack_require__(391);
+/* Add player class to handle logic of people jumping in and out of the game */
+//need to pass in game object
 
-var _enemy = __webpack_require__(389);
+//extend group or sprites?
+// class Player extends Phaser.group {
 
-var _enemy2 = _interopRequireDefault(_enemy);
+var Player = function () {
+  function Player(game, x, y, health, speed, id, avatar) {
+    _classCallCheck(this, Player);
 
-var _client = __webpack_require__(188);
-
-var _client2 = _interopRequireDefault(_client);
-
-var _eventHandlers = __webpack_require__(390);
-
-var _eventHandlers2 = _interopRequireDefault(_eventHandlers);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-/* ----- Server Dependencies ----- */
-var game = function startGame() {
-
-  /* ----- Declares global variables ----- */
-  var map = void 0,
-      layer = void 0,
-      player = void 0,
-      cursors = void 0,
-      fireButton = void 0,
-      changeKey = void 0,
-      collisionLayer = void 0,
-      enemies = void 0,
-      bullets = void 0,
-      weapons = void 0;
-
-  var players = void 0; //Not properly hooked up yet
-
-  var gameWidth = 1000;
-  var gameHeight = 800;
-
-  var allPlayers = [];
-  var score = 0;
-
-  /* ----- Start Game Instance ----- */
-  var game = new Phaser.Game(gameWidth, gameHeight, Phaser.AUTO, 'game-container', {
-    preload: preload,
-    create: create,
-    update: update,
-    render: render
-  });
-
-  function preload() {
-    game.load.crossOrigin = 'anonymous';
-
-    game.load.tilemap('desert', './assets/tilemaps/desert.json', null, Phaser.Tilemap.TILED_JSON);
-    game.load.tilemap('forest', './assets/tilemaps/forest.json', null, Phaser.Tilemap.TILED_JSON);
-    game.load.image('forestTiles', './assets/tilemaps/trees-and-bushes.png');
-    game.load.image('tiles', './assets/tilemaps/tmw_desert_spacing.png');
-
-    game.load.image('zombie', './assets/Zombie_Sprite.png');
-    game.load.image('human', './assets/dude.png');
-    game.load.image('bullet', './assets/singleBullet.png');
-    game.load.image('lazer', './assets/lazer.png');
-    game.load.spritesheet('zombies', './assets/zombie_sheet.png', 32, 48);
+    this.game = game;
+    this.x = x;
+    this.y = y;
+    this.health = 50;
+    this.speed = 5;
+    this.id = id;
+    this.avatar = 'zombie';
   }
 
-  function create() {
-    game.physics.startSystem(Phaser.Physics.ARCADE);
-
-    game.playerMap = {};
-
-    addMap('desert' // specify map can be: ['desert', 'forest']
-    );addEnemies();
-    addPlayer();
-    addInputs();
-
-    addScore
-
-    // Instantiate player server - need to identify how to incorporate information flow
-    ();_client2.default.askNewPlayer
-
-    // Start listening for events
-    ();_eventHandlers2.default.setEventHandlers();
-  }
-
-  function createScoreAnimation(x, y, message, score) {
-    var scoreFont = "90px Arial";
-
-    //Create a new label for the score
-    var scoreAnimation = game.add.text(x, y, message, { font: scoreFont, fill: "#39d179", stroke: "#ffffff", strokeThickness: 15 });
-    scoreAnimation.anchor.setTo(0.5, 0);
-    scoreAnimation.align = 'center';
-
-    //Tween this score label to the total score label
-    var scoreTween = game.add.tween(scoreAnimation).to({ x: game.world.centerX, y: 50 }, 800, Phaser.Easing.Exponential.In, true);
-
-    //When the animation finishes, destroy this score label, trigger the total score labels animation and add the score
-    scoreTween.onComplete.add(function () {
-      scoreAnimation.destroy();
-      game.scoreLabelTween.start();
-      game.scoreBuffer += score;
-    }, game);
-  }
-
-  function addScore() {
-    game.score = 0;
-    game.scoreBuffer = 0;
-    // game.add.text(16, 16, 'score: 0', { fontSize: '32px', fill: '#111' });
-
-    var scoreFont = "100px Arial";
-
-    //Create the score label -> may want to move away from adding it directly on game object?
-    game.scoreLabel = game.add.text(game.world.centerX, 50, '0', { font: scoreFont, fill: "#ffffff", stroke: "#535353", strokeThickness: 15 });
-    // scoreLabel.anchor.setTo(0.5, 0);
-    game.scoreLabel.align = 'center';
-
-    //Create a tween to grow / shrink the score label
-    game.scoreLabelTween = game.add.tween(game.scoreLabel.scale).to({ x: 1.5, y: 1.5 }, 200, Phaser.Easing.Linear.In).to({ x: 1, y: 1 }, 200, Phaser.Easing.Linear.In);
-  }
-
-  function checkScore() {
-    if (game.scoreBuffer > 0) {
-      incrementScore();
-      game.scoreBuffer--;
+  _createClass(Player, [{
+    key: 'addPlayer',
+    value: function addPlayer(game, id, x, y) {
+      game.playerMap[id] = game.add.sprite(x, y, 'zombie');
     }
-  }
-
-  function incrementScore() {
-    game.score += 1;
-    game.scoreLabel.text = game.score;
-  }
-
-  function update() {
-    checkEnemyActions();
-    checkPlayerInputs();
-    checkCollisions();
-    checkScore();
-  }
-
-  function render() {}
-  //game.debug.spriteInfo(player, 32, 450);
-
-
-  /* =============== =============== ===============
-    =============== UPDATE FUNCTIONS ===============
-    =============== =============== =============== */
-
-  function checkPlayerInputs() {
-    if (cursors.left.isDown) {
-      player.body.x -= player.body.velocity.x;
+  }, {
+    key: 'removePlayer',
+    value: function removePlayer(game, id) {
+      game.playerMap[id].destroy();
+      delete game.playerMap[id];
     }
-    if (cursors.right.isDown) {
-      player.body.x += player.body.velocity.x;
+  }, {
+    key: 'takeDamage',
+    value: function takeDamage(damage) {
+      this.health -= damage;
     }
+  }]);
 
-    if (cursors.up.isDown) {
-      player.body.y -= player.body.velocity.y;
-    }
-
-    if (cursors.down.isDown) {
-      player.body.y += player.body.velocity.y;
-    }
-
-    if (fireButton.isDown) {
-      player.weapons.children[player.currentWeapon].fire(player);
-    }
-
-    if (changeKey.isDown) {
-      changeWeapon(player);
-    }
-  }
-
-  function changeWeapon(player) {
-    if (player.currentWeapon === 1) {
-      player.currentWeapon = 0;
-      return player;
-    }
-
-    if (player.currentWeapon === 0) {
-      player.currentWeapon = 1;
-      return player;
-    }
-  }
-
-  function checkCollisions() {
-    game.physics.arcade.collide(player, collisionLayer);
-    game.physics.arcade.collide(enemies, collisionLayer
-
-    /* Collide weaponry with enemies */
-    );game.physics.arcade.overlap(player.weapons, enemies, hitEnemy, null, this
-
-    /* Collide weaponry with other players */
-    );game.physics.arcade.overlap(player.weapons, players, hitPlayer, null, this);
-  }
-
-  function hitEnemy(bullet, enemy) {
-    enemy.takeDamage(bullet.parent.damage);
-    bullet.kill();
-    console.log("Hit Zombie");
-
-    var score = bullet.parent.damage;
-    // game.score += 5
-    createScoreAnimation(enemy.x, enemy.y, '' + score, 5);
-  }
-
-  function hitPlayer(bullet, player) {
-    player.takeDamage(bullet.parent.damage);
-    bullet.kill();
-    console.log("Hit Player");
-  }
-
-  function checkEnemyActions() {
-    enemies.children.forEach(function (enemy) {
-      enemy.isAlive();
-      enemy.move(game, enemy, player);
-    });
-  }
-
-  /* =============== =============== ===============
-    =============== CREATE FUNCTIONS ===============
-    =============== =============== =============== */
-
-  function addInputs() {
-    cursors = game.input.keyboard.createCursorKeys();
-    fireButton = game.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR);
-    changeKey = game.input.keyboard.addKey(Phaser.Keyboard.ENTER);
-  }
-
-  function addInputsTwo() {
-    return {
-      cursors: game.input.keyboard.createCursorKeys(),
-      fireButton: game.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR),
-      changeKey: game.input.keyboard.addKey(Phaser.Keyboard.ENTER)
-    };
-  }
-
-  function addMap(type) {
-    if (type === 'desert') desertMap();
-    if (type === 'forest') forestMap();
-  }
-
-  function desertMap() {
-    map = game.add.tilemap('desert');
-    map.addTilesetImage('Desert', 'tiles');
-    layer = map.createLayer('Ground');
-    layer.resizeWorld();
-  }
-
-  function forestMap() {
-    map = game.add.tilemap('forest');
-    map.addTilesetImage('forestTiles', 'forestTiles');
-    map.addTilesetImage('tmw_desert_spacing', 'tiles');
-    layer = map.createLayer('MapLayer');
-    collisionLayer = map.createLayer('CollisionLayer');
-    collisionLayer.visible = false;
-    map.setCollisionByExclusion([], true, collisionLayer);
-  }
-
-  function addEnemies(number) {
-    enemies = game.add.group();
-
-    function addZombie() {
-      var number = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 100;
-
-      var i = 0;
-      while (i++ < number) {
-        enemies.add(new _enemy2.default(game, gameWidth, gameHeight, 'zombie'));
-      }
-    }
-
-    addZombie(number
-
-    /* ----- Generate Zombies FRP ----- */
-    // const source = Rx.Observable.interval(1000 /* ms */).timeInterval().take(5)
-    // const subscription = source.subscribe(addZombie,handleError)
-    );
-  }
-
-  /* =============== =============== ===============
-    =============== MULTIPLAYER FUNCTIONS ===============
-    =============== =============== =============== */
-
-  function addPlayer() {
-    player = game.add.sprite(32, game.world.height / 2, 'zombie');
-
-    weapons = game.add.group();
-    weapons.add(new _weapon.SingleBullet(game, 'bullet'));
-    weapons.add(new _weapon.LazerBeam(game, 'lazer'));
-    player.weapons = weapons;
-    player.currentWeapon = 0;
-
-    game.physics.arcade.enable(player);
-
-    player.body.velocity.x = 10;
-    player.body.velocity.y = 10;
-
-    game.camera.follow(player);
-  }
-
-  return game; // may not be best practices ... but attempting to contain scope
+  return Player;
 }();
-// excellent set of guides
-//https://www.joshmorony.com/creating-animated-scoring-in-an-html5-phaser-game/
 
-// minimap guide
-//http://www.html5gamedevs.com/topic/14182-creating-a-mini-map-in-phaser/
-
-
-/* ----- Phaser Dependencies ----- */
-exports.default = game;
+exports.default = Player;
 
 /***/ }),
 

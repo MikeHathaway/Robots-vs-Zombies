@@ -1,27 +1,40 @@
-import client from '../../client'
+//http://www.dynetisgames.com/2017/03/06/how-to-make-a-multiplayer-online-game-with-phaser-socket-io-and-node-js/
+//https://github.com/Jerenaux/basic-mmo-phaser/blob/master/js/client.js
 
-const allPlayers = [] //copy of original in game.
+//https://gamedev.stackexchange.com/questions/124434/phaser-io-with-socket-io-what-should-the-server-calculate-and-what-the-client
+
+//https://github.com/fbaiodias/phaser-multiplayer-game
+
+//http://rawkes.com/articles/creating-a-real-time-multiplayer-game-with-websockets-and-node.html
+
+import io from 'socket.io-client'
+import Player from '../player'
+
+import game from '../game'
+
+const socket = io('http://localhost:4000')
 
 function setEventHandlers(){
   // Socket connection successful
-  client.on('connection', onSocketConnected)
+  socket.on('connection', onSocketConnected)
 
   // Socket disconnection
-  client.on('disconnect', onSocketDisconnect)
+  socket.on('disconnect', onSocketDisconnect)
 
   // New player message received
-  client.on('newPlayer', onNewPlayer)
+  socket.on('newPlayer', onNewPlayer)
 
   // Player move message received
-  client.on('movePlayer', onMovePlayer)
+  socket.on('movePlayer', onMovePlayer)
 
   // Player removed message received
-  client.on('removePlayer', onRemovePlayer)
+  socket.on('removePlayer', onRemovePlayer)
 }
 
-function onSocketConnected(){
-  console.log('connected!')
-  socket.emit('newPlayer')
+
+function onSocketConnected() {
+    console.log("Connected to socket server")
+    socket.emit('newPlayer', {x: game.localPlayer.x, y: game.localPlayer.y});
 }
 
 function onSocketDisconnect(){
@@ -31,15 +44,28 @@ function onSocketDisconnect(){
 function onNewPlayer(data){
   console.log('New player connected:', data.id)
 
+  const newPlayer = new Player(game,data.x,data.y,50,5,data.id,'zombie')
+
   const duplicate = playerById(data.id)
   if (duplicate) {
     console.log('Duplicate player!')
     return
   }
-  allPlayers.push(new Player(game,gameWidth,gameHeight,50,5,'zombie'))
+  game.allPlayers.push(newPlayer)
 }
 
-function onMovePlayer(){}
+
+function onMovePlayer(data){
+  const movePlayer = playerById(data.id);
+
+  if (!movePlayer) {
+      console.log("Player not found: " + data.id);
+      return;
+  }
+
+  movePlayer.x = data.x
+  movePlayer.y = data.y
+}
 
 function onRemovePlayer(data){
   const removePlayer = playerById(data.id)
@@ -51,10 +77,15 @@ function onRemovePlayer(data){
   }
 
   removePlayer.player.kill()
-  allPlayers.splice(allPlayers.indexOf(removePlayer), 1)
+  game.allPlayers.splice(allPlayers.indexOf(removePlayer), 1)
+  this.broadcast.emit("remove player", {id: data.id})
 }
+
+
 
 function playerById (id) {
   const identifiedPlayer = allPlayers.filter(player => player.id === id)[0]
   return identifiedPlayer.length > 0 ? identifiedPlayer : false
 }
+
+export default setEventHandlers

@@ -12,9 +12,7 @@ import {SingleBullet, LazerBeam} from './weapon'
 import Enemy from './enemy'
 
 /* ----- Server Dependencies ----- */
-import client from '../client'
 import eventHandlers from './eventHandlers'
-
 
 const game = (function startGame(){
 
@@ -34,8 +32,6 @@ const game = (function startGame(){
 
   const gameWidth = 1000
   const gameHeight = 800
-
-  const allPlayers = []
   const score = 0
 
 
@@ -46,7 +42,6 @@ const game = (function startGame(){
       update: update,
       render: render
   })
-
 
   function preload(){
     game.load.crossOrigin = 'anonymous'
@@ -67,9 +62,6 @@ const game = (function startGame(){
   function create(){
     game.physics.startSystem(Phaser.Physics.ARCADE)
 
-    game.playerMap = {}
-
-
     addMap('desert') // specify map can be: ['desert', 'forest']
     addEnemies()
     addPlayer()
@@ -78,10 +70,10 @@ const game = (function startGame(){
     addScore()
 
     // Instantiate player server - need to identify how to incorporate information flow
-    client.askNewPlayer()
+    // client.askNewPlayer()
 
     // Start listening for events
-    eventHandlers.setEventHandlers()
+    eventHandlers()
   }
 
   function createScoreAnimation(x,y,message,score){
@@ -303,13 +295,19 @@ const game = (function startGame(){
 
 
   function addPlayer(){
-    player = game.add.sprite(32, game.world.height / 2, 'zombie')
+    game.allPlayers = []
+    game.localPlayer = game.add.sprite(32, game.world.height / 2, 'zombie')
+
+    // player = game.add.sprite(32, game.world.height / 2, 'zombie')
+
+    player = game.localPlayer
 
     weapons = game.add.group()
     weapons.add(new SingleBullet(game,'bullet'))
     weapons.add(new LazerBeam(game,'lazer'))
     player.weapons = weapons
     player.currentWeapon = 0
+
 
     game.physics.arcade.enable(player)
 
