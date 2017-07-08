@@ -63,7 +63,7 @@
 /******/ 	__webpack_require__.p = "/";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 190);
+/******/ 	return __webpack_require__(__webpack_require__.s = 394);
 /******/ })
 /************************************************************************/
 /******/ ({
@@ -4237,6 +4237,63 @@ function toArray(list, index) {
 
 
 Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _socket = __webpack_require__(177);
+
+var _socket2 = _interopRequireDefault(_socket);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var socket = (0, _socket2.default)('http://localhost:4000'); //http://www.dynetisgames.com/2017/03/06/how-to-make-a-multiplayer-online-game-with-phaser-socket-io-and-node-js/
+//https://github.com/Jerenaux/basic-mmo-phaser/blob/master/js/client.js
+
+//https://gamedev.stackexchange.com/questions/124434/phaser-io-with-socket-io-what-should-the-server-calculate-and-what-the-client
+
+//https://github.com/fbaiodias/phaser-multiplayer-game
+
+socket.askNewPlayer = function () {
+    socket.emit('newPlayer');
+};
+
+socket.sendMove = function (player, direction) {
+    socket.emit('' + direction, player);
+};
+
+socket.sendFire = function (x, y) {
+    socket.emit('click', { x: x, y: y });
+};
+
+socket.on('newPlayer', function (data) {
+    game.addNewPlayer(data.id, data.x, data.y);
+});
+
+socket.on('allplayers', function (data) {
+    data.forEach(function (player) {
+        game.addNewPlayer(player.id, player.x, player.y);
+    });
+
+    socket.on('move', function (data) {
+        game.movePlayer(data.id, data.x, data.y);
+    });
+
+    socket.on('remove', function (id) {
+        game.removePlayer(id);
+    });
+});
+
+exports.default = socket;
+
+/***/ }),
+
+/***/ 189:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
@@ -4302,317 +4359,6 @@ var Bullet = function (_Phaser$Sprite) {
 }(Phaser.Sprite);
 
 exports.default = Bullet;
-
-/***/ }),
-
-/***/ 190:
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _bullet = __webpack_require__(188);
-
-var _bullet2 = _interopRequireDefault(_bullet);
-
-var _weapon = __webpack_require__(391);
-
-var _enemy = __webpack_require__(390);
-
-var _enemy2 = _interopRequireDefault(_enemy);
-
-var _client = __webpack_require__(389);
-
-var _client2 = _interopRequireDefault(_client);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-//https://www.joshmorony.com/create-a-running-platformer-game-in-phaser-with-tilemaps/
-//use tiled to generate tile maps for the gameplay
-//https://opengameart.org/content/trees-bushes
-//^source of free png for generating tilemaps
-
-//Use for strategic view and or capital tactical traversal
-//https://opengameart.org/content/colony-sim-assets
-
-
-/* ----- Phaser Dependencies ----- */
-var game = function startGame() {
-
-  /* ----- Declares global variables ----- */
-  var map = void 0;
-  var layer = void 0;
-  var player = void 0;
-  var cursors = void 0;
-  var fireButton = void 0;
-  var changeKey = void 0;
-  var collisionLayer = void 0;
-  var enemies = void 0;
-  var bullets = void 0;
-  var weapons = void 0;
-
-  var players = void 0; //Not properly hooked up yet
-
-  var gameWidth = 1000;
-  var gameHeight = 800;
-
-  var allPlayers = [];
-
-  var game = new Phaser.Game(gameWidth, gameHeight, Phaser.AUTO, 'game-container', {
-    preload: preload,
-    create: create,
-    update: update,
-    render: render
-  });
-
-  function preload() {
-    game.load.crossOrigin = 'anonymous';
-
-    game.load.tilemap('desert', './assets/tilemaps/desert.json', null, Phaser.Tilemap.TILED_JSON);
-    game.load.tilemap('forest', './assets/tilemaps/forest.json', null, Phaser.Tilemap.TILED_JSON);
-    game.load.image('forestTiles', './assets/tilemaps/trees-and-bushes.png');
-    game.load.image('tiles', './assets/tilemaps/tmw_desert_spacing.png');
-
-    game.load.image('zombie', './assets/Zombie_Sprite.png');
-    game.load.image('human', './assets/dude.png');
-    game.load.image('bullet', './assets/singleBullet.png');
-    game.load.image('lazer', './assets/lazer.png');
-    game.load.spritesheet('zombies', './assets/zombie_sheet.png', 32, 48);
-  }
-
-  function create() {
-    game.physics.startSystem(Phaser.Physics.ARCADE);
-
-    game.playerMap = {};
-
-    addMap();
-    addEnemies();
-    addPlayer();
-
-    _client2.default.askNewPlayer();
-
-    cursors = game.input.keyboard.createCursorKeys();
-    fireButton = game.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR);
-    changeKey = game.input.keyboard.addKey(Phaser.Keyboard.ENTER
-
-    // Start listening for events
-    );setEventHandlers();
-  }
-
-  function hitEnemy(bullet, enemy) {
-    enemy.takeDamage(bullet.parent.damage);
-    bullet.kill();
-    console.log("Hit Zombie");
-  }
-
-  function hitPlayer(bullet, player) {
-    player.takeDamage(bullet.parent.damage);
-    bullet.kill();
-    console.log("Hit Player");
-  }
-
-  function update() {
-
-    game.physics.arcade.collide(player, collisionLayer);
-    game.physics.arcade.collide(enemies, collisionLayer
-
-    /* Collide weaponry with enemies */
-    );game.physics.arcade.overlap(player.weapons, enemies, hitEnemy, null, this
-
-    /* Collide weaponry with other players */
-    );game.physics.arcade.overlap(player.weapons, players, hitPlayer, null, this
-
-    // controller for enemy actions each game loop
-    );enemies.children.forEach(function (enemy) {
-      enemy.isAlive();
-      enemy.move();
-    });
-
-    if (cursors.left.isDown) {
-      player.body.x -= player.body.velocity.x;
-    }
-    if (cursors.right.isDown) {
-      player.body.x += player.body.velocity.x;
-    }
-
-    if (cursors.up.isDown) {
-      player.body.y -= player.body.velocity.y;
-    }
-
-    if (cursors.down.isDown) {
-      player.body.y += player.body.velocity.y;
-    }
-
-    if (fireButton.isDown) {
-      player.weapons.children[player.currentWeapon].fire(player);
-    }
-
-    if (changeKey.isDown) {
-      changeWeapon(player);
-    }
-  }
-
-  function render() {
-    game.debug.spriteInfo(player, 32, 450);
-  }
-
-  /* ----- HELPER FUNCTIONS ----- */
-  function changeWeapon(player) {
-    if (player.currentWeapon === 1) {
-      player.currentWeapon = 0;
-      return this;
-    }
-
-    if (player.currentWeapon === 0) {
-      player.currentWeapon = 1;
-      return this;
-    }
-  }
-
-  function addMap() {
-
-    /* old desert map */
-    map = game.add.tilemap('desert');
-    map.addTilesetImage('Desert', 'tiles');
-    layer = map.createLayer('Ground'
-
-    /* new forest test map */
-    // map = game.add.tilemap('forest')
-    // map.addTilesetImage('forestTiles', 'forestTiles')
-    // map.addTilesetImage('tmw_desert_spacing', 'tiles')
-    // layer = map.createLayer('MapLayer')
-    // collisionLayer = map.createLayer('CollisionLayer')
-    // collisionLayer.visible = false
-    // map.setCollisionByExclusion([], true, collisionLayer)
-
-    );layer.resizeWorld();
-  }
-
-  function addEnemies() {
-    enemies = game.add.group
-
-    /* ----- Generate Zombies FRP ----- */
-    ();function addZombie() {
-      var number = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 5;
-
-      var i = 0;
-      while (i++ < number) {
-        enemies.add(new _enemy2.default(game, gameWidth, gameHeight, 'zombie'));
-      }
-    }
-
-    addZombie
-
-    // function handleError(err){
-    //   return console.error(err)
-    // }
-    //
-    // const source = Rx.Observable.interval(1000 /* ms */).timeInterval().take(5)
-    // const subscription = source.subscribe(addZombie,handleError)
-    ();
-  }
-
-  function addPlayer() {
-
-    /* Approach to programmaticaly adding users */
-    // Object.keys(players).forEach(player => {
-    //
-    // })
-
-    player = game.add.sprite(32, game.world.height / 2, 'zombie');
-
-    weapons = game.add.group();
-    weapons.add(new _weapon.SingleBullet(game, 'bullet'));
-    weapons.add(new _weapon.LazerBeam(game, 'lazer'));
-    player.weapons = weapons;
-    player.currentWeapon = 0;
-
-    //  We need to enable physics on the player
-    game.physics.arcade.enable(player);
-
-    player.body.velocity.x = 10;
-    player.body.velocity.y = 10;
-
-    game.camera.follow(player);
-  }
-
-  function setEventHandlers() {
-    // Socket connection successful
-    _client2.default.on('connection', onSocketConnected
-
-    // Socket disconnection
-    );_client2.default.on('disconnect', onSocketDisconnect
-
-    // New player message received
-    );_client2.default.on('newPlayer', onNewPlayer
-
-    // Player move message received
-    );_client2.default.on('movePlayer', onMovePlayer
-
-    // Player removed message received
-    );_client2.default.on('removePlayer', onRemovePlayer);
-  }
-
-  function onSocketConnected() {
-    console.log('connected!');
-    socket.emit('newPlayer');
-  }
-
-  function onSocketDisconnect() {
-    console.log('Disconnected from socket server');
-  }
-
-  function onNewPlayer(data) {
-    console.log('New player connected:', data.id);
-
-    var duplicate = playerById(data.id);
-    if (duplicate) {
-      console.log('Duplicate player!');
-      return;
-    }
-    allPlayers.push(new Player(game, gameWidth, gameHeight, 50, 5, 'zombie'));
-  }
-
-  function onMovePlayer() {}
-
-  function onRemovePlayer(data) {
-    var removePlayer = playerById(data.id
-
-    // Player not found
-    );if (!removePlayer) {
-      console.log('Player not found: ', data.id);
-      return;
-    }
-
-    removePlayer.player.kill();
-    allPlayers.splice(allPlayers.indexOf(removePlayer), 1);
-  }
-
-  function playerById(id) {
-    var identifiedPlayer = allPlayers.filter(function (player) {
-      return player.id === id;
-    })[0];
-    return identifiedPlayer.length > 0 ? identifiedPlayer : false;
-  }
-
-  // game.addNewPlayer = function(id,x,y){
-  //   game.playerMap[id] = game.add.sprite(x,y,'zombie')
-  // }
-  //
-  // game.removePlayer = function(id){
-  //   game.playerMap[id].destroy()
-  //   delete game.playerMap[id]
-  // }
-
-  return game; // may not be best practices ... but attempting to contain scope
-}();
-
-/* ----- Server Dependencies ----- */
-exports.default = game;
 
 /***/ }),
 
@@ -5848,59 +5594,90 @@ exports.decode = function(qs){
 
 
 Object.defineProperty(exports, "__esModule", {
-    value: true
+  value: true
 });
 
-var _socket = __webpack_require__(177);
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _socket2 = _interopRequireDefault(_socket);
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var _index = __webpack_require__(190);
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
 
-var _index2 = _interopRequireDefault(_index);
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+//http://metroid.niklasberg.se/2016/02/12/phaser-making-and-using-a-generic-enemy-class-es6es2015/
 
-//http://www.dynetisgames.com/2017/03/06/how-to-make-a-multiplayer-online-game-with-phaser-socket-io-and-node-js/
-//https://github.com/Jerenaux/basic-mmo-phaser/blob/master/js/client.js
+//https://phaser.io/examples/v2/games/tanks
 
-//https://gamedev.stackexchange.com/questions/124434/phaser-io-with-socket-io-what-should-the-server-calculate-and-what-the-client
+//http://www.html5gamedevs.com/topic/14281-help-needed-for-better-enemy-ai/
+//^add functionality for more sophisticated enemy ai
 
-//https://github.com/fbaiodias/phaser-multiplayer-game
 
-var socket = (0, _socket2.default)('http://localhost:4000');
+var Enemy = function (_Phaser$Sprite) {
+  _inherits(Enemy, _Phaser$Sprite);
 
-socket.askNewPlayer = function () {
-    socket.emit('newPlayer');
-};
+  function Enemy(game, x, y, type) {
+    _classCallCheck(this, Enemy);
 
-socket.sendMove = function (player, direction) {
-    socket.emit('' + direction, player);
-};
+    var _this = _possibleConstructorReturn(this, (Enemy.__proto__ || Object.getPrototypeOf(Enemy)).call(this, game, 0, 0, 'zombie'));
 
-socket.sendFire = function (x, y) {
-    socket.emit('click', { x: x, y: y });
-};
+    _this.x = genRandomNum(x);
+    _this.y = genRandomNum(y);
+    _this.speed = 2;
+    _this.type = type;
+    _this.health = 30;
+    game.physics.enable(_this);
+    return _this;
+  }
 
-socket.on('newPlayer', function (data) {
-    _index2.default.addNewPlayer(data.id, data.x, data.y);
-});
+  _createClass(Enemy, [{
+    key: 'spawnEnemy',
+    value: function spawnEnemy(game, x, y) {
+      game.add.sprite(genRandomNum(x), genRandomNum(y), 'zombie');
+    }
+  }, {
+    key: 'move',
+    value: function move() {
+      this.x += genMovement(this.speed);
+      this.y += genMovement(this.speed);
+    }
+  }, {
+    key: 'isAlive',
+    value: function isAlive() {
+      if (this.health <= 0) this.kill();
+    }
+  }, {
+    key: 'takeDamage',
+    value: function takeDamage(damage) {
+      this.health -= damage;
+    }
+  }, {
+    key: 'update',
+    value: function update() {
+      this.game.physics.arcade.collide(this, this.game.collisionLayer);
 
-socket.on('allplayers', function (data) {
-    data.forEach(function (player) {
-        _index2.default.addNewPlayer(player.id, player.x, player.y);
-    });
+      // if (this.body.blocked.right) {
+      //   this.scale.x = -1;
+      //   this.body.x = genRandomNum(this.speed)
+      // } else if (this.body.blocked.left) {
+      //   this.scale.x = 1;
+      //   this.body.velocity.x = genRandomNum(this.speed)
+      // }
+    }
+  }]);
 
-    socket.on('move', function (data) {
-        _index2.default.movePlayer(data.id, data.x, data.y);
-    });
+  return Enemy;
+}(Phaser.Sprite);
 
-    socket.on('remove', function (id) {
-        _index2.default.removePlayer(id);
-    });
-});
+function genRandomNum(factor) {
+  return Math.floor(factor * Math.random());
+}
 
-exports.default = socket;
+function genMovement(factor) {
+  return Math.floor(factor * (Math.round(Math.random()) * 2 - 1));
+}
+
+exports.default = Enemy;
 
 /***/ }),
 
@@ -6103,91 +5880,72 @@ function localstorage() {
 "use strict";
 
 
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
+var _client = __webpack_require__(188);
 
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+var _client2 = _interopRequireDefault(_client);
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+var allPlayers = []; //copy of original in game.
 
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+function setEventHandlers() {
+  // Socket connection successful
+  _client2.default.on('connection', onSocketConnected
 
-//http://metroid.niklasberg.se/2016/02/12/phaser-making-and-using-a-generic-enemy-class-es6es2015/
+  // Socket disconnection
+  );_client2.default.on('disconnect', onSocketDisconnect
 
-//https://phaser.io/examples/v2/games/tanks
+  // New player message received
+  );_client2.default.on('newPlayer', onNewPlayer
 
-//http://www.html5gamedevs.com/topic/14281-help-needed-for-better-enemy-ai/
-//^add functionality for more sophisticated enemy ai
+  // Player move message received
+  );_client2.default.on('movePlayer', onMovePlayer
 
+  // Player removed message received
+  );_client2.default.on('removePlayer', onRemovePlayer);
+}
 
-var Enemy = function (_Phaser$Sprite) {
-  _inherits(Enemy, _Phaser$Sprite);
+function onSocketConnected() {
+  console.log('connected!');
+  socket.emit('newPlayer');
+}
 
-  function Enemy(game, x, y, type) {
-    _classCallCheck(this, Enemy);
+function onSocketDisconnect() {
+  console.log('Disconnected from socket server');
+}
 
-    var _this = _possibleConstructorReturn(this, (Enemy.__proto__ || Object.getPrototypeOf(Enemy)).call(this, game, 0, 0, 'zombie'));
+function onNewPlayer(data) {
+  console.log('New player connected:', data.id);
 
-    _this.x = genRandomNum(x);
-    _this.y = genRandomNum(y);
-    _this.speed = 2;
-    _this.type = type;
-    _this.health = 30;
-    game.physics.enable(_this);
-    return _this;
+  var duplicate = playerById(data.id);
+  if (duplicate) {
+    console.log('Duplicate player!');
+    return;
+  }
+  allPlayers.push(new Player(game, gameWidth, gameHeight, 50, 5, 'zombie'));
+}
+
+function onMovePlayer() {}
+
+function onRemovePlayer(data) {
+  var removePlayer = playerById(data.id
+
+  // Player not found
+  );if (!removePlayer) {
+    console.log('Player not found: ', data.id);
+    return;
   }
 
-  _createClass(Enemy, [{
-    key: 'spawnEnemy',
-    value: function spawnEnemy(game, x, y) {
-      game.add.sprite(genRandomNum(x), genRandomNum(y), 'zombie');
-    }
-  }, {
-    key: 'move',
-    value: function move() {
-      this.x += genMovement(this.speed);
-      this.y += genMovement(this.speed);
-    }
-  }, {
-    key: 'isAlive',
-    value: function isAlive() {
-      if (this.health <= 0) this.kill();
-    }
-  }, {
-    key: 'takeDamage',
-    value: function takeDamage(damage) {
-      this.health -= damage;
-    }
-  }, {
-    key: 'update',
-    value: function update() {
-      this.game.physics.arcade.collide(this, this.game.collisionLayer);
-
-      // if (this.body.blocked.right) {
-      //   this.scale.x = -1;
-      //   this.body.x = genRandomNum(this.speed)
-      // } else if (this.body.blocked.left) {
-      //   this.scale.x = 1;
-      //   this.body.velocity.x = genRandomNum(this.speed)
-      // }
-    }
-  }]);
-
-  return Enemy;
-}(Phaser.Sprite);
-
-function genRandomNum(factor) {
-  return Math.floor(factor * Math.random());
+  removePlayer.player.kill();
+  allPlayers.splice(allPlayers.indexOf(removePlayer), 1);
 }
 
-function genMovement(factor) {
-  return Math.floor(factor * (Math.round(Math.random()) * 2 - 1));
+function playerById(id) {
+  var identifiedPlayer = allPlayers.filter(function (player) {
+    return player.id === id;
+  })[0];
+  return identifiedPlayer.length > 0 ? identifiedPlayer : false;
 }
-
-exports.default = Enemy;
 
 /***/ }),
 
@@ -6204,7 +5962,7 @@ exports.LazerBeam = exports.SingleBullet = undefined;
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _bullet = __webpack_require__(188);
+var _bullet = __webpack_require__(189);
 
 var _bullet2 = _interopRequireDefault(_bullet);
 
@@ -6298,6 +6056,271 @@ var LazerBeam = exports.LazerBeam = function (_Weapon2) {
 
   return LazerBeam;
 }(Weapon);
+
+/***/ }),
+
+/***/ 394:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _bullet = __webpack_require__(189);
+
+var _bullet2 = _interopRequireDefault(_bullet);
+
+var _weapon = __webpack_require__(391);
+
+var _enemy = __webpack_require__(389);
+
+var _enemy2 = _interopRequireDefault(_enemy);
+
+var _client = __webpack_require__(188);
+
+var _client2 = _interopRequireDefault(_client);
+
+var _eventHandlers = __webpack_require__(390);
+
+var _eventHandlers2 = _interopRequireDefault(_eventHandlers);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/* ----- Server Dependencies ----- */
+var game = function startGame() {
+
+  /* ----- Declares global variables ----- */
+  var map = void 0;
+  var layer = void 0;
+  var player = void 0;
+  var cursors = void 0;
+  var fireButton = void 0;
+  var changeKey = void 0;
+  var collisionLayer = void 0;
+  var enemies = void 0;
+  var bullets = void 0;
+  var weapons = void 0;
+
+  var players = void 0; //Not properly hooked up yet
+
+  var gameWidth = 1000;
+  var gameHeight = 800;
+
+  var allPlayers = [];
+
+  var game = new Phaser.Game(gameWidth, gameHeight, Phaser.AUTO, 'game-container', {
+    preload: preload,
+    create: create,
+    update: update,
+    render: render
+  });
+
+  function preload() {
+    game.load.crossOrigin = 'anonymous';
+
+    game.load.tilemap('desert', './assets/tilemaps/desert.json', null, Phaser.Tilemap.TILED_JSON);
+    game.load.tilemap('forest', './assets/tilemaps/forest.json', null, Phaser.Tilemap.TILED_JSON);
+    game.load.image('forestTiles', './assets/tilemaps/trees-and-bushes.png');
+    game.load.image('tiles', './assets/tilemaps/tmw_desert_spacing.png');
+
+    game.load.image('zombie', './assets/Zombie_Sprite.png');
+    game.load.image('human', './assets/dude.png');
+    game.load.image('bullet', './assets/singleBullet.png');
+    game.load.image('lazer', './assets/lazer.png');
+    game.load.spritesheet('zombies', './assets/zombie_sheet.png', 32, 48);
+  }
+
+  function create() {
+    game.physics.startSystem(Phaser.Physics.ARCADE);
+
+    game.playerMap = {};
+
+    addMap('desert');
+    addEnemies();
+    addPlayer();
+    addInputs
+
+    // Instantiate player server
+    //need to identify how to incorporate information flow
+    ();_client2.default.askNewPlayer
+
+    // Start listening for events
+    ();_eventHandlers2.default.setEventHandlers();
+  }
+
+  function update() {
+    checkEnemyActions();
+    checkPlayerInputs();
+    checkCollisions();
+  }
+
+  function render() {}
+  //game.debug.spriteInfo(player, 32, 450);
+
+
+  /* =============== =============== =============== */
+
+  /* =============== UPDATE FUNCTIONS =============== */
+
+  /* =============== =============== =============== */
+
+  function checkPlayerInputs() {
+    if (cursors.left.isDown) {
+      player.body.x -= player.body.velocity.x;
+    }
+    if (cursors.right.isDown) {
+      player.body.x += player.body.velocity.x;
+    }
+
+    if (cursors.up.isDown) {
+      player.body.y -= player.body.velocity.y;
+    }
+
+    if (cursors.down.isDown) {
+      player.body.y += player.body.velocity.y;
+    }
+
+    if (fireButton.isDown) {
+      player.weapons.children[player.currentWeapon].fire(player);
+    }
+
+    if (changeKey.isDown) {
+      changeWeapon(player);
+    }
+  }
+
+  function changeWeapon(player) {
+    if (player.currentWeapon === 1) {
+      player.currentWeapon = 0;
+      return this;
+    }
+
+    if (player.currentWeapon === 0) {
+      player.currentWeapon = 1;
+      return this;
+    }
+  }
+
+  function checkCollisions() {
+    game.physics.arcade.collide(player, collisionLayer);
+    game.physics.arcade.collide(enemies, collisionLayer
+
+    /* Collide weaponry with enemies */
+    );game.physics.arcade.overlap(player.weapons, enemies, hitEnemy, null, this
+
+    /* Collide weaponry with other players */
+    );game.physics.arcade.overlap(player.weapons, players, hitPlayer, null, this);
+  }
+
+  function hitEnemy(bullet, enemy) {
+    enemy.takeDamage(bullet.parent.damage);
+    bullet.kill();
+    console.log("Hit Zombie");
+  }
+
+  function hitPlayer(bullet, player) {
+    player.takeDamage(bullet.parent.damage);
+    bullet.kill();
+    console.log("Hit Player");
+  }
+
+  function checkEnemyActions() {
+    enemies.children.forEach(function (enemy) {
+      enemy.isAlive();
+      enemy.move();
+    });
+  }
+
+  /* =============== =============== =============== */
+
+  /* =============== CREATE FUNCTIONS =============== */
+
+  /* =============== =============== =============== */
+
+  function addInputs() {
+    cursors = game.input.keyboard.createCursorKeys();
+    fireButton = game.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR);
+    changeKey = game.input.keyboard.addKey(Phaser.Keyboard.ENTER);
+  }
+
+  function addMap(type) {
+    if (type === 'desert') desertMap();
+    if (type === 'forest') forestMap();
+  }
+
+  function forestMap() {
+    map = game.add.tilemap('forest');
+    map.addTilesetImage('forestTiles', 'forestTiles');
+    map.addTilesetImage('tmw_desert_spacing', 'tiles');
+    layer = map.createLayer('MapLayer');
+    collisionLayer = map.createLayer('CollisionLayer');
+    collisionLayer.visible = false;
+    map.setCollisionByExclusion([], true, collisionLayer);
+  }
+
+  function desertMap() {
+    map = game.add.tilemap('desert');
+    map.addTilesetImage('Desert', 'tiles');
+    layer = map.createLayer('Ground');
+    layer.resizeWorld();
+  }
+
+  function addEnemies(number) {
+    enemies = game.add.group();
+
+    function addZombie() {
+      var number = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 5;
+
+      var i = 0;
+      while (i++ < number) {
+        enemies.add(new _enemy2.default(game, gameWidth, gameHeight, 'zombie'));
+      }
+    }
+
+    addZombie(number
+
+    /* ----- Generate Zombies FRP ----- */
+    // function handleError(err){
+    //   return console.error(err)
+    // }
+    //
+    // const source = Rx.Observable.interval(1000 /* ms */).timeInterval().take(5)
+    // const subscription = source.subscribe(addZombie,handleError)
+    );
+  }
+
+  function addPlayer() {
+    player = game.add.sprite(32, game.world.height / 2, 'zombie');
+
+    weapons = game.add.group();
+    weapons.add(new _weapon.SingleBullet(game, 'bullet'));
+    weapons.add(new _weapon.LazerBeam(game, 'lazer'));
+    player.weapons = weapons;
+    player.currentWeapon = 0;
+
+    game.physics.arcade.enable(player);
+
+    player.body.velocity.x = 10;
+    player.body.velocity.y = 10;
+
+    game.camera.follow(player);
+  }
+
+  return game; // may not be best practices ... but attempting to contain scope
+}(); //https://www.joshmorony.com/create-a-running-platformer-game-in-phaser-with-tilemaps/
+//use tiled to generate tile maps for the gameplay
+//https://opengameart.org/content/trees-bushes
+//^source of free png for generating tilemaps
+
+//Use for strategic view and or capital tactical traversal
+//https://opengameart.org/content/colony-sim-assets
+
+
+/* ----- Phaser Dependencies ----- */
+exports.default = game;
 
 /***/ }),
 

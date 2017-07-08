@@ -6,7 +6,6 @@
 //https://github.com/fbaiodias/phaser-multiplayer-game
 
 import io from 'socket.io-client'
-import game from './game/index'
 
 const socket = io('http://localhost:4000')
 

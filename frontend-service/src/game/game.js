@@ -14,6 +14,8 @@ import Enemy from './enemy'
 
 /* ----- Server Dependencies ----- */
 import client from '../client'
+import eventHandlers from './eventHandlers'
+
 
 
 const game = (function startGame(){
@@ -44,6 +46,7 @@ const game = (function startGame(){
       render: render
   })
 
+
   function preload(){
     game.load.crossOrigin = 'anonymous'
 
@@ -65,54 +68,43 @@ const game = (function startGame(){
 
     game.playerMap = {}
 
-    addMap()
+    addMap('desert') // specify map can be: ['desert', 'forest']
     addEnemies()
     addPlayer()
+    addInputs()
 
+    // Instantiate player server
+      //need to identify how to incorporate information flow
     client.askNewPlayer()
 
-    cursors = game.input.keyboard.createCursorKeys()
-    fireButton = game.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR)
-    changeKey = game.input.keyboard.addKey(Phaser.Keyboard.ENTER)
-
     // Start listening for events
-    setEventHandlers()
-
-
-  }
-
-
-  function hitEnemy(bullet, enemy){
-    enemy.takeDamage(bullet.parent.damage)
-    bullet.kill()
-    console.log("Hit Zombie")
-  }
-
-  function hitPlayer(bullet, player){
-    player.takeDamage(bullet.parent.damage)
-    bullet.kill()
-    console.log("Hit Player")
+    eventHandlers.setEventHandlers()
   }
 
 
   function update(){
-
-    game.physics.arcade.collide(player, collisionLayer)
-    game.physics.arcade.collide(enemies, collisionLayer)
-
-    /* Collide weaponry with enemies */
-    game.physics.arcade.overlap(player.weapons, enemies, hitEnemy, null, this)
-
-    /* Collide weaponry with other players */
-    game.physics.arcade.overlap(player.weapons, players, hitPlayer, null, this)
-
-    // controller for enemy actions each game loop
-    enemies.children.forEach(enemy => {
-        enemy.isAlive()
-        enemy.move()
-    })
+    checkEnemyActions()
+    checkPlayerInputs()
+    checkCollisions()
+  }
 
 
+  function render(){
+    //game.debug.spriteInfo(player, 32, 450);
+  }
+
+
+
+
+
+  /* =============== =============== =============== */
+
+  /* =============== UPDATE FUNCTIONS =============== */
+
+  /* =============== =============== =============== */
+
+
+  function checkPlayerInputs(){
     if (cursors.left.isDown){
       player.body.x -= player.body.velocity.x
     }
@@ -135,17 +127,8 @@ const game = (function startGame(){
     if(changeKey.isDown){
       changeWeapon(player)
     }
-
-
   }
 
-  function render(){
-    game.debug.spriteInfo(player, 32, 450);
-  }
-
-
-
-  /* ----- HELPER FUNCTIONS ----- */
   function changeWeapon(player){
     if(player.currentWeapon === 1){
       player.currentWeapon = 0
@@ -158,31 +141,78 @@ const game = (function startGame(){
     }
   }
 
-  function addMap(){
+  function checkCollisions(){
+    game.physics.arcade.collide(player, collisionLayer)
+    game.physics.arcade.collide(enemies, collisionLayer)
 
-    /* old desert map */
-    map = game.add.tilemap('desert')
-    map.addTilesetImage('Desert', 'tiles')
-    layer = map.createLayer('Ground')
+    /* Collide weaponry with enemies */
+    game.physics.arcade.overlap(player.weapons, enemies, hitEnemy, null, this)
 
-    /* new forest test map */
-    // map = game.add.tilemap('forest')
-    // map.addTilesetImage('forestTiles', 'forestTiles')
-    // map.addTilesetImage('tmw_desert_spacing', 'tiles')
-    // layer = map.createLayer('MapLayer')
-    // collisionLayer = map.createLayer('CollisionLayer')
-    // collisionLayer.visible = false
-    // map.setCollisionByExclusion([], true, collisionLayer)
+    /* Collide weaponry with other players */
+    game.physics.arcade.overlap(player.weapons, players, hitPlayer, null, this)
+  }
 
-    layer.resizeWorld()
+  function hitEnemy(bullet, enemy){
+    enemy.takeDamage(bullet.parent.damage)
+    bullet.kill()
+    console.log("Hit Zombie")
+  }
+
+  function hitPlayer(bullet, player){
+    player.takeDamage(bullet.parent.damage)
+    bullet.kill()
+    console.log("Hit Player")
+  }
+
+  function checkEnemyActions(){
+    enemies.children.forEach(enemy => {
+        enemy.isAlive()
+        enemy.move()
+    })
   }
 
 
 
-  function addEnemies(){
+  /* =============== =============== =============== */
+
+  /* =============== CREATE FUNCTIONS =============== */
+
+  /* =============== =============== =============== */
+
+
+  function addInputs(){
+    cursors = game.input.keyboard.createCursorKeys()
+    fireButton = game.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR)
+    changeKey = game.input.keyboard.addKey(Phaser.Keyboard.ENTER)
+  }
+
+
+  function addMap(type){
+    if(type === 'desert') desertMap()
+    if(type === 'forest') forestMap()
+  }
+
+  function forestMap(){
+    map = game.add.tilemap('forest')
+    map.addTilesetImage('forestTiles', 'forestTiles')
+    map.addTilesetImage('tmw_desert_spacing', 'tiles')
+    layer = map.createLayer('MapLayer')
+    collisionLayer = map.createLayer('CollisionLayer')
+    collisionLayer.visible = false
+    map.setCollisionByExclusion([], true, collisionLayer)
+  }
+
+  function desertMap(){
+    map = game.add.tilemap('desert')
+    map.addTilesetImage('Desert', 'tiles')
+    layer = map.createLayer('Ground')
+    layer.resizeWorld()
+  }
+
+
+  function addEnemies(number){
     enemies = game.add.group()
 
-    /* ----- Generate Zombies FRP ----- */
     function addZombie(number = 5){
       let i = 0
       while(i++ < number){
@@ -190,8 +220,9 @@ const game = (function startGame(){
       }
     }
 
-    addZombie()
+    addZombie(number)
 
+    /* ----- Generate Zombies FRP ----- */
     // function handleError(err){
     //   return console.error(err)
     // }
@@ -201,12 +232,6 @@ const game = (function startGame(){
   }
 
   function addPlayer(){
-
-    /* Approach to programmaticaly adding users */
-    // Object.keys(players).forEach(player => {
-    //
-    // })
-
     player = game.add.sprite(32, game.world.height / 2, 'zombie')
 
     weapons = game.add.group()
@@ -215,7 +240,6 @@ const game = (function startGame(){
     player.weapons = weapons
     player.currentWeapon = 0
 
-    //  We need to enable physics on the player
     game.physics.arcade.enable(player)
 
     player.body.velocity.x = 10
@@ -223,78 +247,6 @@ const game = (function startGame(){
 
     game.camera.follow(player)
   }
-
-
-
-
-
-
-  function setEventHandlers(){
-    // Socket connection successful
-    client.on('connection', onSocketConnected)
-
-    // Socket disconnection
-    client.on('disconnect', onSocketDisconnect)
-
-    // New player message received
-    client.on('newPlayer', onNewPlayer)
-
-    // Player move message received
-    client.on('movePlayer', onMovePlayer)
-
-    // Player removed message received
-    client.on('removePlayer', onRemovePlayer)
-  }
-
-  function onSocketConnected(){
-    console.log('connected!')
-    socket.emit('newPlayer')
-  }
-
-  function onSocketDisconnect(){
-    console.log('Disconnected from socket server')
-  }
-
-  function onNewPlayer(data){
-    console.log('New player connected:', data.id)
-
-    const duplicate = playerById(data.id)
-    if (duplicate) {
-      console.log('Duplicate player!')
-      return
-    }
-    allPlayers.push(new Player(game,gameWidth,gameHeight,50,5,'zombie'))
-  }
-
-  function onMovePlayer(){}
-
-  function onRemovePlayer(data){
-    const removePlayer = playerById(data.id)
-
-    // Player not found
-    if (!removePlayer) {
-      console.log('Player not found: ', data.id)
-      return
-    }
-
-    removePlayer.player.kill()
-    allPlayers.splice(allPlayers.indexOf(removePlayer), 1)
-  }
-
-  function playerById (id) {
-    const identifiedPlayer = allPlayers.filter(player => player.id === id)[0]
-    return identifiedPlayer.length > 0 ? identifiedPlayer : false
-  }
-
-
-  // game.addNewPlayer = function(id,x,y){
-  //   game.playerMap[id] = game.add.sprite(x,y,'zombie')
-  // }
-  //
-  // game.removePlayer = function(id){
-  //   game.playerMap[id].destroy()
-  //   delete game.playerMap[id]
-  // }
 
   return game // may not be best practices ... but attempting to contain scope
 
