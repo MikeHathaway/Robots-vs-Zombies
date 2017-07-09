@@ -1,7 +1,7 @@
 
 # Rebuild Civilization. Overcome the Zombies.
 
-[MMORTS](https://github.com/MikeHathaway/occupy-mars) focused upon rebuilding after the Zombies appeared
+[MMORTS](https://frontend-service-xybgwzybcr.now.sh/) focused upon rebuilding after the Zombies appeared
 
 # Realtime Infrastructure
 
@@ -30,7 +30,9 @@ Mike Hathaway
 
 ## Acknowledgments
 
-* Hat tip to anyone who's code was used
+*  https://medium.com/the-backlog-by-nimbo-x/creating-a-serverless-web-app-with-node-js-ember-js-and-paas-services-hyperdev-surge-sh-8e3ebe263a76
+
+*
 
 ## License
 

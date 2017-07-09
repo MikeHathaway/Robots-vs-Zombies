@@ -13,7 +13,6 @@ import Player from '../player'
 import game from '../game'
 
 const socket = io('http://localhost:4000')
-// const socket = io.connect("http://localhost", {port: 4000, transports: ["websocket"]});
 
 function setEventHandlers(){
 
