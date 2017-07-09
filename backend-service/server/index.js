@@ -14,20 +14,18 @@ server.listen(process.env.PORT || 4000, function(){
 
 io.on('connection', setEventHandlers)
 
-function setEventHandlers(socket){
+function setEventHandlers(client){
   console.log('connected!')
-  socket.on('disconnect', onSocketDisconnect)
-  socket.on('newPlayer', onNewPlayer)
-  socket.on('movePlayer', onMovePlayer)
+  client.on('newPlayer', onNewPlayer)
+  client.on('movePlayer', onMovePlayer)
+  client.on('disconnect', onSocketDisconnect)
 }
 
-function onSocketDisconnect() {
-    console.log("Player has disconnected: " + this.id)
-}
 
 function onNewPlayer(data) {
+  console.log(data)
   const newPlayer = new Player(data.x, data.y)
-  newPlayer.id = data.id
+  newPlayer.id = this.id
   this.broadcast.emit('newPlayer', {id: newPlayer.id, x: newPlayer.getX(), y: newPlayer.getY()})
 
   players.forEach(player => {
@@ -49,5 +47,14 @@ function onMovePlayer(data) {
   movePlayer.setX(data.x)
   movePlayer.setY(data.y)
 
-  this.broadcast.emit("move player", {id: movePlayer.id, x: movePlayer.getX(), y: movePlayer.getY()})
+  this.broadcast.emit("movePlayer", {id: movePlayer.id, x: movePlayer.getX(), y: movePlayer.getY()})
+}
+
+function onSocketDisconnect() {
+  console.log("Player has disconnected: " + this.id)
+}
+
+function playerById (id) {
+  const identifiedPlayer = players.filter(player => player.id === id)
+  return identifiedPlayer.length > 0 ? identifiedPlayer[0] : false
 }

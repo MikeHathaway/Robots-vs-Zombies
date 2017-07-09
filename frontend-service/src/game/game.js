@@ -12,7 +12,7 @@ import {SingleBullet, LazerBeam} from './weapon'
 import Enemy from './enemy'
 
 /* ----- Server Dependencies ----- */
-import eventHandlers from './eventHandlers'
+import {socket, setEventHandlers} from './eventHandlers'
 
 const game = (function startGame(){
 
@@ -69,15 +69,12 @@ const game = (function startGame(){
 
     addScore()
 
-    // Instantiate player server - need to identify how to incorporate information flow
-    // client.askNewPlayer()
-
     // Start listening for events
-    eventHandlers()
+    setEventHandlers()
   }
 
   function createScoreAnimation(x,y,message,score){
-    const scoreFont = "90px Arial";
+    const scoreFont = "20px Arial";
 
     //Create a new label for the score
     const scoreAnimation = game.add.text(x, y, message, {font: scoreFont, fill: "#39d179", stroke: "#ffffff", strokeThickness: 15});
@@ -171,6 +168,8 @@ const game = (function startGame(){
     if(changeKey.isDown){
       changeWeapon(player)
     }
+
+    socket.emit('movePlayer',{id: player.id, x: player.body.x, y: player.body.y})
   }
 
   function changeWeapon(player){

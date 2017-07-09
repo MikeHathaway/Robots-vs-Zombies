@@ -13,8 +13,12 @@ import Player from '../player'
 import game from '../game'
 
 const socket = io('http://localhost:4000')
+// const socket = io.connect("http://localhost", {port: 4000, transports: ["websocket"]});
 
 function setEventHandlers(){
+
+  socket.emit('newPlayer', {x: game.localPlayer.x, y: game.localPlayer.y});
+
   // Socket connection successful
   socket.on('connection', onSocketConnected)
 
@@ -34,6 +38,7 @@ function setEventHandlers(){
 
 function onSocketConnected() {
     console.log("Connected to socket server")
+    //socket.emit here is not firing for some reason
     socket.emit('newPlayer', {x: game.localPlayer.x, y: game.localPlayer.y});
 }
 
@@ -42,7 +47,7 @@ function onSocketDisconnect(){
 }
 
 function onNewPlayer(data){
-  console.log('New player connected:', data.id)
+  console.log('New player connected:', data)
 
   const newPlayer = new Player(game,data.x,data.y,50,5,data.id,'zombie')
 
@@ -51,7 +56,12 @@ function onNewPlayer(data){
     console.log('Duplicate player!')
     return
   }
+
+  game.add.sprite(newPlayer.x, newPlayer.y, newPlayer.avatar)
+
   game.allPlayers.push(newPlayer)
+
+  console.log(game.allPlayers)
 }
 
 
@@ -77,15 +87,16 @@ function onRemovePlayer(data){
   }
 
   removePlayer.player.kill()
-  game.allPlayers.splice(allPlayers.indexOf(removePlayer), 1)
+  game.allPlayers.splice(game.allPlayers.indexOf(removePlayer), 1)
   this.broadcast.emit("remove player", {id: data.id})
 }
 
 
 
 function playerById (id) {
-  const identifiedPlayer = allPlayers.filter(player => player.id === id)[0]
-  return identifiedPlayer.length > 0 ? identifiedPlayer : false
+  const identifiedPlayer = game.allPlayers.filter(player => player.id === id)
+  return identifiedPlayer.length > 0 ? identifiedPlayer[0] : false
 }
 
-export default setEventHandlers
+// export default setEventHandlers
+export {socket, setEventHandlers}
