@@ -2164,6 +2164,7 @@ var Bullet = function (_Phaser$Sprite) {
 
     _this.tracking = tracking || false;
     _this.scaleSpeed = 0;
+    _this.visible = true;
     return _this;
   }
 
@@ -2224,16 +2225,13 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 var Player = function (_Phaser$Sprite) {
   _inherits(Player, _Phaser$Sprite);
 
-  function Player(game, x, y, health, speed, avatar, id) {
+  function Player(game, x, y, avatar, health, speed, weapons, id) {
     _classCallCheck(this, Player);
 
     var _this
 
     // game.localPlayer = this
     // game.add.sprite(this.x,this.y,this.avatar)
-    // this.body.velocity.x = 10
-    // this.body.velocity.y = 10
-    // this.body.collideWorldBounds = true;
     = _possibleConstructorReturn(this, (Player.__proto__ || Object.getPrototypeOf(Player)).call(this, game, x, y, avatar));
 
     _this.game = game;
@@ -2242,11 +2240,16 @@ var Player = function (_Phaser$Sprite) {
     _this.health = health || 50;
     _this.speed = speed || 5;
     _this.avatar = 'zombie';
+    _this.weapons = weapons;
     _this.id = id;
+    _this.currentWeapon = 0;
 
     // this.anchor.setTo(0.5, 0.5) // <- purpose?
 
-    game.physics.enable(_this);return _this;
+    game.physics.enable(_this);_this.body.velocity.x = 10;
+    _this.body.velocity.y = 10;
+    // this.body.collideWorldBounds = true;
+    return _this;
   }
 
   _createClass(Player, [{
@@ -2490,22 +2493,21 @@ var game = function startGame() {
     // game.localPlayer = player
     // game.physics.enable(player)
 
-    player = new _player2.default(game, 32, game.world.height / 2, 50, 5, 'zombie');
-    players.add(player
-    // game.add.sprite(32,game.world.height /2, player)
-
-    );weapons = game.add.group();
+    weapons = game.add.group();
     weapons.add(new _weapon.SingleBullet(game, 'bullet'));
     weapons.add(new _weapon.LazerBeam(game, 'lazer'));
-    player.weapons = weapons;
-    player.currentWeapon = 0;
 
-    player.body.velocity.x = 10;
-    player.body.velocity.y = 10;
+    player = new _player2.default(game, 32, game.world.height / 2, 'zombie', 50, 5, weapons);
+    game.localPlayer = player;
+    players.add(player
 
-    game.camera.follow(player);
+    // player.weapons = weapons
+    // player.currentWeapon = 0
+    // player.body.velocity.x = 10
+    // player.body.velocity.y = 10
 
-    console.log(player, game.localPlayer);
+
+    );game.camera.follow(player);
   }
 
   /* =============== =============== ===============
@@ -2514,8 +2516,6 @@ var game = function startGame() {
 
   function checkPlayerInputs() {
     if (cursors.left.isDown) {
-      console.log('move left', cursors);
-
       player.body.x -= player.body.velocity.x;
     }
     if (cursors.right.isDown) {
@@ -2531,15 +2531,16 @@ var game = function startGame() {
     }
 
     if (fireButton.isDown) {
+      console.log(player.weapons.children[player.currentWeapon].children[0].alive, player.weapons.children[player.currentWeapon].children[0].visible);
       player.weapons.children[player.currentWeapon].fire(player);
     }
 
     if (changeKey.isDown) {
       changeWeapon(player);
     }
-    console.log(player.id
+    // console.log(player.id)
     //socket.emit('movePlayer',{id: player.id, x: player.body.x, y: player.body.y})
-    );_eventHandlers.socket.emit('movePlayer', { id: player.id, x: player.body.x, y: player.body.y });
+    _eventHandlers.socket.emit('movePlayer', { id: player.id, x: player.body.x, y: player.body.y });
   }
 
   function changeWeapon(player) {
@@ -2576,9 +2577,9 @@ var game = function startGame() {
   }
 
   function hitPlayer(bullet, player) {
-    player.takeDamage(bullet.parent.damage);
-    bullet.kill();
-    console.log("Hit Player");
+    player.takeDamage(bullet.parent.damage
+    // bullet.kill()
+    );console.log("Hit Player");
   }
 
   function checkEnemyActions() {

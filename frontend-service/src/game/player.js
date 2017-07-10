@@ -5,7 +5,7 @@
 // class Player extends Phaser.group {
 
 class Player extends Phaser.Sprite{
-  constructor(game,x,y,health,speed,avatar,id){
+  constructor(game,x,y,avatar,health,speed,weapons,id){
     super(game,x,y,avatar)
     this.game = game
     this.x = x
@@ -13,7 +13,9 @@ class Player extends Phaser.Sprite{
     this.health = health || 50
     this.speed = speed || 5
     this.avatar = 'zombie'
+    this.weapons = weapons
     this.id = id
+    this.currentWeapon = 0
 
 
     // this.anchor.setTo(0.5, 0.5) // <- purpose?
@@ -22,8 +24,8 @@ class Player extends Phaser.Sprite{
 
     // game.localPlayer = this
     // game.add.sprite(this.x,this.y,this.avatar)
-    // this.body.velocity.x = 10
-    // this.body.velocity.y = 10
+    this.body.velocity.x = 10
+    this.body.velocity.y = 10
     // this.body.collideWorldBounds = true;
   }
 

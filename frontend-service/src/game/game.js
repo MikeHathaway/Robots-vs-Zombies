@@ -218,21 +218,21 @@ const game = (function startGame(){
     // game.localPlayer = player
     // game.physics.enable(player)
 
-    player = new Player(game,32,game.world.height / 2,50,5,'zombie')
-    players.add(player)
-
     weapons = game.add.group()
     weapons.add(new SingleBullet(game,'bullet'))
     weapons.add(new LazerBeam(game,'lazer'))
-    player.weapons = weapons
-    player.currentWeapon = 0
 
-    player.body.velocity.x = 10
-    player.body.velocity.y = 10
+    player = new Player(game,32,game.world.height / 2,'zombie',50,5,weapons)
+    game.localPlayer = player
+    players.add(player)
+
+    // player.weapons = weapons
+    // player.currentWeapon = 0
+    // player.body.velocity.x = 10
+    // player.body.velocity.y = 10
+
 
     game.camera.follow(player)
-
-    console.log(player, game.localPlayer)
 
   }
 
@@ -250,8 +250,6 @@ const game = (function startGame(){
 
   function checkPlayerInputs(){
     if (cursors.left.isDown){
-      console.log('move left',cursors)
-
       player.body.x -= player.body.velocity.x
     }
     if (cursors.right.isDown){
@@ -267,13 +265,14 @@ const game = (function startGame(){
     }
 
     if (fireButton.isDown){
+      console.log(player.weapons.children[player.currentWeapon].children[0].alive,player.weapons.children[player.currentWeapon].children[0].visible)
       player.weapons.children[player.currentWeapon].fire(player)
     }
 
     if(changeKey.isDown){
       changeWeapon(player)
     }
-    console.log(player.id)
+    // console.log(player.id)
     //socket.emit('movePlayer',{id: player.id, x: player.body.x, y: player.body.y})
     socket.emit('movePlayer',{id: player.id, x: player.body.x, y: player.body.y})
   }
@@ -313,7 +312,7 @@ const game = (function startGame(){
 
   function hitPlayer(bullet, player){
     player.takeDamage(bullet.parent.damage)
-    bullet.kill()
+    // bullet.kill()
     console.log("Hit Player")
   }
 
