@@ -2164,7 +2164,6 @@ var Bullet = function (_Phaser$Sprite) {
 
     _this.tracking = tracking || false;
     _this.scaleSpeed = 0;
-    _this.visible = true;
     return _this;
   }
 
@@ -2353,10 +2352,11 @@ var game = function startGame() {
     );addMap('desert' // specify map can be: ['desert', 'forest']
     );addEnemies(5 //specify number of enemies to be added
 
-    );(0, _eventHandlers.setEventHandlers // Start listening for events
-    )();addPlayer // <- currently incomplete, need to finish tie up ^
+    );addWeapons();
+    addPlayer // <- currently incomplete, need to finish tie up ^
+    ();(0, _eventHandlers.setEventHandlers // Start listening for events
 
-    ();addInputs // Add game controls
+    )();addInputs // Add game controls
     ();addScore // Score animations
     ();
   }
@@ -2487,27 +2487,20 @@ var game = function startGame() {
     players = game.add.group();
 
     game.allPlayers = [];
-    // game.localPlayer = game.add.sprite(32, game.world.height / 2, 'zombie')
 
-    // player = game.add.sprite(32, game.world.height / 2, 'zombie')
-    // game.localPlayer = player
-    // game.physics.enable(player)
+    player = new _player2.default(game, 32, game.world.height / 2, 'zombie', 50, 5, weapons);
+    game.localPlayer = player;
+    players.add(player);
 
+    game.camera.follow(game.localPlayer);
+  }
+
+  function addWeapons() {
     weapons = game.add.group();
     weapons.add(new _weapon.SingleBullet(game, 'bullet'));
     weapons.add(new _weapon.LazerBeam(game, 'lazer'));
 
-    player = new _player2.default(game, 32, game.world.height / 2, 'zombie', 50, 5, weapons);
-    game.localPlayer = player;
-    players.add(player
-
-    // player.weapons = weapons
-    // player.currentWeapon = 0
-    // player.body.velocity.x = 10
-    // player.body.velocity.y = 10
-
-
-    );game.camera.follow(player);
+    game.weapons = weapons;
   }
 
   /* =============== =============== ===============
@@ -2516,31 +2509,28 @@ var game = function startGame() {
 
   function checkPlayerInputs() {
     if (cursors.left.isDown) {
-      player.body.x -= player.body.velocity.x;
+      game.localPlayer.body.x -= game.localPlayer.body.velocity.x;
     }
     if (cursors.right.isDown) {
-      player.body.x += player.body.velocity.x;
+      game.localPlayer.body.x += game.localPlayer.body.velocity.x;
     }
 
     if (cursors.up.isDown) {
-      player.body.y -= player.body.velocity.y;
+      game.localPlayer.body.y -= game.localPlayer.body.velocity.y;
     }
 
     if (cursors.down.isDown) {
-      player.body.y += player.body.velocity.y;
+      game.localPlayer.body.y += game.localPlayer.body.velocity.y;
     }
 
     if (fireButton.isDown) {
-      console.log(player.weapons.children[player.currentWeapon].children[0].alive, player.weapons.children[player.currentWeapon].children[0].visible);
-      player.weapons.children[player.currentWeapon].fire(player);
+      game.localPlayer.weapons.children[game.localPlayer.currentWeapon].fire(game.localPlayer);
     }
 
     if (changeKey.isDown) {
-      changeWeapon(player);
+      changeWeapon(game.localPlayer);
     }
-    // console.log(player.id)
-    //socket.emit('movePlayer',{id: player.id, x: player.body.x, y: player.body.y})
-    _eventHandlers.socket.emit('movePlayer', { id: player.id, x: player.body.x, y: player.body.y });
+    _eventHandlers.socket.emit('movePlayer', { id: game.localPlayer.id, x: game.localPlayer.body.x, y: game.localPlayer.body.y });
   }
 
   function changeWeapon(player) {
@@ -4231,7 +4221,7 @@ var _game2 = _interopRequireDefault(_game);
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var socket = (0, _socket2.default)('http://localhost:4000'
-// const socket = io()
+// window.socket = io() // DID NOT WORK
 
 ); //http://www.dynetisgames.com/2017/03/06/how-to-make-a-multiplayer-online-game-with-phaser-socket-io-and-node-js/
 //https://github.com/Jerenaux/basic-mmo-phaser/blob/master/js/client.js
@@ -4243,8 +4233,13 @@ var socket = (0, _socket2.default)('http://localhost:4000'
 //http://rawkes.com/articles/creating-a-real-time-multiplayer-game-with-websockets-and-node.html
 
 function setEventHandlers() {
+  window.socket = socket;
+  console.log(socket);
+
+  socket.emit('newPlayer', { x: _game2.default.localPlayer.x, y: _game2.default.localPlayer.y }
+
   // Socket connection successful
-  socket.on('connection', onSocketConnected
+  );socket.on('connection', onSocketConnected
 
   // Socket disconnection
   );socket.on('disconnect', onSocketDisconnect
@@ -4274,24 +4269,26 @@ function onNewPlayer(data) {
   // const newPlayer = new Player(game,data.x,data.y,50,5,data.id,'zombie')
 
   );var duplicate = playerById(data.id);
+
   if (duplicate) {
     console.log('Duplicate player!');
     return;
   }
 
+  _game2.default.localPlayer.id = data.id;
+
   // game.add.sprite(newPlayer.x, newPlayer.y, newPlayer.avatar)
   // game.allPlayers.push(newPlayer)
 
-
   //Solution Vector - need to connect player models with event handlers
   // game.localPlayer = game.add.sprite(newPlayer.x, newPlayer.y, newPlayer.avatar)
-  // game.localPlayer.id = data.id
   _game2.default.allPlayers.push(_game2.default.localPlayer);
 
   console.log(_game2.default.allPlayers);
 }
 
 function onMovePlayer(data) {
+  // console.log('??', game.localPlayer.id, data)
   var movePlayer = playerById(data.id);
 
   if (!movePlayer) {

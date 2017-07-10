@@ -64,8 +64,9 @@ const game = (function startGame(){
     addMap('desert') // specify map can be: ['desert', 'forest']
     addEnemies(5) //specify number of enemies to be added
 
-    setEventHandlers() // Start listening for events
+    addWeapons()
     addPlayer() // <- currently incomplete, need to finish tie up ^
+    setEventHandlers() // Start listening for events
 
     addInputs() // Add game controls
     addScore() // Score animations
@@ -212,28 +213,21 @@ const game = (function startGame(){
     players = game.add.group()
 
     game.allPlayers = []
-    // game.localPlayer = game.add.sprite(32, game.world.height / 2, 'zombie')
-
-    // player = game.add.sprite(32, game.world.height / 2, 'zombie')
-    // game.localPlayer = player
-    // game.physics.enable(player)
-
-    weapons = game.add.group()
-    weapons.add(new SingleBullet(game,'bullet'))
-    weapons.add(new LazerBeam(game,'lazer'))
 
     player = new Player(game,32,game.world.height / 2,'zombie',50,5,weapons)
     game.localPlayer = player
     players.add(player)
 
-    // player.weapons = weapons
-    // player.currentWeapon = 0
-    // player.body.velocity.x = 10
-    // player.body.velocity.y = 10
+    game.camera.follow(game.localPlayer)
 
+  }
 
-    game.camera.follow(player)
+  function addWeapons(){
+    weapons = game.add.group()
+    weapons.add(new SingleBullet(game,'bullet'))
+    weapons.add(new LazerBeam(game,'lazer'))
 
+    game.weapons = weapons
   }
 
 
@@ -250,31 +244,28 @@ const game = (function startGame(){
 
   function checkPlayerInputs(){
     if (cursors.left.isDown){
-      player.body.x -= player.body.velocity.x
+      game.localPlayer.body.x -= game.localPlayer.body.velocity.x
     }
     if (cursors.right.isDown){
-      player.body.x += player.body.velocity.x
+      game.localPlayer.body.x += game.localPlayer.body.velocity.x
     }
 
     if (cursors.up.isDown){
-      player.body.y -= player.body.velocity.y
+      game.localPlayer.body.y -= game.localPlayer.body.velocity.y
     }
 
     if (cursors.down.isDown){
-      player.body.y += player.body.velocity.y
+      game.localPlayer.body.y += game.localPlayer.body.velocity.y
     }
 
     if (fireButton.isDown){
-      console.log(player.weapons.children[player.currentWeapon].children[0].alive,player.weapons.children[player.currentWeapon].children[0].visible)
-      player.weapons.children[player.currentWeapon].fire(player)
+      game.localPlayer.weapons.children[game.localPlayer.currentWeapon].fire(game.localPlayer)
     }
 
     if(changeKey.isDown){
-      changeWeapon(player)
+      changeWeapon(game.localPlayer)
     }
-    // console.log(player.id)
-    //socket.emit('movePlayer',{id: player.id, x: player.body.x, y: player.body.y})
-    socket.emit('movePlayer',{id: player.id, x: player.body.x, y: player.body.y})
+    socket.emit('movePlayer',{id: game.localPlayer.id, x: game.localPlayer.body.x, y: game.localPlayer.body.y})
   }
 
   function changeWeapon(player){

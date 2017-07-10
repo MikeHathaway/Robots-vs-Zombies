@@ -13,9 +13,13 @@ import Player from '../player'
 import game from '../game'
 
 const socket = io('http://localhost:4000')
-// const socket = io()
+// window.socket = io() // DID NOT WORK
 
 function setEventHandlers(){
+  window.socket = socket
+
+  socket.emit('newPlayer', {x: game.localPlayer.x, y: game.localPlayer.y})
+
   // Socket connection successful
   socket.on('connection', onSocketConnected)
 
@@ -48,18 +52,19 @@ function onNewPlayer(data){
   // const newPlayer = new Player(game,data.x,data.y,50,5,data.id,'zombie')
 
   const duplicate = playerById(data.id)
+
   if (duplicate) {
     console.log('Duplicate player!')
     return
   }
 
+  game.localPlayer.id = data.id
+
   // game.add.sprite(newPlayer.x, newPlayer.y, newPlayer.avatar)
   // game.allPlayers.push(newPlayer)
 
-
   //Solution Vector - need to connect player models with event handlers
   // game.localPlayer = game.add.sprite(newPlayer.x, newPlayer.y, newPlayer.avatar)
-  // game.localPlayer.id = data.id
   game.allPlayers.push(game.localPlayer)
 
 
@@ -68,6 +73,7 @@ function onNewPlayer(data){
 
 
 function onMovePlayer(data){
+  // console.log('??', game.localPlayer.id, data)
   const movePlayer = playerById(data.id);
 
   if (!movePlayer) {

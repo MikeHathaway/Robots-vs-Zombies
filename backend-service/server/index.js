@@ -20,18 +20,18 @@ io.on('connection', setEventHandlers)
 
 function setEventHandlers(client){
   console.log('connected!')
-  client.emit('connection') //probably unnecessary
   client.on('newPlayer', onNewPlayer)
   client.on('movePlayer', onMovePlayer)
   client.on('disconnect', onSocketDisconnect)
+  client.on('test', (data) => { console.log(data)})
 }
 
-
 function onNewPlayer(data) {
-  console.log('newPlayer',data) //tempermental
   const newPlayer = new Player(data.x, data.y)
   newPlayer.id = this.id
-  this.broadcast.emit('newPlayer', {id: newPlayer.id, x: newPlayer.getX(), y: newPlayer.getY()})
+
+  //send info to all players, redundant with next function call
+  io.sockets.emit('newPlayer', {id: newPlayer.id, x: newPlayer.getX(), y: newPlayer.getY()})
 
   players.forEach(player => {
     this.emit('newPlayer', {id: player.id, x: player.getX(), y: player.getY()})
@@ -43,9 +43,9 @@ function onNewPlayer(data) {
 
 function onMovePlayer(data) {
   //data.id is currently undefined for some reason
-  console.log(data, data.id)
+  // console.log(data, data.id)
   const movePlayer = playerById(data.id);
-  console.log(movePlayer)
+
   if (!movePlayer) {
       console.log("Player not found: " + data.id)
       return
@@ -54,12 +54,20 @@ function onMovePlayer(data) {
   movePlayer.setX(data.x)
   movePlayer.setY(data.y)
 
-  this.broadcast.emit("movePlayer", {id: movePlayer.id, x: movePlayer.getX(), y: movePlayer.getY()})
+  this.emit("movePlayer", {id: movePlayer.id, x: movePlayer.getX(), y: movePlayer.getY()})
 }
 
 function onSocketDisconnect() {
-  io.emit('removePlayer', "A user disconnected");
   console.log("Player has disconnected: " + this.id)
+
+  const removePlayer = playerById(this.id)
+  if (!removePlayer) {
+      console.log("Player not found: " + this.id)
+      return
+  }
+  players.splice(players.indexOf(removePlayer), 1)
+  this.broadcast.emit('remove player', {id: this.id})
+  // io.emit('removePlayer', "A user disconnected");
 }
 
 function playerById (id) {
