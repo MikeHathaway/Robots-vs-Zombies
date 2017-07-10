@@ -35,7 +35,7 @@ function setEventHandlers(){
 
 function onSocketConnected() {
   console.log("Connected to socket server")
-  socket.emit('newPlayer', {x: game.localPlayer.x, y: game.localPlayer.y});
+  socket.emit('newPlayer', {x: game.localPlayer.x, y: game.localPlayer.y})
 }
 
 function onSocketDisconnect(){
@@ -45,7 +45,7 @@ function onSocketDisconnect(){
 function onNewPlayer(data){
   console.log('New player connected:', data)
 
-  const newPlayer = new Player(game,data.x,data.y,50,5,data.id,'zombie')
+  // const newPlayer = new Player(game,data.x,data.y,50,5,data.id,'zombie')
 
   const duplicate = playerById(data.id)
   if (duplicate) {
@@ -58,7 +58,8 @@ function onNewPlayer(data){
 
 
   //Solution Vector - need to connect player models with event handlers
-  game.localPlayer = game.add.sprite(newPlayer.x, newPlayer.y, newPlayer.avatar)
+  // game.localPlayer = game.add.sprite(newPlayer.x, newPlayer.y, newPlayer.avatar)
+  // game.localPlayer.id = data.id
   game.allPlayers.push(game.localPlayer)
 
 
@@ -74,8 +75,10 @@ function onMovePlayer(data){
       return;
   }
 
-  movePlayer.x = data.x
-  movePlayer.y = data.y
+  // movePlayer.x = data.x
+  // movePlayer.y = data.y
+  movePlayer.body.x = data.x
+  movePlayer.body.y = data.y
 }
 
 function onRemovePlayer(data){
@@ -87,7 +90,7 @@ function onRemovePlayer(data){
     return
   }
 
-  removePlayer.player.kill()
+  removePlayer.kill()
   game.allPlayers.splice(game.allPlayers.indexOf(removePlayer), 1)
   this.broadcast.emit("remove player", {id: data.id})
 }

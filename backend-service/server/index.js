@@ -28,7 +28,7 @@ function setEventHandlers(client){
 
 
 function onNewPlayer(data) {
-  console.log(data)
+  console.log('newPlayer',data) //tempermental
   const newPlayer = new Player(data.x, data.y)
   newPlayer.id = this.id
   this.broadcast.emit('newPlayer', {id: newPlayer.id, x: newPlayer.getX(), y: newPlayer.getY()})
@@ -43,9 +43,9 @@ function onNewPlayer(data) {
 
 function onMovePlayer(data) {
   //data.id is currently undefined for some reason
-  console.log(data)
+  console.log(data, data.id)
   const movePlayer = playerById(data.id);
-console.log(movePlayer)
+  console.log(movePlayer)
   if (!movePlayer) {
       console.log("Player not found: " + data.id)
       return

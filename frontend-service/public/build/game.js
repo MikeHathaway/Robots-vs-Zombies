@@ -63,7 +63,7 @@
 /******/ 	__webpack_require__.p = "/";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 12);
+/******/ 	return __webpack_require__(__webpack_require__.s = 13);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -271,9 +271,9 @@ Emitter.prototype.hasListeners = function(event){
  */
 
 var keys = __webpack_require__(41);
-var hasBinary = __webpack_require__(16);
-var sliceBuffer = __webpack_require__(28);
-var after = __webpack_require__(27);
+var hasBinary = __webpack_require__(17);
+var sliceBuffer = __webpack_require__(29);
+var after = __webpack_require__(28);
 var utf8 = __webpack_require__(42);
 
 var base64encoder;
@@ -1722,9 +1722,9 @@ process.umask = function() { return 0; };
 
 var debug = __webpack_require__(51)('socket.io-parser');
 var Emitter = __webpack_require__(1);
-var hasBin = __webpack_require__(16);
+var hasBin = __webpack_require__(17);
 var binary = __webpack_require__(50);
-var isBuf = __webpack_require__(22);
+var isBuf = __webpack_require__(23);
 
 /**
  * Protocol version.
@@ -2207,32 +2207,107 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+/* Add player class to handle logic of people jumping in and out of the game */
+//need to pass in game object
+
+//extend group or sprites?
+// class Player extends Phaser.group {
+
+var Player = function (_Phaser$Sprite) {
+  _inherits(Player, _Phaser$Sprite);
+
+  function Player(game, x, y, health, speed, avatar, id) {
+    _classCallCheck(this, Player);
+
+    var _this
+
+    // game.localPlayer = this
+    // game.add.sprite(this.x,this.y,this.avatar)
+    // this.body.velocity.x = 10
+    // this.body.velocity.y = 10
+    // this.body.collideWorldBounds = true;
+    = _possibleConstructorReturn(this, (Player.__proto__ || Object.getPrototypeOf(Player)).call(this, game, x, y, avatar));
+
+    _this.game = game;
+    _this.x = x;
+    _this.y = y;
+    _this.health = health || 50;
+    _this.speed = speed || 5;
+    _this.avatar = 'zombie';
+    _this.id = id;
+
+    // this.anchor.setTo(0.5, 0.5) // <- purpose?
+
+    game.physics.enable(_this);return _this;
+  }
+
+  _createClass(Player, [{
+    key: 'addPlayer',
+    value: function addPlayer(game, id, x, y) {
+      game.playerMap[id] = game.add.sprite(x, y, 'zombie');
+    }
+  }, {
+    key: 'removePlayer',
+    value: function removePlayer(game, id) {
+      game.playerMap[id].destroy();
+      delete game.playerMap[id];
+    }
+  }, {
+    key: 'takeDamage',
+    value: function takeDamage(damage) {
+      this.health -= damage;
+    }
+  }]);
+
+  return Player;
+}(Phaser.Sprite);
+
+exports.default = Player;
+
+/***/ }),
+/* 13 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
 var _bullet = __webpack_require__(11);
 
 var _bullet2 = _interopRequireDefault(_bullet);
 
-var _weapon = __webpack_require__(26);
+var _weapon = __webpack_require__(27);
 
-var _enemy = __webpack_require__(25);
+var _enemy = __webpack_require__(26);
 
 var _enemy2 = _interopRequireDefault(_enemy);
 
-var _eventHandlers = __webpack_require__(24);
+var _player = __webpack_require__(12);
+
+var _player2 = _interopRequireDefault(_player);
+
+var _eventHandlers = __webpack_require__(25);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-// minimap guide
-//http://www.html5gamedevs.com/topic/14182-creating-a-mini-map-in-phaser/
-
-//game timer - womprat stomping
-
-/* ----- Phaser Dependencies ----- */
 var game = function startGame() {
 
   /* ----- Declares global variables ----- */
   var map = void 0,
       layer = void 0,
       player = void 0,
+      players = void 0,
       cursors = void 0,
       fireButton = void 0,
       changeKey = void 0,
@@ -2240,8 +2315,6 @@ var game = function startGame() {
       enemies = void 0,
       bullets = void 0,
       weapons = void 0;
-
-  var players = void 0; //Not properly hooked up yet
 
   var gameWidth = 1000;
   var gameHeight = 800;
@@ -2275,7 +2348,7 @@ var game = function startGame() {
     // game.world.setBounds(-1000, -1000, 2000, 2000);
 
     );addMap('desert' // specify map can be: ['desert', 'forest']
-    );addEnemies(1000 //specify number of enemies to be added
+    );addEnemies(5 //specify number of enemies to be added
 
     );(0, _eventHandlers.setEventHandlers // Start listening for events
     )();addPlayer // <- currently incomplete, need to finish tie up ^
@@ -2408,28 +2481,31 @@ var game = function startGame() {
     =============== =============== =============== */
 
   function addPlayer() {
+    players = game.add.group();
+
     game.allPlayers = [];
-    game.localPlayer = game.add.sprite(32, game.world.height / 2, 'zombie'
+    // game.localPlayer = game.add.sprite(32, game.world.height / 2, 'zombie')
 
     // player = game.add.sprite(32, game.world.height / 2, 'zombie')
+    // game.localPlayer = player
+    // game.physics.enable(player)
 
-    );player = game.localPlayer;
+    player = new _player2.default(game, 32, game.world.height / 2, 50, 5, 'zombie');
+    players.add(player
+    // game.add.sprite(32,game.world.height /2, player)
 
-    weapons = game.add.group();
+    );weapons = game.add.group();
     weapons.add(new _weapon.SingleBullet(game, 'bullet'));
     weapons.add(new _weapon.LazerBeam(game, 'lazer'));
     player.weapons = weapons;
     player.currentWeapon = 0;
 
-    game.physics.arcade.enable(player
-
-    //will be redundant with player model completion
-    );player.body.collideWorldBounds = true;
-
     player.body.velocity.x = 10;
     player.body.velocity.y = 10;
 
     game.camera.follow(player);
+
+    console.log(player, game.localPlayer);
   }
 
   /* =============== =============== ===============
@@ -2438,6 +2514,8 @@ var game = function startGame() {
 
   function checkPlayerInputs() {
     if (cursors.left.isDown) {
+      console.log('move left', cursors);
+
       player.body.x -= player.body.velocity.x;
     }
     if (cursors.right.isDown) {
@@ -2459,8 +2537,9 @@ var game = function startGame() {
     if (changeKey.isDown) {
       changeWeapon(player);
     }
-    console.log(player.id);
-    _eventHandlers.socket.emit('movePlayer', { id: player.id, x: player.body.x, y: player.body.y });
+    console.log(player.id
+    //socket.emit('movePlayer',{id: player.id, x: player.body.x, y: player.body.y})
+    );_eventHandlers.socket.emit('movePlayer', { id: player.id, x: player.body.x, y: player.body.y });
   }
 
   function changeWeapon(player) {
@@ -2519,10 +2598,16 @@ var game = function startGame() {
 }();
 
 /* ----- Server Dependencies ----- */
+// minimap guide
+//http://www.html5gamedevs.com/topic/14182-creating-a-mini-map-in-phaser/
+
+//game timer - womprat stomping
+
+/* ----- Phaser Dependencies ----- */
 exports.default = game;
 
 /***/ }),
-/* 13 */
+/* 14 */
 /***/ (function(module, exports) {
 
 /**
@@ -2551,7 +2636,7 @@ module.exports = function(obj, fn){
 
 
 /***/ }),
-/* 14 */
+/* 15 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global) {/**
@@ -2611,7 +2696,7 @@ function polling (opts) {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 15 */
+/* 16 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -2622,7 +2707,7 @@ var Transport = __webpack_require__(7);
 var parseqs = __webpack_require__(5);
 var parser = __webpack_require__(2);
 var inherit = __webpack_require__(3);
-var yeast = __webpack_require__(23);
+var yeast = __webpack_require__(24);
 var debug = __webpack_require__(4)('engine.io-client:polling');
 
 /**
@@ -2862,7 +2947,7 @@ Polling.prototype.uri = function () {
 
 
 /***/ }),
-/* 16 */
+/* 17 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global) {/* global Blob File */
@@ -2931,7 +3016,7 @@ function hasBinary (obj) {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 17 */
+/* 18 */
 /***/ (function(module, exports) {
 
 
@@ -2946,7 +3031,7 @@ module.exports = function(arr, obj){
 };
 
 /***/ }),
-/* 18 */
+/* 19 */
 /***/ (function(module, exports) {
 
 /**
@@ -2991,7 +3076,7 @@ module.exports = function parseuri(str) {
 
 
 /***/ }),
-/* 19 */
+/* 20 */
 /***/ (function(module, exports, __webpack_require__) {
 
 
@@ -3000,13 +3085,13 @@ module.exports = function parseuri(str) {
  */
 
 var eio = __webpack_require__(33);
-var Socket = __webpack_require__(21);
+var Socket = __webpack_require__(22);
 var Emitter = __webpack_require__(1);
 var parser = __webpack_require__(10);
-var on = __webpack_require__(20);
-var bind = __webpack_require__(13);
+var on = __webpack_require__(21);
+var bind = __webpack_require__(14);
 var debug = __webpack_require__(6)('socket.io-client:manager');
-var indexOf = __webpack_require__(17);
+var indexOf = __webpack_require__(18);
 var Backoff = __webpack_require__(30);
 
 /**
@@ -3570,7 +3655,7 @@ Manager.prototype.onreconnect = function () {
 
 
 /***/ }),
-/* 20 */
+/* 21 */
 /***/ (function(module, exports) {
 
 
@@ -3600,7 +3685,7 @@ function on (obj, ev, fn) {
 
 
 /***/ }),
-/* 21 */
+/* 22 */
 /***/ (function(module, exports, __webpack_require__) {
 
 
@@ -3611,8 +3696,8 @@ function on (obj, ev, fn) {
 var parser = __webpack_require__(10);
 var Emitter = __webpack_require__(1);
 var toArray = __webpack_require__(55);
-var on = __webpack_require__(20);
-var bind = __webpack_require__(13);
+var on = __webpack_require__(21);
+var bind = __webpack_require__(14);
 var debug = __webpack_require__(6)('socket.io-client:socket');
 var parseqs = __webpack_require__(5);
 
@@ -4024,7 +4109,7 @@ Socket.prototype.compress = function (compress) {
 
 
 /***/ }),
-/* 22 */
+/* 23 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global) {
@@ -4044,7 +4129,7 @@ function isBuf(obj) {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 23 */
+/* 24 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4119,7 +4204,7 @@ module.exports = yeast;
 
 
 /***/ }),
-/* 24 */
+/* 25 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4134,11 +4219,11 @@ var _socket = __webpack_require__(46);
 
 var _socket2 = _interopRequireDefault(_socket);
 
-var _player = __webpack_require__(29);
+var _player = __webpack_require__(12);
 
 var _player2 = _interopRequireDefault(_player);
 
-var _game = __webpack_require__(12);
+var _game = __webpack_require__(13);
 
 var _game2 = _interopRequireDefault(_game);
 
@@ -4183,11 +4268,11 @@ function onSocketDisconnect() {
 }
 
 function onNewPlayer(data) {
-  console.log('New player connected:', data);
+  console.log('New player connected:', data
 
-  var newPlayer = new _player2.default(_game2.default, data.x, data.y, 50, 5, data.id, 'zombie');
+  // const newPlayer = new Player(game,data.x,data.y,50,5,data.id,'zombie')
 
-  var duplicate = playerById(data.id);
+  );var duplicate = playerById(data.id);
   if (duplicate) {
     console.log('Duplicate player!');
     return;
@@ -4198,7 +4283,8 @@ function onNewPlayer(data) {
 
 
   //Solution Vector - need to connect player models with event handlers
-  _game2.default.localPlayer = _game2.default.add.sprite(newPlayer.x, newPlayer.y, newPlayer.avatar);
+  // game.localPlayer = game.add.sprite(newPlayer.x, newPlayer.y, newPlayer.avatar)
+  // game.localPlayer.id = data.id
   _game2.default.allPlayers.push(_game2.default.localPlayer);
 
   console.log(_game2.default.allPlayers);
@@ -4212,8 +4298,10 @@ function onMovePlayer(data) {
     return;
   }
 
-  movePlayer.x = data.x;
-  movePlayer.y = data.y;
+  // movePlayer.x = data.x
+  // movePlayer.y = data.y
+  movePlayer.body.x = data.x;
+  movePlayer.body.y = data.y;
 }
 
 function onRemovePlayer(data) {
@@ -4225,7 +4313,7 @@ function onRemovePlayer(data) {
     return;
   }
 
-  removePlayer.player.kill();
+  removePlayer.kill();
   _game2.default.allPlayers.splice(_game2.default.allPlayers.indexOf(removePlayer), 1);
   this.broadcast.emit("remove player", { id: data.id });
 }
@@ -4242,7 +4330,7 @@ exports.socket = socket;
 exports.setEventHandlers = setEventHandlers;
 
 /***/ }),
-/* 25 */
+/* 26 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4337,7 +4425,7 @@ function genMovement(factor) {
 exports.default = Enemy;
 
 /***/ }),
-/* 26 */
+/* 27 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4446,7 +4534,7 @@ var LazerBeam = exports.LazerBeam = function (_Weapon2) {
 }(Weapon);
 
 /***/ }),
-/* 27 */
+/* 28 */
 /***/ (function(module, exports) {
 
 module.exports = after
@@ -4480,7 +4568,7 @@ function noop() {}
 
 
 /***/ }),
-/* 28 */
+/* 29 */
 /***/ (function(module, exports) {
 
 /**
@@ -4513,74 +4601,6 @@ module.exports = function(arraybuffer, start, end) {
   return result.buffer;
 };
 
-
-/***/ }),
-/* 29 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-/* Add player class to handle logic of people jumping in and out of the game */
-//need to pass in game object
-
-//extend group or sprites?
-// class Player extends Phaser.group {
-
-var Player = function (_Phaser$Sprite) {
-  _inherits(Player, _Phaser$Sprite);
-
-  function Player(game, x, y, health, speed, id, avatar) {
-    _classCallCheck(this, Player);
-
-    var _this = _possibleConstructorReturn(this, (Player.__proto__ || Object.getPrototypeOf(Player)).call(this, game));
-
-    _this.game = game;
-    _this.x = x;
-    _this.y = y;
-    _this.health = health || 50;
-    _this.speed = speed || 5;
-    _this.id = id;
-    _this.avatar = 'zombie';
-    game.physics.enable(_this);
-    _this.body.collideWorldBounds = true;
-    return _this;
-  }
-
-  _createClass(Player, [{
-    key: 'addPlayer',
-    value: function addPlayer(game, id, x, y) {
-      game.playerMap[id] = game.add.sprite(x, y, 'zombie');
-    }
-  }, {
-    key: 'removePlayer',
-    value: function removePlayer(game, id) {
-      game.playerMap[id].destroy();
-      delete game.playerMap[id];
-    }
-  }, {
-    key: 'takeDamage',
-    value: function takeDamage(damage) {
-      this.health -= damage;
-    }
-  }]);
-
-  return Player;
-}(Phaser.Sprite);
-
-exports.default = Player;
 
 /***/ }),
 /* 30 */
@@ -4881,12 +4901,12 @@ module.exports.parser = __webpack_require__(2);
  * Module dependencies.
  */
 
-var transports = __webpack_require__(14);
+var transports = __webpack_require__(15);
 var Emitter = __webpack_require__(1);
 var debug = __webpack_require__(4)('engine.io-client:socket');
-var index = __webpack_require__(17);
+var index = __webpack_require__(18);
 var parser = __webpack_require__(2);
-var parseuri = __webpack_require__(18);
+var parseuri = __webpack_require__(19);
 var parsejson = __webpack_require__(45);
 var parseqs = __webpack_require__(5);
 
@@ -5022,7 +5042,7 @@ Socket.protocol = parser.protocol; // this is an int
 
 Socket.Socket = Socket;
 Socket.Transport = __webpack_require__(7);
-Socket.transports = __webpack_require__(14);
+Socket.transports = __webpack_require__(15);
 Socket.parser = __webpack_require__(2);
 
 /**
@@ -5633,7 +5653,7 @@ Socket.prototype.filterUpgrades = function (upgrades) {
  * Module requirements.
  */
 
-var Polling = __webpack_require__(15);
+var Polling = __webpack_require__(16);
 var inherit = __webpack_require__(3);
 
 /**
@@ -5871,7 +5891,7 @@ JSONPPolling.prototype.doWrite = function (data, fn) {
  */
 
 var XMLHttpRequest = __webpack_require__(8);
-var Polling = __webpack_require__(15);
+var Polling = __webpack_require__(16);
 var Emitter = __webpack_require__(1);
 var inherit = __webpack_require__(3);
 var debug = __webpack_require__(4)('engine.io-client:polling-xhr');
@@ -6294,7 +6314,7 @@ var Transport = __webpack_require__(7);
 var parser = __webpack_require__(2);
 var parseqs = __webpack_require__(5);
 var inherit = __webpack_require__(3);
-var yeast = __webpack_require__(23);
+var yeast = __webpack_require__(24);
 var debug = __webpack_require__(4)('engine.io-client:websocket');
 var BrowserWebSocket = global.WebSocket || global.MozWebSocket;
 var NodeWebSocket;
@@ -7310,7 +7330,7 @@ module.exports = function parsejson(data) {
 
 var url = __webpack_require__(47);
 var parser = __webpack_require__(10);
-var Manager = __webpack_require__(19);
+var Manager = __webpack_require__(20);
 var debug = __webpack_require__(6)('socket.io-client');
 
 /**
@@ -7395,8 +7415,8 @@ exports.connect = lookup;
  * @api public
  */
 
-exports.Manager = __webpack_require__(19);
-exports.Socket = __webpack_require__(21);
+exports.Manager = __webpack_require__(20);
+exports.Socket = __webpack_require__(22);
 
 
 /***/ }),
@@ -7408,7 +7428,7 @@ exports.Socket = __webpack_require__(21);
  * Module dependencies.
  */
 
-var parseuri = __webpack_require__(18);
+var parseuri = __webpack_require__(19);
 var debug = __webpack_require__(6)('socket.io-client:url');
 
 /**
@@ -7858,7 +7878,7 @@ function plural(ms, n, name) {
  */
 
 var isArray = __webpack_require__(53);
-var isBuf = __webpack_require__(22);
+var isBuf = __webpack_require__(23);
 var toString = Object.prototype.toString;
 var withNativeBlob = typeof global.Blob === 'function' || toString.call(global.Blob) === '[object BlobConstructor]';
 var withNativeFile = typeof global.File === 'function' || toString.call(global.File) === '[object FileConstructor]';

@@ -7,6 +7,8 @@
 import Bullet from './models/bullet'
 import {SingleBullet, LazerBeam} from './models/weapon'
 import Enemy from './models/enemy'
+import Player from './player'
+
 
 /* ----- Server Dependencies ----- */
 import {socket, setEventHandlers} from './eventHandlers'
@@ -17,6 +19,7 @@ const game = (function startGame(){
   let map
     , layer
     , player
+    , players
     , cursors
     , fireButton
     , changeKey
@@ -25,7 +28,6 @@ const game = (function startGame(){
     , bullets
     , weapons
 
-  let players //Not properly hooked up yet
 
   const gameWidth = 1000
   const gameHeight = 800
@@ -60,7 +62,7 @@ const game = (function startGame(){
     // game.world.setBounds(-1000, -1000, 2000, 2000);
 
     addMap('desert') // specify map can be: ['desert', 'forest']
-    addEnemies(1000) //specify number of enemies to be added
+    addEnemies(5) //specify number of enemies to be added
 
     setEventHandlers() // Start listening for events
     addPlayer() // <- currently incomplete, need to finish tie up ^
@@ -207,12 +209,17 @@ const game = (function startGame(){
    =============== =============== =============== */
 
   function addPlayer(){
+    players = game.add.group()
+
     game.allPlayers = []
-    game.localPlayer = game.add.sprite(32, game.world.height / 2, 'zombie')
+    // game.localPlayer = game.add.sprite(32, game.world.height / 2, 'zombie')
 
     // player = game.add.sprite(32, game.world.height / 2, 'zombie')
+    // game.localPlayer = player
+    // game.physics.enable(player)
 
-    player = game.localPlayer
+    player = new Player(game,32,game.world.height / 2,50,5,'zombie')
+    players.add(player)
 
     weapons = game.add.group()
     weapons.add(new SingleBullet(game,'bullet'))
@@ -220,16 +227,12 @@ const game = (function startGame(){
     player.weapons = weapons
     player.currentWeapon = 0
 
-    game.physics.arcade.enable(player)
-
-    //will be redundant with player model completion
-    player.body.collideWorldBounds = true;
-
-
     player.body.velocity.x = 10
     player.body.velocity.y = 10
 
     game.camera.follow(player)
+
+    console.log(player, game.localPlayer)
 
   }
 
@@ -247,6 +250,8 @@ const game = (function startGame(){
 
   function checkPlayerInputs(){
     if (cursors.left.isDown){
+      console.log('move left',cursors)
+
       player.body.x -= player.body.velocity.x
     }
     if (cursors.right.isDown){
@@ -269,6 +274,7 @@ const game = (function startGame(){
       changeWeapon(player)
     }
     console.log(player.id)
+    //socket.emit('movePlayer',{id: player.id, x: player.body.x, y: player.body.y})
     socket.emit('movePlayer',{id: player.id, x: player.body.x, y: player.body.y})
   }
 
