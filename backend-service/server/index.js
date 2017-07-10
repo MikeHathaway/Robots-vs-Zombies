@@ -20,7 +20,7 @@ io.on('connection', setEventHandlers)
 
 function setEventHandlers(client){
   console.log('connected!')
-  client.emit('connection')
+  client.emit('connection') //probably unnecessary
   client.on('newPlayer', onNewPlayer)
   client.on('movePlayer', onMovePlayer)
   client.on('disconnect', onSocketDisconnect)

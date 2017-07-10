@@ -2213,11 +2213,11 @@ var _bullet2 = _interopRequireDefault(_bullet);
 
 var _weapon = __webpack_require__(26);
 
-var _enemy = __webpack_require__(24);
+var _enemy = __webpack_require__(25);
 
 var _enemy2 = _interopRequireDefault(_enemy);
 
-var _eventHandlers = __webpack_require__(25);
+var _eventHandlers = __webpack_require__(24);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -2271,32 +2271,104 @@ var game = function startGame() {
   }
 
   function create() {
-    game.physics.startSystem(Phaser.Physics.ARCADE);
+    game.physics.startSystem(Phaser.Physics.ARCADE
+    // game.world.setBounds(-1000, -1000, 2000, 2000);
 
-    addMap('desert' // specify map can be: ['desert', 'forest']
-    );addEnemies();
-    addPlayer();
-    addInputs();
+    );addMap('desert' // specify map can be: ['desert', 'forest']
+    );addEnemies(1000 //specify number of enemies to be added
 
-    addScore
+    );(0, _eventHandlers.setEventHandlers // Start listening for events
+    )();addPlayer // <- currently incomplete, need to finish tie up ^
 
-    // Start listening for events
-    ();(0, _eventHandlers.setEventHandlers)();
+    ();addInputs // Add game controls
+    ();addScore // Score animations
+    ();
+  }
+
+  function update() {
+    checkEnemyActions();
+    checkPlayerInputs();
+    checkCollisions();
+    checkScore();
+  }
+
+  function render() {}
+  //game.debug.spriteInfo(player, 32, 450)
+
+
+  /* =============== =============== ===============
+    =============== CREATE FUNCTIONS ===============
+    =============== =============== =============== */
+
+  function addInputs() {
+    cursors = game.input.keyboard.createCursorKeys();
+    fireButton = game.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR);
+    changeKey = game.input.keyboard.addKey(Phaser.Keyboard.ENTER);
+  }
+
+  function addInputsTwo() {
+    return {
+      cursors: game.input.keyboard.createCursorKeys(),
+      fireButton: game.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR),
+      changeKey: game.input.keyboard.addKey(Phaser.Keyboard.ENTER)
+    };
+  }
+
+  function addMap(type) {
+    if (type === 'desert') desertMap();
+    if (type === 'forest') forestMap();
+  }
+
+  function desertMap() {
+    map = game.add.tilemap('desert');
+    map.addTilesetImage('Desert', 'tiles');
+    layer = map.createLayer('Ground');
+    layer.resizeWorld();
+  }
+
+  function forestMap() {
+    map = game.add.tilemap('forest');
+    map.addTilesetImage('forestTiles', 'forestTiles');
+    map.addTilesetImage('tmw_desert_spacing', 'tiles');
+    layer = map.createLayer('MapLayer');
+    collisionLayer = map.createLayer('CollisionLayer');
+    collisionLayer.visible = false;
+    map.setCollisionByExclusion([], true, collisionLayer);
+  }
+
+  function addEnemies(number) {
+    enemies = game.add.group();
+
+    function addZombie() {
+      var number = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 100;
+
+      var i = 0;
+      while (i++ < number) {
+        enemies.add(new _enemy2.default(game, gameWidth, gameHeight, 'zombie'));
+      }
+    }
+
+    addZombie(number
+
+    /* ----- Generate Zombies FRP ----- */
+    // const source = Rx.Observable.interval(1000 /* ms */).timeInterval().take(5)
+    // const subscription = source.subscribe(addZombie,handleError)
+    );
   }
 
   function createScoreAnimation(x, y, message, score) {
     var scoreFont = "20px Arial";
 
     //Create a new label for the score
-    var scoreAnimation = game.add.text(x, y, message, { font: scoreFont, fill: "#39d179", stroke: "#ffffff", strokeThickness: 15 });
+    var scoreAnimation = game.add.text(x, y, message, { font: scoreFont, fill: "#ff0000", stroke: "#ffffff", strokeThickness: 5 });
     scoreAnimation.anchor.setTo(0.5, 0);
     scoreAnimation.align = 'center';
 
     //Tween this score label to the total score label
-    var scoreTween = game.add.tween(scoreAnimation).to({ x: game.world.centerX, y: 50 }, 800, Phaser.Easing.Exponential.In, true);
+    var scoreTween = game.add.tween(scoreAnimation).to({ x: game.world.centerX, y: 50 }, 800, Phaser.Easing.Exponential.In, true
 
     //When the animation finishes, destroy this score label, trigger the total score labels animation and add the score
-    scoreTween.onComplete.add(function () {
+    );scoreTween.onComplete.add(function () {
       scoreAnimation.destroy();
       game.scoreLabelTween.start();
       game.scoreBuffer += score;
@@ -2306,14 +2378,14 @@ var game = function startGame() {
   function addScore() {
     game.score = 0;
     game.scoreBuffer = 0;
-    // game.add.text(16, 16, 'score: 0', { fontSize: '32px', fill: '#111' });
+    // game.add.text(16, 16, 'score: 0', { fontSize: '32px', fill: '#111' })
 
-    var scoreFont = "100px Arial";
+    var scoreFont = "100px Indie Flower";
 
     //Create the score label -> may want to move away from adding it directly on game object?
-    game.scoreLabel = game.add.text(game.world.centerX, 50, '0', { font: scoreFont, fill: "#ffffff", stroke: "#535353", strokeThickness: 15 });
-    // scoreLabel.anchor.setTo(0.5, 0);
-    game.scoreLabel.align = 'center';
+    game.scoreLabel = game.add.text(game.world.centerX, 50, '0', { font: scoreFont, fill: "#ff0000", stroke: "#535353", strokeThickness: 15 }
+    // scoreLabel.anchor.setTo(0.5, 0)
+    );game.scoreLabel.align = 'center';
 
     //Create a tween to grow / shrink the score label
     game.scoreLabelTween = game.add.tween(game.scoreLabel.scale).to({ x: 1.5, y: 1.5 }, 200, Phaser.Easing.Linear.In).to({ x: 1, y: 1 }, 200, Phaser.Easing.Linear.In);
@@ -2331,16 +2403,34 @@ var game = function startGame() {
     game.scoreLabel.text = game.score;
   }
 
-  function update() {
-    checkEnemyActions();
-    checkPlayerInputs();
-    checkCollisions();
-    checkScore();
+  /* =============== =============== ===============
+    =============== MULTIPLAYER FUNCTIONS ===============
+    =============== =============== =============== */
+
+  function addPlayer() {
+    game.allPlayers = [];
+    game.localPlayer = game.add.sprite(32, game.world.height / 2, 'zombie'
+
+    // player = game.add.sprite(32, game.world.height / 2, 'zombie')
+
+    );player = game.localPlayer;
+
+    weapons = game.add.group();
+    weapons.add(new _weapon.SingleBullet(game, 'bullet'));
+    weapons.add(new _weapon.LazerBeam(game, 'lazer'));
+    player.weapons = weapons;
+    player.currentWeapon = 0;
+
+    game.physics.arcade.enable(player
+
+    //will be redundant with player model completion
+    );player.body.collideWorldBounds = true;
+
+    player.body.velocity.x = 10;
+    player.body.velocity.y = 10;
+
+    game.camera.follow(player);
   }
-
-  function render() {}
-  //game.debug.spriteInfo(player, 32, 450);
-
 
   /* =============== =============== ===============
     =============== UPDATE FUNCTIONS ===============
@@ -2419,93 +2509,13 @@ var game = function startGame() {
     });
   }
 
-  /* =============== =============== ===============
-    =============== CREATE FUNCTIONS ===============
-    =============== =============== =============== */
-
-  function addInputs() {
-    cursors = game.input.keyboard.createCursorKeys();
-    fireButton = game.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR);
-    changeKey = game.input.keyboard.addKey(Phaser.Keyboard.ENTER);
+  function aimRotation() {
+    var myPoint = new Phaser.Point(sprite.width / 2 + 30, -sprite.height / 2);
+    myPoint.rotate(sprite.rotation);
+    this.getFirstExists(false).fire(sprite.x + myPoint.x, sprite.y + myPoint.y, sprite.rotation, BulletPool.BULLET_SPEED);
   }
 
-  function addInputsTwo() {
-    return {
-      cursors: game.input.keyboard.createCursorKeys(),
-      fireButton: game.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR),
-      changeKey: game.input.keyboard.addKey(Phaser.Keyboard.ENTER)
-    };
-  }
-
-  function addMap(type) {
-    if (type === 'desert') desertMap();
-    if (type === 'forest') forestMap();
-  }
-
-  function desertMap() {
-    map = game.add.tilemap('desert');
-    map.addTilesetImage('Desert', 'tiles');
-    layer = map.createLayer('Ground');
-    layer.resizeWorld();
-  }
-
-  function forestMap() {
-    map = game.add.tilemap('forest');
-    map.addTilesetImage('forestTiles', 'forestTiles');
-    map.addTilesetImage('tmw_desert_spacing', 'tiles');
-    layer = map.createLayer('MapLayer');
-    collisionLayer = map.createLayer('CollisionLayer');
-    collisionLayer.visible = false;
-    map.setCollisionByExclusion([], true, collisionLayer);
-  }
-
-  function addEnemies(number) {
-    enemies = game.add.group();
-
-    function addZombie() {
-      var number = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 100;
-
-      var i = 0;
-      while (i++ < number) {
-        enemies.add(new _enemy2.default(game, gameWidth, gameHeight, 'zombie'));
-      }
-    }
-
-    addZombie(number
-
-    /* ----- Generate Zombies FRP ----- */
-    // const source = Rx.Observable.interval(1000 /* ms */).timeInterval().take(5)
-    // const subscription = source.subscribe(addZombie,handleError)
-    );
-  }
-
-  /* =============== =============== ===============
-    =============== MULTIPLAYER FUNCTIONS ===============
-    =============== =============== =============== */
-
-  function addPlayer() {
-    game.allPlayers = [];
-    game.localPlayer = game.add.sprite(32, game.world.height / 2, 'zombie'
-
-    // player = game.add.sprite(32, game.world.height / 2, 'zombie')
-
-    );player = game.localPlayer;
-
-    weapons = game.add.group();
-    weapons.add(new _weapon.SingleBullet(game, 'bullet'));
-    weapons.add(new _weapon.LazerBeam(game, 'lazer'));
-    player.weapons = weapons;
-    player.currentWeapon = 0;
-
-    game.physics.arcade.enable(player);
-
-    player.body.velocity.x = 10;
-    player.body.velocity.y = 10;
-
-    game.camera.follow(player);
-  }
-
-  return game; // may not be best practices ... but attempting to contain scope
+  return game;
 }();
 
 /* ----- Server Dependencies ----- */
@@ -4118,101 +4128,6 @@ module.exports = yeast;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-//http://metroid.niklasberg.se/2016/02/12/phaser-making-and-using-a-generic-enemy-class-es6es2015/
-
-//https://phaser.io/examples/v2/games/tanks
-
-//http://www.html5gamedevs.com/topic/14281-help-needed-for-better-enemy-ai/
-//^add functionality for more sophisticated enemy ai
-
-
-var Enemy = function (_Phaser$Sprite) {
-  _inherits(Enemy, _Phaser$Sprite);
-
-  function Enemy(game, x, y, type) {
-    _classCallCheck(this, Enemy);
-
-    var _this = _possibleConstructorReturn(this, (Enemy.__proto__ || Object.getPrototypeOf(Enemy)).call(this, game, 0, 0, 'zombie'));
-
-    _this.x = genRandomNum(x);
-    _this.y = genRandomNum(y);
-    _this.speed = 2;
-    _this.type = type;
-    _this.health = 30;
-    game.physics.enable(_this);
-    return _this;
-  }
-
-  _createClass(Enemy, [{
-    key: 'spawnEnemy',
-    value: function spawnEnemy(game, x, y) {
-      game.add.sprite(genRandomNum(x), genRandomNum(y), 'zombie');
-    }
-  }, {
-    key: 'move',
-    value: function move(game, enemy, player) {
-      // this.x += genMovement(this.speed)
-      // this.y += genMovement(this.speed)
-
-      game.physics.arcade.moveToObject(enemy, player, 60, 0);
-    }
-  }, {
-    key: 'isAlive',
-    value: function isAlive() {
-      if (this.health <= 0) this.kill();
-    }
-  }, {
-    key: 'takeDamage',
-    value: function takeDamage(damage) {
-      this.health -= damage;
-    }
-  }, {
-    key: 'update',
-    value: function update() {
-      this.game.physics.arcade.collide(this, this.game.collisionLayer);
-
-      // if (this.body.blocked.right) {
-      //   this.scale.x = -1;
-      //   this.body.x = genRandomNum(this.speed)
-      // } else if (this.body.blocked.left) {
-      //   this.scale.x = 1;
-      //   this.body.velocity.x = genRandomNum(this.speed)
-      // }
-    }
-  }]);
-
-  return Enemy;
-}(Phaser.Sprite);
-
-function genRandomNum(factor) {
-  return Math.floor(factor * Math.random());
-}
-
-function genMovement(factor) {
-  return Math.floor(factor * (Math.round(Math.random()) * 2 - 1));
-}
-
-exports.default = Enemy;
-
-/***/ }),
-/* 25 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
 exports.setEventHandlers = exports.socket = undefined;
 
 var _socket = __webpack_require__(46);
@@ -4325,6 +4240,101 @@ function playerById(id) {
 // export default setEventHandlers
 exports.socket = socket;
 exports.setEventHandlers = setEventHandlers;
+
+/***/ }),
+/* 25 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+//http://metroid.niklasberg.se/2016/02/12/phaser-making-and-using-a-generic-enemy-class-es6es2015/
+
+//https://phaser.io/examples/v2/games/tanks
+
+//http://www.html5gamedevs.com/topic/14281-help-needed-for-better-enemy-ai/
+//^add functionality for more sophisticated enemy ai
+
+
+var Enemy = function (_Phaser$Sprite) {
+  _inherits(Enemy, _Phaser$Sprite);
+
+  function Enemy(game, x, y, type) {
+    _classCallCheck(this, Enemy);
+
+    var _this = _possibleConstructorReturn(this, (Enemy.__proto__ || Object.getPrototypeOf(Enemy)).call(this, game, 0, 0, 'zombie'));
+
+    _this.x = genRandomNum(x);
+    _this.y = genRandomNum(y);
+    _this.speed = 2;
+    _this.type = type;
+    _this.health = 30;
+    game.physics.enable(_this);
+    return _this;
+  }
+
+  _createClass(Enemy, [{
+    key: 'spawnEnemy',
+    value: function spawnEnemy(game, x, y) {
+      game.add.sprite(genRandomNum(x), genRandomNum(y), 'zombie');
+    }
+  }, {
+    key: 'move',
+    value: function move(game, enemy, player) {
+      // this.x += genMovement(this.speed)
+      // this.y += genMovement(this.speed)
+
+      game.physics.arcade.moveToObject(enemy, player, 60, 0);
+    }
+  }, {
+    key: 'isAlive',
+    value: function isAlive() {
+      if (this.health <= 0) this.kill();
+    }
+  }, {
+    key: 'takeDamage',
+    value: function takeDamage(damage) {
+      this.health -= damage;
+    }
+  }, {
+    key: 'update',
+    value: function update() {
+      this.game.physics.arcade.collide(this, this.game.collisionLayer);
+
+      // if (this.body.blocked.right) {
+      //   this.scale.x = -1;
+      //   this.body.x = genRandomNum(this.speed)
+      // } else if (this.body.blocked.left) {
+      //   this.scale.x = 1;
+      //   this.body.velocity.x = genRandomNum(this.speed)
+      // }
+    }
+  }]);
+
+  return Enemy;
+}(Phaser.Sprite);
+
+function genRandomNum(factor) {
+  return Math.floor(factor * Math.random());
+}
+
+function genMovement(factor) {
+  return Math.floor(factor * (Math.round(Math.random()) * 2 - 1));
+}
+
+exports.default = Enemy;
 
 /***/ }),
 /* 26 */
@@ -4545,6 +4555,7 @@ var Player = function (_Phaser$Sprite) {
     _this.id = id;
     _this.avatar = 'zombie';
     game.physics.enable(_this);
+    _this.body.collideWorldBounds = true;
     return _this;
   }
 

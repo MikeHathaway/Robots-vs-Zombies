@@ -15,6 +15,7 @@ class Player extends Phaser.Sprite{
     this.id = id
     this.avatar = 'zombie'
     game.physics.enable(this)
+    this.body.collideWorldBounds = true;
   }
 
   addPlayer(game,id,x,y){
