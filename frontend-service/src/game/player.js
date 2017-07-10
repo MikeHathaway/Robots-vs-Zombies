@@ -4,15 +4,17 @@
 //extend group or sprites?
 // class Player extends Phaser.group {
 
-class Player{
+class Player extends Phaser.Sprite{
   constructor(game,x,y,health,speed,id,avatar){
+    super(game)
     this.game = game
     this.x = x
     this.y = y
-    this.health = 50
-    this.speed = 5
+    this.health = health || 50
+    this.speed = speed || 5
     this.id = id
     this.avatar = 'zombie'
+    game.physics.enable(this)
   }
 
   addPlayer(game,id,x,y){

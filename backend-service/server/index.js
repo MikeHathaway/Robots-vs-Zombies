@@ -1,11 +1,15 @@
 const app = require('express')()
 const server = require('http').Server(app)
 const io = require('socket.io').listen(server)
-const Player = require('./Player').Player
 
+const Player = require('./Player').Player
 const players = []
 
 server.lastPlayerID = 0
+
+app.get('/test', (req,res) => {
+  res.send('hello!')
+})
 
 server.listen(process.env.PORT || 4000, function(){
     console.log('Listening on '+server.address().port)
@@ -16,6 +20,7 @@ io.on('connection', setEventHandlers)
 
 function setEventHandlers(client){
   console.log('connected!')
+  client.emit('connection')
   client.on('newPlayer', onNewPlayer)
   client.on('movePlayer', onMovePlayer)
   client.on('disconnect', onSocketDisconnect)
@@ -37,8 +42,10 @@ function onNewPlayer(data) {
 }
 
 function onMovePlayer(data) {
+  //data.id is currently undefined for some reason
+  console.log(data)
   const movePlayer = playerById(data.id);
-
+console.log(movePlayer)
   if (!movePlayer) {
       console.log("Player not found: " + data.id)
       return
@@ -51,6 +58,7 @@ function onMovePlayer(data) {
 }
 
 function onSocketDisconnect() {
+  io.emit('removePlayer', "A user disconnected");
   console.log("Player has disconnected: " + this.id)
 }
 

@@ -2221,12 +2221,10 @@ var _eventHandlers = __webpack_require__(25);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-// excellent set of guides
-//https://www.joshmorony.com/creating-animated-scoring-in-an-html5-phaser-game/
-
 // minimap guide
 //http://www.html5gamedevs.com/topic/14182-creating-a-mini-map-in-phaser/
 
+//game timer - womprat stomping
 
 /* ----- Phaser Dependencies ----- */
 var game = function startGame() {
@@ -2371,7 +2369,7 @@ var game = function startGame() {
     if (changeKey.isDown) {
       changeWeapon(player);
     }
-
+    console.log(player.id);
     _eventHandlers.socket.emit('movePlayer', { id: player.id, x: player.body.x, y: player.body.y });
   }
 
@@ -4232,7 +4230,7 @@ var _game2 = _interopRequireDefault(_game);
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var socket = (0, _socket2.default)('http://localhost:4000'
-// const socket = io.connect("http://localhost", {port: 4000, transports: ["websocket"]});
+// const socket = io()
 
 ); //http://www.dynetisgames.com/2017/03/06/how-to-make-a-multiplayer-online-game-with-phaser-socket-io-and-node-js/
 //https://github.com/Jerenaux/basic-mmo-phaser/blob/master/js/client.js
@@ -4244,9 +4242,6 @@ var socket = (0, _socket2.default)('http://localhost:4000'
 //http://rawkes.com/articles/creating-a-real-time-multiplayer-game-with-websockets-and-node.html
 
 function setEventHandlers() {
-
-  socket.emit('newPlayer', { x: _game2.default.localPlayer.x, y: _game2.default.localPlayer.y });
-
   // Socket connection successful
   socket.on('connection', onSocketConnected
 
@@ -4264,9 +4259,8 @@ function setEventHandlers() {
 }
 
 function onSocketConnected() {
-  console.log("Connected to socket server"
-  //socket.emit here is not firing for some reason
-  );socket.emit('newPlayer', { x: _game2.default.localPlayer.x, y: _game2.default.localPlayer.y });
+  console.log("Connected to socket server");
+  socket.emit('newPlayer', { x: _game2.default.localPlayer.x, y: _game2.default.localPlayer.y });
 }
 
 function onSocketDisconnect() {
@@ -4284,9 +4278,13 @@ function onNewPlayer(data) {
     return;
   }
 
-  _game2.default.add.sprite(newPlayer.x, newPlayer.y, newPlayer.avatar);
+  // game.add.sprite(newPlayer.x, newPlayer.y, newPlayer.avatar)
+  // game.allPlayers.push(newPlayer)
 
-  _game2.default.allPlayers.push(newPlayer);
+
+  //Solution Vector - need to connect player models with event handlers
+  _game2.default.localPlayer = _game2.default.add.sprite(newPlayer.x, newPlayer.y, newPlayer.avatar);
+  _game2.default.allPlayers.push(_game2.default.localPlayer);
 
   console.log(_game2.default.allPlayers);
 }
@@ -4521,23 +4519,33 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
 /* Add player class to handle logic of people jumping in and out of the game */
 //need to pass in game object
 
 //extend group or sprites?
 // class Player extends Phaser.group {
 
-var Player = function () {
+var Player = function (_Phaser$Sprite) {
+  _inherits(Player, _Phaser$Sprite);
+
   function Player(game, x, y, health, speed, id, avatar) {
     _classCallCheck(this, Player);
 
-    this.game = game;
-    this.x = x;
-    this.y = y;
-    this.health = 50;
-    this.speed = 5;
-    this.id = id;
-    this.avatar = 'zombie';
+    var _this = _possibleConstructorReturn(this, (Player.__proto__ || Object.getPrototypeOf(Player)).call(this, game));
+
+    _this.game = game;
+    _this.x = x;
+    _this.y = y;
+    _this.health = health || 50;
+    _this.speed = speed || 5;
+    _this.id = id;
+    _this.avatar = 'zombie';
+    game.physics.enable(_this);
+    return _this;
   }
 
   _createClass(Player, [{
@@ -4559,7 +4567,7 @@ var Player = function () {
   }]);
 
   return Player;
-}();
+}(Phaser.Sprite);
 
 exports.default = Player;
 

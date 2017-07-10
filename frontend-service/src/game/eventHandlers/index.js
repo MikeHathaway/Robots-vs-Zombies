@@ -13,11 +13,9 @@ import Player from '../player'
 import game from '../game'
 
 const socket = io('http://localhost:4000')
+// const socket = io()
 
 function setEventHandlers(){
-
-  socket.emit('newPlayer', {x: game.localPlayer.x, y: game.localPlayer.y});
-
   // Socket connection successful
   socket.on('connection', onSocketConnected)
 
@@ -36,9 +34,8 @@ function setEventHandlers(){
 
 
 function onSocketConnected() {
-    console.log("Connected to socket server")
-    //socket.emit here is not firing for some reason
-    socket.emit('newPlayer', {x: game.localPlayer.x, y: game.localPlayer.y});
+  console.log("Connected to socket server")
+  socket.emit('newPlayer', {x: game.localPlayer.x, y: game.localPlayer.y});
 }
 
 function onSocketDisconnect(){
@@ -56,9 +53,14 @@ function onNewPlayer(data){
     return
   }
 
-  game.add.sprite(newPlayer.x, newPlayer.y, newPlayer.avatar)
+  // game.add.sprite(newPlayer.x, newPlayer.y, newPlayer.avatar)
+  // game.allPlayers.push(newPlayer)
 
-  game.allPlayers.push(newPlayer)
+
+  //Solution Vector - need to connect player models with event handlers
+  game.localPlayer = game.add.sprite(newPlayer.x, newPlayer.y, newPlayer.avatar)
+  game.allPlayers.push(game.localPlayer)
+
 
   console.log(game.allPlayers)
 }

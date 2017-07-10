@@ -13,6 +13,8 @@
 *  Docker
 *  AWS ECS
 *  synaptic.js
+*  Zeit now
+*  mlab https://mlab.com/
 
 ## Deployment
 
@@ -32,7 +34,7 @@ Mike Hathaway
 
 *  https://medium.com/the-backlog-by-nimbo-x/creating-a-serverless-web-app-with-node-js-ember-js-and-paas-services-hyperdev-surge-sh-8e3ebe263a76
 
-*
+* https://www.joshmorony.com/creating-animated-scoring-in-an-html5-phaser-game/
 
 ## License
 

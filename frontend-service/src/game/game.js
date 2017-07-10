@@ -1,10 +1,7 @@
-
-// excellent set of guides
-  //https://www.joshmorony.com/creating-animated-scoring-in-an-html5-phaser-game/
-
 // minimap guide
   //http://www.html5gamedevs.com/topic/14182-creating-a-mini-map-in-phaser/
 
+//game timer - womprat stomping
 
 /* ----- Phaser Dependencies ----- */
 import Bullet from './bullet'
@@ -168,7 +165,7 @@ const game = (function startGame(){
     if(changeKey.isDown){
       changeWeapon(player)
     }
-
+    console.log(player.id)
     socket.emit('movePlayer',{id: player.id, x: player.body.x, y: player.body.y})
   }
 
