@@ -16,16 +16,13 @@ import game from '../game'
 const socket = io('http://localhost:4000')
 
 const playerObs = new EventEmitter()
-// const playerObs = new Rx.Subject() //player creation observable (RxJS)
+const remotePlayers = []
 
 function setEventHandlers(){
   window.socket = socket
 
   socket.emit('newPlayer', {x: game.startX, y: game.startY})
   console.log(game.startX)
-
-  // Socket connection successful
-  socket.on('connection', onSocketConnected)
 
   // Socket disconnection
   socket.on('disconnect', onSocketDisconnect)
@@ -40,12 +37,6 @@ function setEventHandlers(){
   socket.on('removePlayer', onRemovePlayer)
 }
 
-
-/* currently non functional */
-function onSocketConnected() {
-  console.log("Connected to socket server")
-  socket.emit('newPlayer', {x: game.localPlayer.x, y: game.localPlayer.y})
-}
 
 function onSocketDisconnect(){
   console.log('Disconnected from socket server')
@@ -67,14 +58,12 @@ function onNewPlayer(data){
 function localPlayer(game,data){
   const newPlayer = new Player(game,32,game.world.height / 2,'zombie',50,5,game.weapons,data.id)
   game.add.sprite(newPlayer.x, newPlayer.y, newPlayer.avatar)
-  game.allPlayers.push(newPlayer)
-  game.localPlayer = newPlayer
-  playerObs.emit('player', newPlayer)
+  playerObs.emit('addPlayer', newPlayer)
+  remotePlayers.push(newPlayer)
   return newPlayer
 }
 
 function onMovePlayer(data){
-  // console.log('??', game.localPlayer.id, data)
   const movePlayer = playerById(data.id);
 
   if (!movePlayer) {
@@ -84,7 +73,6 @@ function onMovePlayer(data){
 
   movePlayer.body.x = data.x
   movePlayer.body.y = data.y
-  //console.log('movePlayer',movePlayer.body.x,movePlayer.body.y)
 }
 
 
@@ -97,15 +85,16 @@ function onRemovePlayer(data){
     return
   }
 
-  removePlayer.kill()
-  game.allPlayers.splice(game.allPlayers.indexOf(removePlayer), 1)
+  removePlayer.kill() // unnecessary?
+  playerObs.emit('removePlayer', removePlayer)
+  remotePlayers.splice(game.allPlayers.indexOf(removePlayer), 1)
   this.emit("removePlayer", {id: data.id})
 }
 
 
 
 function playerById (id) {
-  const identifiedPlayer = game.allPlayers.filter(player => player.id === id)
+  const identifiedPlayer = remotePlayers.filter(player => player.id === id)
   return identifiedPlayer.length > 0 ? identifiedPlayer[0] : false
 }
 

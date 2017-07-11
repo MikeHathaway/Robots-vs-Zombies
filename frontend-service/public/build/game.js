@@ -1996,9 +1996,10 @@ function create() {
 
 function update() {
   checkEnemyActions();
-  checkPlayerInputs(game.allPlayers[0]);
+  checkPlayerInputs(players.children[0]);
   checkCollisions();
   checkScore();
+  checkRemovePlayer();
 }
 
 function render() {}
@@ -2116,20 +2117,17 @@ function incrementScore() {
   =============== =============== =============== */
 
 function addPlayer() {
-  // game.allPlayers = game.add.group()
-  // game.allPlayers.add(game.localPlayer)
   players = game.add.group();
   var socketId = 0;
 
-  game.allPlayers = [];
   game.localPlayer = new _player2.default(game, 100, game.world.height / 2, 'zombie', 50, 5, game.weapons, socketId);
-  game.allPlayers.push(game.localPlayer);
   players.add(game.localPlayer);
+  // game.allPlayers = players.children
 
   game.startX = 32;
   game.startY = game.world.height / 2;
 
-  game.camera.follow(game.allPlayers[0]);
+  game.camera.follow(players.children[0]);
 }
 
 function addWeapons() {
@@ -2214,7 +2212,7 @@ function hitPlayer(bullet, player) {
 function checkEnemyActions() {
   enemies.children.forEach(function (enemy) {
     enemy.isAlive();
-    enemy.move(game, enemy, game.localPlayer);
+    enemy.move(game, enemy, players.children[0]);
   });
 }
 
@@ -2225,13 +2223,17 @@ function aimRotation() {
 }
 
 function checkForNewPlayers() {
-  _eventHandlers.playerObs.on('player', addPlayersToGame);
+  _eventHandlers.playerObs.on('addPlayer', addPlayersToGame);
 }
 
 function addPlayersToGame(player) {
   players.add(player);
-  game.allPlayers.push(player);
-  console.log(game.allPlayers);
+}
+
+function checkRemovePlayer() {
+  _eventHandlers.playerObs.on('removePlayer', function (removePlayer) {
+    removePlayer.kill();
+  });
 }
 
 exports.default = game;
@@ -3886,16 +3888,13 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 var socket = (0, _socket2.default)('http://localhost:4000');
 
 var playerObs = new _eventEmitterEs2.default();
-// const playerObs = new Rx.Subject() //player creation observable (RxJS)
+var remotePlayers = [];
 
 function setEventHandlers() {
   window.socket = socket;
 
   socket.emit('newPlayer', { x: _game2.default.startX, y: _game2.default.startY });
   console.log(_game2.default.startX);
-
-  // Socket connection successful
-  socket.on('connection', onSocketConnected);
 
   // Socket disconnection
   socket.on('disconnect', onSocketDisconnect);
@@ -3908,12 +3907,6 @@ function setEventHandlers() {
 
   // Player removed message received
   socket.on('removePlayer', onRemovePlayer);
-}
-
-/* currently non functional */
-function onSocketConnected() {
-  console.log("Connected to socket server");
-  socket.emit('newPlayer', { x: _game2.default.localPlayer.x, y: _game2.default.localPlayer.y });
 }
 
 function onSocketDisconnect() {
@@ -3936,14 +3929,12 @@ function onNewPlayer(data) {
 function localPlayer(game, data) {
   var newPlayer = new _player2.default(game, 32, game.world.height / 2, 'zombie', 50, 5, game.weapons, data.id);
   game.add.sprite(newPlayer.x, newPlayer.y, newPlayer.avatar);
-  game.allPlayers.push(newPlayer);
-  game.localPlayer = newPlayer;
-  playerObs.emit('player', newPlayer);
+  playerObs.emit('addPlayer', newPlayer);
+  remotePlayers.push(newPlayer);
   return newPlayer;
 }
 
 function onMovePlayer(data) {
-  // console.log('??', game.localPlayer.id, data)
   var movePlayer = playerById(data.id);
 
   if (!movePlayer) {
@@ -3953,7 +3944,6 @@ function onMovePlayer(data) {
 
   movePlayer.body.x = data.x;
   movePlayer.body.y = data.y;
-  //console.log('movePlayer',movePlayer.body.x,movePlayer.body.y)
 }
 
 function onRemovePlayer(data) {
@@ -3965,13 +3955,14 @@ function onRemovePlayer(data) {
     return;
   }
 
-  removePlayer.kill();
-  _game2.default.allPlayers.splice(_game2.default.allPlayers.indexOf(removePlayer), 1);
+  removePlayer.kill(); // unnecessary?
+  playerObs.emit('removePlayer', removePlayer);
+  remotePlayers.splice(_game2.default.allPlayers.indexOf(removePlayer), 1);
   this.emit("removePlayer", { id: data.id });
 }
 
 function playerById(id) {
-  var identifiedPlayer = _game2.default.allPlayers.filter(function (player) {
+  var identifiedPlayer = remotePlayers.filter(function (player) {
     return player.id === id;
   });
   return identifiedPlayer.length > 0 ? identifiedPlayer[0] : false;

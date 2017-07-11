@@ -35,6 +35,7 @@ import {socket, setEventHandlers, playerObs, localPlayer} from './eventHandlers'
   const score = 0
 
 
+
   /* ----- Start Game Instance ----- */
   const game = new Phaser.Game(gameWidth, gameHeight, Phaser.AUTO, 'game-container', {
       preload: preload,
@@ -42,6 +43,7 @@ import {socket, setEventHandlers, playerObs, localPlayer} from './eventHandlers'
       update: update,
       render: render
   })
+
 
   function preload(){
     game.load.crossOrigin = 'anonymous'
@@ -77,9 +79,10 @@ import {socket, setEventHandlers, playerObs, localPlayer} from './eventHandlers'
 
   function update(){
     checkEnemyActions()
-    checkPlayerInputs(game.allPlayers[0])
+    checkPlayerInputs(players.children[0])
     checkCollisions()
     checkScore()
+    checkRemovePlayer()
   }
 
   function render(){
@@ -212,20 +215,17 @@ import {socket, setEventHandlers, playerObs, localPlayer} from './eventHandlers'
    =============== =============== =============== */
 
   function addPlayer(){
-    // game.allPlayers = game.add.group()
-    // game.allPlayers.add(game.localPlayer)
     players = game.add.group()
     const socketId = 0
 
-    game.allPlayers = []
     game.localPlayer = new Player(game,100,game.world.height / 2,'zombie',50,5,game.weapons,socketId)
-    game.allPlayers.push(game.localPlayer)
     players.add(game.localPlayer)
+    // game.allPlayers = players.children
 
     game.startX = 32
     game.startY = game.world.height / 2
 
-    game.camera.follow(game.allPlayers[0])
+    game.camera.follow(players.children[0])
 
   }
 
@@ -252,7 +252,7 @@ import {socket, setEventHandlers, playerObs, localPlayer} from './eventHandlers'
    =============== =============== =============== */
 
 
-  function checkPlayerInputs(player = game.localPlayer){
+  function checkPlayerInputs(player){
     if (cursors.left.isDown){
       player.body.x -= player.body.velocity.x
     }
@@ -320,7 +320,7 @@ import {socket, setEventHandlers, playerObs, localPlayer} from './eventHandlers'
   function checkEnemyActions(){
     enemies.children.forEach(enemy => {
         enemy.isAlive()
-        enemy.move(game,enemy,game.localPlayer)
+        enemy.move(game,enemy,players.children[0])
     })
   }
 
@@ -331,13 +331,17 @@ import {socket, setEventHandlers, playerObs, localPlayer} from './eventHandlers'
   }
 
   function checkForNewPlayers(){
-    playerObs.on('player', addPlayersToGame)
+    playerObs.on('addPlayer', addPlayersToGame)
   }
 
   function addPlayersToGame(player){
     players.add(player)
-    game.allPlayers.push(player)
-    console.log(game.allPlayers)
+  }
+
+  function checkRemovePlayer(){
+    playerObs.on('removePlayer', (removePlayer) => {
+      removePlayer.kill()
+    })
   }
 
 
