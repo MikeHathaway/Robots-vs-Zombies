@@ -13,12 +13,12 @@ import Player from '../player'
 import game from '../game'
 
 const socket = io('http://localhost:4000')
-// window.socket = io() // DID NOT WORK
 
 function setEventHandlers(){
   window.socket = socket
 
-  socket.emit('newPlayer', {x: game.localPlayer.x, y: game.localPlayer.y})
+  socket.emit('newPlayer', {x: game.startX, y: game.startY})
+  console.log(game.startX)
 
   // Socket connection successful
   socket.on('connection', onSocketConnected)
@@ -37,6 +37,7 @@ function setEventHandlers(){
 }
 
 
+/* currently non functional */
 function onSocketConnected() {
   console.log("Connected to socket server")
   socket.emit('newPlayer', {x: game.localPlayer.x, y: game.localPlayer.y})
@@ -49,8 +50,6 @@ function onSocketDisconnect(){
 function onNewPlayer(data){
   console.log('New player connected:', data)
 
-  // const newPlayer = new Player(game,data.x,data.y,50,5,data.id,'zombie')
-
   const duplicate = playerById(data.id)
 
   if (duplicate) {
@@ -58,19 +57,16 @@ function onNewPlayer(data){
     return
   }
 
-  game.localPlayer.id = data.id
-
-  // game.add.sprite(newPlayer.x, newPlayer.y, newPlayer.avatar)
-  // game.allPlayers.push(newPlayer)
-
-  //Solution Vector - need to connect player models with event handlers
-  // game.localPlayer = game.add.sprite(newPlayer.x, newPlayer.y, newPlayer.avatar)
-  game.allPlayers.push(game.localPlayer)
-
-
-  console.log(game.allPlayers)
+  localPlayer(game,data)
 }
 
+function localPlayer(game,data){
+  const newPlayer = new Player(game,32,game.world.height / 2,'zombie',50,5,game.weapons,data.id)
+  game.add.sprite(newPlayer.x, newPlayer.y, newPlayer.avatar)
+  game.allPlayers.push(newPlayer)
+  game.localPlayer = newPlayer
+  return newPlayer
+}
 
 function onMovePlayer(data){
   // console.log('??', game.localPlayer.id, data)
@@ -87,6 +83,7 @@ function onMovePlayer(data){
   movePlayer.body.y = data.y
 }
 
+
 function onRemovePlayer(data){
   const removePlayer = playerById(data.id)
 
@@ -98,7 +95,7 @@ function onRemovePlayer(data){
 
   removePlayer.kill()
   game.allPlayers.splice(game.allPlayers.indexOf(removePlayer), 1)
-  this.broadcast.emit("remove player", {id: data.id})
+  this.broadcast.emit("removePlayer", {id: data.id})
 }
 
 
@@ -108,5 +105,4 @@ function playerById (id) {
   return identifiedPlayer.length > 0 ? identifiedPlayer[0] : false
 }
 
-// export default setEventHandlers
 export {socket, setEventHandlers}

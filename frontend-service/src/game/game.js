@@ -13,12 +13,9 @@ import Player from './player'
 /* ----- Server Dependencies ----- */
 import {socket, setEventHandlers} from './eventHandlers'
 
-const game = (function startGame(){
-
   /* ----- Declares global variables ----- */
   let map
     , layer
-    , player
     , players
     , cursors
     , fireButton
@@ -64,12 +61,13 @@ const game = (function startGame(){
     addMap('desert') // specify map can be: ['desert', 'forest']
     addEnemies(5) //specify number of enemies to be added
 
+    addPlayer() // <- currently incomplete, need to finish tie up
     addWeapons()
-    addPlayer() // <- currently incomplete, need to finish tie up ^
     setEventHandlers() // Start listening for events
 
     addInputs() // Add game controls
     addScore() // Score animations
+
   }
 
   function update(){
@@ -82,7 +80,6 @@ const game = (function startGame(){
   function render(){
     //game.debug.spriteInfo(player, 32, 450)
   }
-
 
 
 
@@ -210,13 +207,12 @@ const game = (function startGame(){
    =============== =============== =============== */
 
   function addPlayer(){
-    players = game.add.group()
+    // game.allPlayers = game.add.group()
+    // game.allPlayers.add(game.localPlayer)
 
     game.allPlayers = []
-
-    player = new Player(game,32,game.world.height / 2,'zombie',50,5,weapons)
-    game.localPlayer = player
-    players.add(player)
+    game.startX = 32
+    game.startY = game.world.height / 2
 
     game.camera.follow(game.localPlayer)
 
@@ -281,14 +277,14 @@ const game = (function startGame(){
   }
 
   function checkCollisions(){
-    game.physics.arcade.collide(player, collisionLayer)
+    game.physics.arcade.collide(game.localPlayer, collisionLayer)
     game.physics.arcade.collide(enemies, collisionLayer)
 
     /* Collide weaponry with enemies */
-    game.physics.arcade.overlap(player.weapons, enemies, hitEnemy, null, this)
+    game.physics.arcade.overlap(game.localPlayer.weapons, enemies, hitEnemy, null, this)
 
     /* Collide weaponry with other players */
-    game.physics.arcade.overlap(player.weapons, players, hitPlayer, null, this)
+    game.physics.arcade.overlap(game.localPlayer.weapons, players, hitPlayer, null, this)
   }
 
   function hitEnemy(bullet, enemy){
@@ -310,7 +306,7 @@ const game = (function startGame(){
   function checkEnemyActions(){
     enemies.children.forEach(enemy => {
         enemy.isAlive()
-        enemy.move(game,enemy,player)
+        enemy.move(game,enemy,game.localPlayer)
     })
   }
 
@@ -321,8 +317,6 @@ const game = (function startGame(){
   }
 
 
-  return game
 
-})()
 
 export default game

@@ -42,6 +42,10 @@ class Player extends Phaser.Sprite{
     this.health -= damage
   }
 
+  getPlayer(){
+    return this
+  }
+
 }
 
 

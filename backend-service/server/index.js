@@ -66,7 +66,7 @@ function onSocketDisconnect() {
       return
   }
   players.splice(players.indexOf(removePlayer), 1)
-  this.broadcast.emit('remove player', {id: this.id})
+  this.broadcast.emit('removePlayer', {id: this.id})
   // io.emit('removePlayer', "A user disconnected");
 }
 
