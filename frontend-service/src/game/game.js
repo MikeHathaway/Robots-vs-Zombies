@@ -11,8 +11,7 @@ import Player from './player'
 
 
 /* ----- Server Dependencies ----- */
-import {socket, setEventHandlers, playerObs, localPlayer} from './eventHandlers'
-
+import {socket, setEventHandlers, playerObs} from './eventHandlers'
 
 //import observable that defines player variables
   //could also set player equal to game.localPlayer?
@@ -28,12 +27,15 @@ import {socket, setEventHandlers, playerObs, localPlayer} from './eventHandlers'
     , enemies
     , bullets
     , weapons
+    , localPlayer
+
 
 
   const gameWidth = 1000
   const gameHeight = 800
   const score = 0
 
+  playerObs.on('test', (data) => console.log(data))
 
   /* ----- Start Game Instance ----- */
   const game = new Phaser.Game(gameWidth, gameHeight, Phaser.AUTO, 'game-container', {
@@ -76,9 +78,9 @@ import {socket, setEventHandlers, playerObs, localPlayer} from './eventHandlers'
   }
 
   function update(){
-    checkEnemyActions()
-    checkPlayerInputs(game.allPlayers[0])
-    checkCollisions()
+    if (localPlayer) checkEnemyActions()
+    if (localPlayer) checkPlayerInputs(localPlayer)
+    if (localPlayer) checkCollisions()
     checkScore()
   }
 
@@ -212,20 +214,16 @@ import {socket, setEventHandlers, playerObs, localPlayer} from './eventHandlers'
    =============== =============== =============== */
 
   function addPlayer(){
-    // game.allPlayers = game.add.group()
-    // game.allPlayers.add(game.localPlayer)
     players = game.add.group()
-    const socketId = 0
 
-    game.allPlayers = []
-    game.localPlayer = new Player(game,100,game.world.height / 2,'zombie',50,5,game.weapons,socketId)
-    game.allPlayers.push(game.localPlayer)
-    players.add(game.localPlayer)
+    // game.localPlayer = new Player(game,100,game.world.height / 2,'zombie',50,5,game.weapons,socketId)
+    // players.add(game.localPlayer)
 
     game.startX = 32
     game.startY = game.world.height / 2
 
-    game.camera.follow(game.allPlayers[0])
+    console.log(players)
+    // game.camera.follow(game.localPlayer)
 
   }
 
@@ -252,7 +250,7 @@ import {socket, setEventHandlers, playerObs, localPlayer} from './eventHandlers'
    =============== =============== =============== */
 
 
-  function checkPlayerInputs(player = game.localPlayer){
+  function checkPlayerInputs(player){
     if (cursors.left.isDown){
       player.body.x -= player.body.velocity.x
     }
@@ -291,14 +289,14 @@ import {socket, setEventHandlers, playerObs, localPlayer} from './eventHandlers'
   }
 
   function checkCollisions(){
-    game.physics.arcade.collide(game.localPlayer, collisionLayer)
+    game.physics.arcade.collide(localPlayer, collisionLayer)
     game.physics.arcade.collide(enemies, collisionLayer)
 
     /* Collide weaponry with enemies */
-    game.physics.arcade.overlap(game.localPlayer.weapons, enemies, hitEnemy, null, this)
+    game.physics.arcade.overlap(localPlayer.weapons, enemies, hitEnemy, null, this)
 
     /* Collide weaponry with other players */
-    game.physics.arcade.overlap(game.localPlayer.weapons, players, hitPlayer, null, this)
+    game.physics.arcade.overlap(localPlayer.weapons, players, hitPlayer, null, this)
   }
 
   function hitEnemy(bullet, enemy){
@@ -313,14 +311,14 @@ import {socket, setEventHandlers, playerObs, localPlayer} from './eventHandlers'
 
   function hitPlayer(bullet, player){
     player.takeDamage(bullet.parent.damage)
-    // bullet.kill()
+    // bullet.kill() //<- hits own player
     console.log("Hit Player")
   }
 
   function checkEnemyActions(){
     enemies.children.forEach(enemy => {
         enemy.isAlive()
-        enemy.move(game,enemy,game.localPlayer)
+        if(localPlayer) enemy.move(game,enemy,localPlayer)
     })
   }
 
@@ -335,12 +333,11 @@ import {socket, setEventHandlers, playerObs, localPlayer} from './eventHandlers'
   }
 
   function addPlayersToGame(player){
+    console.log('Event received')
     players.add(player)
-    game.allPlayers.push(player)
-    console.log(game.allPlayers)
+    localPlayer = player
+    game.camera.follow(localPlayer)
   }
-
-
 
 
 

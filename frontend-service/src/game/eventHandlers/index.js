@@ -7,6 +7,8 @@
 
 //http://rawkes.com/articles/creating-a-real-time-multiplayer-game-with-websockets-and-node.html
 
+//https://github.com/crisu83/capthatflag/tree/feature/phaser-server
+
 import io from 'socket.io-client'
 import EventEmitter from 'event-emitter-es6'
 
@@ -16,16 +18,14 @@ import game from '../game'
 const socket = io('http://localhost:4000')
 
 const playerObs = new EventEmitter()
-// const playerObs = new Rx.Subject() //player creation observable (RxJS)
+
+const remotePlayers = []
 
 function setEventHandlers(){
-  window.socket = socket
 
   socket.emit('newPlayer', {x: game.startX, y: game.startY})
-  console.log(game.startX)
 
-  // Socket connection successful
-  socket.on('connection', onSocketConnected)
+  socket.on('connect', onSocketConnected)
 
   // Socket disconnection
   socket.on('disconnect', onSocketDisconnect)
@@ -40,12 +40,11 @@ function setEventHandlers(){
   socket.on('removePlayer', onRemovePlayer)
 }
 
-
-/* currently non functional */
-function onSocketConnected() {
-  console.log("Connected to socket server")
-  socket.emit('newPlayer', {x: game.localPlayer.x, y: game.localPlayer.y})
+function onSocketConnected(){
+  console.log('player has joined the game')
+  socket.emit('newPlayer', {x: game.startX, y: game.startY})
 }
+
 
 function onSocketDisconnect(){
   console.log('Disconnected from socket server')
@@ -56,25 +55,29 @@ function onNewPlayer(data){
 
   const duplicate = playerById(data.id)
 
+
   if (duplicate) {
     console.log('Duplicate player!')
     return
   }
 
-  localPlayer(game,data)
+  if(remotePlayers.length === 0){
+    localPlayer(game,data)
+  }
+  else if(remotePlayers.length > 0){
+    const newPlayer = new Player(game,data.x,data.y,'zombie',50,5,game.weapons,data.id)
+    remotePlayers.push(newPlayer)
+    playerObs.emit('player', newPlayer)
+  }
 }
 
 function localPlayer(game,data){
-  const newPlayer = new Player(game,32,game.world.height / 2,'zombie',50,5,game.weapons,data.id)
-  game.add.sprite(newPlayer.x, newPlayer.y, newPlayer.avatar)
-  game.allPlayers.push(newPlayer)
-  game.localPlayer = newPlayer
+  const newPlayer = new Player(game,data.x,data.y,'zombie',50,5,game.weapons,data.id)
   playerObs.emit('player', newPlayer)
-  return newPlayer
+  remotePlayers.push(newPlayer)
 }
 
 function onMovePlayer(data){
-  // console.log('??', game.localPlayer.id, data)
   const movePlayer = playerById(data.id);
 
   if (!movePlayer) {
@@ -84,7 +87,7 @@ function onMovePlayer(data){
 
   movePlayer.body.x = data.x
   movePlayer.body.y = data.y
-  //console.log('movePlayer',movePlayer.body.x,movePlayer.body.y)
+  console.log(movePlayer)
 }
 
 
@@ -98,15 +101,16 @@ function onRemovePlayer(data){
   }
 
   removePlayer.kill()
-  game.allPlayers.splice(game.allPlayers.indexOf(removePlayer), 1)
+  remotePlayers.splice(remotePlayers.indexOf(removePlayer), 1)
   this.emit("removePlayer", {id: data.id})
 }
 
 
 
 function playerById (id) {
-  const identifiedPlayer = game.allPlayers.filter(player => player.id === id)
+  const identifiedPlayer = remotePlayers.filter(player => player.id === id)
   return identifiedPlayer.length > 0 ? identifiedPlayer[0] : false
 }
+
 
 export {socket, setEventHandlers, playerObs}

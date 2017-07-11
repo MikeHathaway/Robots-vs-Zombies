@@ -1939,7 +1939,8 @@ var map = void 0,
     collisionLayer = void 0,
     enemies = void 0,
     bullets = void 0,
-    weapons = void 0;
+    weapons = void 0,
+    localPlayer = void 0;
 
 /* ----- Server Dependencies ----- */
 // minimap guide
@@ -1953,6 +1954,10 @@ var map = void 0,
 var gameWidth = 1000;
 var gameHeight = 800;
 var score = 0;
+
+_eventHandlers.playerObs.on('test', function (data) {
+  return console.log(data);
+});
 
 /* ----- Start Game Instance ----- */
 var game = new Phaser.Game(gameWidth, gameHeight, Phaser.AUTO, 'game-container', {
@@ -1995,9 +2000,9 @@ function create() {
 }
 
 function update() {
-  checkEnemyActions();
-  checkPlayerInputs(game.allPlayers[0]);
-  checkCollisions();
+  if (localPlayer) checkEnemyActions();
+  if (localPlayer) checkPlayerInputs(localPlayer);
+  if (localPlayer) checkCollisions();
   checkScore();
 }
 
@@ -2116,20 +2121,16 @@ function incrementScore() {
   =============== =============== =============== */
 
 function addPlayer() {
-  // game.allPlayers = game.add.group()
-  // game.allPlayers.add(game.localPlayer)
   players = game.add.group();
-  var socketId = 0;
 
-  game.allPlayers = [];
-  game.localPlayer = new _player2.default(game, 100, game.world.height / 2, 'zombie', 50, 5, game.weapons, socketId);
-  game.allPlayers.push(game.localPlayer);
-  players.add(game.localPlayer);
+  // game.localPlayer = new Player(game,100,game.world.height / 2,'zombie',50,5,game.weapons,socketId)
+  // players.add(game.localPlayer)
 
   game.startX = 32;
   game.startY = game.world.height / 2;
 
-  game.camera.follow(game.allPlayers[0]);
+  console.log(players);
+  // game.camera.follow(game.localPlayer)
 }
 
 function addWeapons() {
@@ -2144,9 +2145,7 @@ function addWeapons() {
   =============== UPDATE FUNCTIONS ===============
   =============== =============== =============== */
 
-function checkPlayerInputs() {
-  var player = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : game.localPlayer;
-
+function checkPlayerInputs(player) {
   if (cursors.left.isDown) {
     player.body.x -= player.body.velocity.x;
   }
@@ -2185,14 +2184,14 @@ function changeWeapon(player) {
 }
 
 function checkCollisions() {
-  game.physics.arcade.collide(game.localPlayer, collisionLayer);
+  game.physics.arcade.collide(localPlayer, collisionLayer);
   game.physics.arcade.collide(enemies, collisionLayer);
 
   /* Collide weaponry with enemies */
-  game.physics.arcade.overlap(game.localPlayer.weapons, enemies, hitEnemy, null, this);
+  game.physics.arcade.overlap(localPlayer.weapons, enemies, hitEnemy, null, this);
 
   /* Collide weaponry with other players */
-  game.physics.arcade.overlap(game.localPlayer.weapons, players, hitPlayer, null, this);
+  game.physics.arcade.overlap(localPlayer.weapons, players, hitPlayer, null, this);
 }
 
 function hitEnemy(bullet, enemy) {
@@ -2207,14 +2206,14 @@ function hitEnemy(bullet, enemy) {
 
 function hitPlayer(bullet, player) {
   player.takeDamage(bullet.parent.damage);
-  // bullet.kill()
+  // bullet.kill() //<- hits own player
   console.log("Hit Player");
 }
 
 function checkEnemyActions() {
   enemies.children.forEach(function (enemy) {
     enemy.isAlive();
-    enemy.move(game, enemy, game.localPlayer);
+    if (localPlayer) enemy.move(game, enemy, localPlayer);
   });
 }
 
@@ -2229,9 +2228,10 @@ function checkForNewPlayers() {
 }
 
 function addPlayersToGame(player) {
+  console.log('Event received');
   players.add(player);
-  game.allPlayers.push(player);
-  console.log(game.allPlayers);
+  localPlayer = player;
+  game.camera.follow(localPlayer);
 }
 
 exports.default = game;
@@ -3883,19 +3883,19 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 //http://rawkes.com/articles/creating-a-real-time-multiplayer-game-with-websockets-and-node.html
 
+//https://github.com/crisu83/capthatflag/tree/feature/phaser-server
+
 var socket = (0, _socket2.default)('http://localhost:4000');
 
 var playerObs = new _eventEmitterEs2.default();
-// const playerObs = new Rx.Subject() //player creation observable (RxJS)
+
+var remotePlayers = [];
 
 function setEventHandlers() {
-  window.socket = socket;
 
   socket.emit('newPlayer', { x: _game2.default.startX, y: _game2.default.startY });
-  console.log(_game2.default.startX);
 
-  // Socket connection successful
-  socket.on('connection', onSocketConnected);
+  socket.on('connect', onSocketConnected);
 
   // Socket disconnection
   socket.on('disconnect', onSocketDisconnect);
@@ -3910,10 +3910,9 @@ function setEventHandlers() {
   socket.on('removePlayer', onRemovePlayer);
 }
 
-/* currently non functional */
 function onSocketConnected() {
-  console.log("Connected to socket server");
-  socket.emit('newPlayer', { x: _game2.default.localPlayer.x, y: _game2.default.localPlayer.y });
+  console.log('player has joined the game');
+  socket.emit('newPlayer', { x: _game2.default.startX, y: _game2.default.startY });
 }
 
 function onSocketDisconnect() {
@@ -3930,20 +3929,22 @@ function onNewPlayer(data) {
     return;
   }
 
-  localPlayer(_game2.default, data);
+  if (remotePlayers.length === 0) {
+    localPlayer(_game2.default, data);
+  } else if (remotePlayers.length > 0) {
+    var newPlayer = new _player2.default(_game2.default, data.x, data.y, 'zombie', 50, 5, _game2.default.weapons, data.id);
+    remotePlayers.push(newPlayer);
+    playerObs.emit('player', newPlayer);
+  }
 }
 
 function localPlayer(game, data) {
-  var newPlayer = new _player2.default(game, 32, game.world.height / 2, 'zombie', 50, 5, game.weapons, data.id);
-  game.add.sprite(newPlayer.x, newPlayer.y, newPlayer.avatar);
-  game.allPlayers.push(newPlayer);
-  game.localPlayer = newPlayer;
+  var newPlayer = new _player2.default(game, data.x, data.y, 'zombie', 50, 5, game.weapons, data.id);
   playerObs.emit('player', newPlayer);
-  return newPlayer;
+  remotePlayers.push(newPlayer);
 }
 
 function onMovePlayer(data) {
-  // console.log('??', game.localPlayer.id, data)
   var movePlayer = playerById(data.id);
 
   if (!movePlayer) {
@@ -3953,7 +3954,7 @@ function onMovePlayer(data) {
 
   movePlayer.body.x = data.x;
   movePlayer.body.y = data.y;
-  //console.log('movePlayer',movePlayer.body.x,movePlayer.body.y)
+  console.log(movePlayer);
 }
 
 function onRemovePlayer(data) {
@@ -3966,12 +3967,12 @@ function onRemovePlayer(data) {
   }
 
   removePlayer.kill();
-  _game2.default.allPlayers.splice(_game2.default.allPlayers.indexOf(removePlayer), 1);
+  remotePlayers.splice(remotePlayers.indexOf(removePlayer), 1);
   this.emit("removePlayer", { id: data.id });
 }
 
 function playerById(id) {
-  var identifiedPlayer = _game2.default.allPlayers.filter(function (player) {
+  var identifiedPlayer = remotePlayers.filter(function (player) {
     return player.id === id;
   });
   return identifiedPlayer.length > 0 ? identifiedPlayer[0] : false;
@@ -4033,9 +4034,6 @@ var Enemy = function (_Phaser$Sprite) {
   }, {
     key: 'move',
     value: function move(game, enemy, player) {
-      // this.x += genMovement(this.speed)
-      // this.y += genMovement(this.speed)
-
       game.physics.arcade.moveToObject(enemy, player, 60, 0);
     }
   }, {

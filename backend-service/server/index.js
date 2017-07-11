@@ -16,7 +16,7 @@ server.listen(process.env.PORT || 4000, function(){
 })
 
 
-io.on('connection', setEventHandlers)
+io.sockets.on('connection', setEventHandlers)
 
 function setEventHandlers(client){
   console.log('connected!')
@@ -30,8 +30,10 @@ function onNewPlayer(data) {
   const newPlayer = new Player(data.x, data.y)
   newPlayer.id = this.id
 
-  //send info to all players, redundant with next function call
-  io.sockets.emit('newPlayer', {id: newPlayer.id, x: newPlayer.getX(), y: newPlayer.getY()})
+  console.log('new played added: ', this.id)
+
+  //formely this.broadcast.emit
+  this.emit('newPlayer', {id: newPlayer.id, x: newPlayer.getX(), y: newPlayer.getY()})
 
   players.forEach(player => {
     this.emit('newPlayer', {id: player.id, x: player.getX(), y: player.getY()})
@@ -54,7 +56,7 @@ function onMovePlayer(data) {
   movePlayer.setX(data.x)
   movePlayer.setY(data.y)
 
-  this.emit("movePlayer", {id: movePlayer.id, x: movePlayer.getX(), y: movePlayer.getY()})
+  this.broadcast.emit("movePlayer", {id: movePlayer.id, x: movePlayer.getX(), y: movePlayer.getY()})
 }
 
 function onSocketDisconnect() {

@@ -22,9 +22,6 @@ class Enemy extends Phaser.Sprite{
   }
 
   move(game,enemy,player){
-    // this.x += genMovement(this.speed)
-    // this.y += genMovement(this.speed)
-    
     game.physics.arcade.moveToObject(enemy, player, 60, 0);
   }
 
