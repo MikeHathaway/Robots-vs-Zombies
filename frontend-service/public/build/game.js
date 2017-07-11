@@ -1955,10 +1955,6 @@ var gameWidth = 1000;
 var gameHeight = 800;
 var score = 0;
 
-_eventHandlers.playerObs.on('test', function (data) {
-  return console.log(data);
-});
-
 /* ----- Start Game Instance ----- */
 var game = new Phaser.Game(gameWidth, gameHeight, Phaser.AUTO, 'game-container', {
   preload: preload,
@@ -1985,6 +1981,7 @@ function preload() {
 function create() {
   game.physics.startSystem(Phaser.Physics.ARCADE);
   // game.world.setBounds(-1000, -1000, 2000, 2000);
+  game.playerMap = {};
 
   addMap('desert'); // specify map can be: ['desert', 'forest']
   addEnemies(5); //specify number of enemies to be added
@@ -2000,6 +1997,7 @@ function create() {
 }
 
 function update() {
+  console.log(game.playerMap);
   if (localPlayer) checkEnemyActions();
   if (localPlayer) checkPlayerInputs(localPlayer);
   if (localPlayer) checkCollisions();
@@ -2238,13 +2236,17 @@ function checkForNewPlayers() {
 function addPlayersToGame(player) {
   console.log('Event received');
   players.add(player);
-  localPlayer = player;
-  game.camera.follow(localPlayer);
+  game.playerMap[player.id] = player;
+  if (!localPlayer) {
+    localPlayer = player;
+    game.camera.follow(localPlayer);
+  }
 }
 
 function checkRemovePlayer() {
   _eventHandlers.playerObs.on('removePlayer', function (removePlayer) {
     removePlayer.kill();
+    delete game.playerMap[removePlayer.id];
   });
 }
 
@@ -3968,7 +3970,6 @@ function onMovePlayer(data) {
 
   movePlayer.body.x = data.x;
   movePlayer.body.y = data.y;
-  console.log(movePlayer);
 }
 
 function onRemovePlayer(data) {

@@ -35,8 +35,6 @@ import {socket, setEventHandlers, playerObs} from './eventHandlers'
   const gameHeight = 800
   const score = 0
 
-  playerObs.on('test', (data) => console.log(data))
-
 
   /* ----- Start Game Instance ----- */
   const game = new Phaser.Game(gameWidth, gameHeight, Phaser.AUTO, 'game-container', {
@@ -65,6 +63,8 @@ import {socket, setEventHandlers, playerObs} from './eventHandlers'
   function create(){
     game.physics.startSystem(Phaser.Physics.ARCADE)
     // game.world.setBounds(-1000, -1000, 2000, 2000);
+    game.playerMap = {}
+
 
     addMap('desert') // specify map can be: ['desert', 'forest']
     addEnemies(5) //specify number of enemies to be added
@@ -77,9 +77,11 @@ import {socket, setEventHandlers, playerObs} from './eventHandlers'
     addScore() // Score animations
 
     checkForNewPlayers()
+
   }
 
   function update(){
+    console.log(game.playerMap)
     if (localPlayer) checkEnemyActions()
     if (localPlayer) checkPlayerInputs(localPlayer)
     if (localPlayer) checkCollisions()
@@ -345,13 +347,17 @@ import {socket, setEventHandlers, playerObs} from './eventHandlers'
   function addPlayersToGame(player){
     console.log('Event received')
     players.add(player)
-    localPlayer = player
-    game.camera.follow(localPlayer)
+    game.playerMap[player.id] = player
+    if(!localPlayer) {
+      localPlayer = player
+      game.camera.follow(localPlayer)
+    }
   }
 
   function checkRemovePlayer(){
     playerObs.on('removePlayer', (removePlayer) => {
       removePlayer.kill()
+      delete game.playerMap[removePlayer.id]
     })
   }
 
