@@ -256,17 +256,21 @@ import {socket, setEventHandlers, playerObs} from './eventHandlers'
   function checkPlayerInputs(player){
     if (cursors.left.isDown){
       player.body.x -= player.body.velocity.x
+      sendMovement(player)
     }
     if (cursors.right.isDown){
       player.body.x += player.body.velocity.x
+      sendMovement(player)
     }
 
     if (cursors.up.isDown){
       player.body.y -= player.body.velocity.y
+      sendMovement(player)
     }
 
     if (cursors.down.isDown){
       player.body.y += player.body.velocity.y
+      sendMovement(player)
     }
 
     if (fireButton.isDown){
@@ -276,6 +280,9 @@ import {socket, setEventHandlers, playerObs} from './eventHandlers'
     if(changeKey.isDown){
       changeWeapon(player)
     }
+  }
+
+  function sendMovement(player){
     socket.emit('movePlayer',{id: player.id, x: player.body.x, y: player.body.y})
   }
 
@@ -321,7 +328,7 @@ import {socket, setEventHandlers, playerObs} from './eventHandlers'
   function checkEnemyActions(){
     enemies.children.forEach(enemy => {
         enemy.isAlive()
-        if(localPlayer) enemy.move(game,enemy,localPlayer)
+        enemy.move(game,enemy,localPlayer)
     })
   }
 
@@ -346,6 +353,7 @@ import {socket, setEventHandlers, playerObs} from './eventHandlers'
     playerObs.on('removePlayer', (removePlayer) => {
       removePlayer.kill()
     })
+  }
 
 
 export default game

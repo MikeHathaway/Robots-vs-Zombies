@@ -67,13 +67,13 @@ function onNewPlayer(data){
   else if(remotePlayers.length > 0){
     const newPlayer = new Player(game,data.x,data.y,'zombie',50,5,game.weapons,data.id)
     remotePlayers.push(newPlayer)
-    playerObs.emit('player', newPlayer)
+    playerObs.emit('addPlayer', newPlayer)
   }
 }
 
 function localPlayer(game,data){
   const newPlayer = new Player(game,data.x,data.y,'zombie',50,5,game.weapons,data.id)
-  playerObs.emit('player', newPlayer)
+  playerObs.emit('addPlayer', newPlayer)
   remotePlayers.push(newPlayer)
 }
 
@@ -87,7 +87,6 @@ function onMovePlayer(data){
 
   movePlayer.body.x = data.x
   movePlayer.body.y = data.y
-  console.log(movePlayer)
 }
 
 

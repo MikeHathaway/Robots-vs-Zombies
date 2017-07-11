@@ -44,14 +44,14 @@ function onNewPlayer(data) {
 }
 
 function onMovePlayer(data) {
-  //data.id is currently undefined for some reason
-  // console.log(data, data.id)
   const movePlayer = playerById(data.id);
 
   if (!movePlayer) {
       console.log("Player not found: " + data.id)
       return
   }
+
+  console.log('moving player: ', data.id, data.x)
 
   movePlayer.setX(data.x)
   movePlayer.setY(data.y)
