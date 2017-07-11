@@ -11,8 +11,7 @@ import Player from './player'
 
 
 /* ----- Server Dependencies ----- */
-import {socket, setEventHandlers, playerObs, localPlayer} from './eventHandlers'
-
+import {socket, setEventHandlers, playerObs} from './eventHandlers'
 
 //import observable that defines player variables
   //could also set player equal to game.localPlayer?
@@ -28,12 +27,15 @@ import {socket, setEventHandlers, playerObs, localPlayer} from './eventHandlers'
     , enemies
     , bullets
     , weapons
+    , localPlayer
+
 
 
   const gameWidth = 1000
   const gameHeight = 800
   const score = 0
 
+  playerObs.on('test', (data) => console.log(data))
 
 
   /* ----- Start Game Instance ----- */
@@ -78,9 +80,9 @@ import {socket, setEventHandlers, playerObs, localPlayer} from './eventHandlers'
   }
 
   function update(){
-    checkEnemyActions()
-    checkPlayerInputs(players.children[0])
-    checkCollisions()
+    if (localPlayer) checkEnemyActions()
+    if (localPlayer) checkPlayerInputs(localPlayer)
+    if (localPlayer) checkCollisions()
     checkScore()
     checkRemovePlayer()
   }
@@ -216,16 +218,15 @@ import {socket, setEventHandlers, playerObs, localPlayer} from './eventHandlers'
 
   function addPlayer(){
     players = game.add.group()
-    const socketId = 0
 
-    game.localPlayer = new Player(game,100,game.world.height / 2,'zombie',50,5,game.weapons,socketId)
-    players.add(game.localPlayer)
-    // game.allPlayers = players.children
+    // game.localPlayer = new Player(game,100,game.world.height / 2,'zombie',50,5,game.weapons,socketId)
+    // players.add(game.localPlayer)
 
     game.startX = 32
     game.startY = game.world.height / 2
 
-    game.camera.follow(players.children[0])
+    console.log(players)
+    // game.camera.follow(game.localPlayer)
 
   }
 
@@ -291,14 +292,14 @@ import {socket, setEventHandlers, playerObs, localPlayer} from './eventHandlers'
   }
 
   function checkCollisions(){
-    game.physics.arcade.collide(game.localPlayer, collisionLayer)
+    game.physics.arcade.collide(localPlayer, collisionLayer)
     game.physics.arcade.collide(enemies, collisionLayer)
 
     /* Collide weaponry with enemies */
-    game.physics.arcade.overlap(game.localPlayer.weapons, enemies, hitEnemy, null, this)
+    game.physics.arcade.overlap(localPlayer.weapons, enemies, hitEnemy, null, this)
 
     /* Collide weaponry with other players */
-    game.physics.arcade.overlap(game.localPlayer.weapons, players, hitPlayer, null, this)
+    game.physics.arcade.overlap(localPlayer.weapons, players, hitPlayer, null, this)
   }
 
   function hitEnemy(bullet, enemy){
@@ -313,14 +314,14 @@ import {socket, setEventHandlers, playerObs, localPlayer} from './eventHandlers'
 
   function hitPlayer(bullet, player){
     player.takeDamage(bullet.parent.damage)
-    // bullet.kill()
+    // bullet.kill() //<- hits own player
     console.log("Hit Player")
   }
 
   function checkEnemyActions(){
     enemies.children.forEach(enemy => {
         enemy.isAlive()
-        enemy.move(game,enemy,players.children[0])
+        if(localPlayer) enemy.move(game,enemy,localPlayer)
     })
   }
 
@@ -335,17 +336,16 @@ import {socket, setEventHandlers, playerObs, localPlayer} from './eventHandlers'
   }
 
   function addPlayersToGame(player){
+    console.log('Event received')
     players.add(player)
+    localPlayer = player
+    game.camera.follow(localPlayer)
   }
 
   function checkRemovePlayer(){
     playerObs.on('removePlayer', (removePlayer) => {
       removePlayer.kill()
     })
-  }
-
-
-
 
 
 export default game
