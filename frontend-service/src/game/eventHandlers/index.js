@@ -8,11 +8,15 @@
 //http://rawkes.com/articles/creating-a-real-time-multiplayer-game-with-websockets-and-node.html
 
 import io from 'socket.io-client'
-import Player from '../player'
+import EventEmitter from 'event-emitter-es6'
 
+import Player from '../player'
 import game from '../game'
 
 const socket = io('http://localhost:4000')
+
+const playerObs = new EventEmitter()
+// const playerObs = new Rx.Subject() //player creation observable (RxJS)
 
 function setEventHandlers(){
   window.socket = socket
@@ -65,6 +69,7 @@ function localPlayer(game,data){
   game.add.sprite(newPlayer.x, newPlayer.y, newPlayer.avatar)
   game.allPlayers.push(newPlayer)
   game.localPlayer = newPlayer
+  playerObs.emit('player', newPlayer)
   return newPlayer
 }
 
@@ -77,10 +82,9 @@ function onMovePlayer(data){
       return;
   }
 
-  // movePlayer.x = data.x
-  // movePlayer.y = data.y
   movePlayer.body.x = data.x
   movePlayer.body.y = data.y
+  //console.log('movePlayer',movePlayer.body.x,movePlayer.body.y)
 }
 
 
@@ -95,7 +99,7 @@ function onRemovePlayer(data){
 
   removePlayer.kill()
   game.allPlayers.splice(game.allPlayers.indexOf(removePlayer), 1)
-  this.broadcast.emit("removePlayer", {id: data.id})
+  this.emit("removePlayer", {id: data.id})
 }
 
 
@@ -105,4 +109,4 @@ function playerById (id) {
   return identifiedPlayer.length > 0 ? identifiedPlayer[0] : false
 }
 
-export {socket, setEventHandlers}
+export {socket, setEventHandlers, playerObs}

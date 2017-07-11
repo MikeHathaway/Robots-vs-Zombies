@@ -11,7 +11,11 @@ import Player from './player'
 
 
 /* ----- Server Dependencies ----- */
-import {socket, setEventHandlers} from './eventHandlers'
+import {socket, setEventHandlers, playerObs, localPlayer} from './eventHandlers'
+
+
+//import observable that defines player variables
+  //could also set player equal to game.localPlayer?
 
   /* ----- Declares global variables ----- */
   let map
@@ -61,18 +65,19 @@ import {socket, setEventHandlers} from './eventHandlers'
     addMap('desert') // specify map can be: ['desert', 'forest']
     addEnemies(5) //specify number of enemies to be added
 
-    addPlayer() // <- currently incomplete, need to finish tie up
     addWeapons()
+    addPlayer() // <- currently incomplete, need to finish tie up
     setEventHandlers() // Start listening for events
 
     addInputs() // Add game controls
     addScore() // Score animations
 
+    checkForNewPlayers()
   }
 
   function update(){
     checkEnemyActions()
-    checkPlayerInputs()
+    checkPlayerInputs(game.allPlayers[0])
     checkCollisions()
     checkScore()
   }
@@ -209,12 +214,18 @@ import {socket, setEventHandlers} from './eventHandlers'
   function addPlayer(){
     // game.allPlayers = game.add.group()
     // game.allPlayers.add(game.localPlayer)
+    players = game.add.group()
+    const socketId = 0
 
     game.allPlayers = []
+    game.localPlayer = new Player(game,100,game.world.height / 2,'zombie',50,5,game.weapons,socketId)
+    game.allPlayers.push(game.localPlayer)
+    players.add(game.localPlayer)
+
     game.startX = 32
     game.startY = game.world.height / 2
 
-    game.camera.follow(game.localPlayer)
+    game.camera.follow(game.allPlayers[0])
 
   }
 
@@ -231,6 +242,9 @@ import {socket, setEventHandlers} from './eventHandlers'
 
 
 
+
+
+
   /* =============== =============== ===============
 
    =============== UPDATE FUNCTIONS ===============
@@ -238,30 +252,30 @@ import {socket, setEventHandlers} from './eventHandlers'
    =============== =============== =============== */
 
 
-  function checkPlayerInputs(){
+  function checkPlayerInputs(player = game.localPlayer){
     if (cursors.left.isDown){
-      game.localPlayer.body.x -= game.localPlayer.body.velocity.x
+      player.body.x -= player.body.velocity.x
     }
     if (cursors.right.isDown){
-      game.localPlayer.body.x += game.localPlayer.body.velocity.x
+      player.body.x += player.body.velocity.x
     }
 
     if (cursors.up.isDown){
-      game.localPlayer.body.y -= game.localPlayer.body.velocity.y
+      player.body.y -= player.body.velocity.y
     }
 
     if (cursors.down.isDown){
-      game.localPlayer.body.y += game.localPlayer.body.velocity.y
+      player.body.y += player.body.velocity.y
     }
 
     if (fireButton.isDown){
-      game.localPlayer.weapons.children[game.localPlayer.currentWeapon].fire(game.localPlayer)
+      player.weapons.children[player.currentWeapon].fire(player)
     }
 
     if(changeKey.isDown){
-      changeWeapon(game.localPlayer)
+      changeWeapon(player)
     }
-    socket.emit('movePlayer',{id: game.localPlayer.id, x: game.localPlayer.body.x, y: game.localPlayer.body.y})
+    socket.emit('movePlayer',{id: player.id, x: player.body.x, y: player.body.y})
   }
 
   function changeWeapon(player){
@@ -315,6 +329,17 @@ import {socket, setEventHandlers} from './eventHandlers'
     myPoint.rotate(sprite.rotation)
     this.getFirstExists(false).fire(sprite.x+myPoint.x, sprite.y+myPoint.y, sprite.rotation, BulletPool.BULLET_SPEED)
   }
+
+  function checkForNewPlayers(){
+    playerObs.on('player', addPlayersToGame)
+  }
+
+  function addPlayersToGame(player){
+    players.add(player)
+    game.allPlayers.push(player)
+    console.log(game.allPlayers)
+  }
+
 
 
 
