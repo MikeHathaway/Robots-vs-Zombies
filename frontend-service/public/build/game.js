@@ -1833,12 +1833,6 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-/* Add player class to handle logic of people jumping in and out of the game */
-//need to pass in game object
-
-//extend group or sprites?
-// class Player extends Phaser.group {
-
 var Player = function (_Phaser$Sprite) {
   _inherits(Player, _Phaser$Sprite);
 
@@ -1856,13 +1850,9 @@ var Player = function (_Phaser$Sprite) {
     _this.weapons = weapons;
     _this.id = id;
     _this.currentWeapon = 0;
-
     // this.anchor.setTo(0.5, 0.5) // <- purpose?
 
     game.physics.enable(_this);
-
-    // game.localPlayer = this
-    // game.add.sprite(this.x,this.y,this.avatar)
     _this.body.velocity.x = 10;
     _this.body.velocity.y = 10;
     // this.body.collideWorldBounds = true;
@@ -1870,11 +1860,6 @@ var Player = function (_Phaser$Sprite) {
   }
 
   _createClass(Player, [{
-    key: 'addPlayer',
-    value: function addPlayer(game, id, x, y) {
-      game.playerMap[id] = game.add.sprite(x, y, 'zombie');
-    }
-  }, {
     key: 'removePlayer',
     value: function removePlayer(game, id) {
       game.playerMap[id].destroy();
@@ -1884,11 +1869,14 @@ var Player = function (_Phaser$Sprite) {
     key: 'takeDamage',
     value: function takeDamage(damage) {
       this.health -= damage;
-    }
-  }, {
-    key: 'getPlayer',
-    value: function getPlayer() {
-      return this;
+
+      if (this.health <= 0) {
+        this.health = 0;
+        this.alive = false;
+        this.kill();
+        return true;
+      }
+      return false;
     }
   }]);
 
@@ -1926,9 +1914,6 @@ var _eventHandlers = __webpack_require__(24);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-//import observable that defines player variables
-//could also set player equal to game.localPlayer?
-
 /* ----- Declares global variables ----- */
 var map = void 0,
     layer = void 0,
@@ -1946,7 +1931,7 @@ var map = void 0,
 // minimap guide
 //http://www.html5gamedevs.com/topic/14182-creating-a-mini-map-in-phaser/
 
-//game timer - womprat stomping
+//http://www.html5gamedevs.com/topic/18553-performance-issues-are-making-project-unplayable/
 
 /* ----- Phaser Dependencies ----- */
 
@@ -2222,10 +2207,12 @@ function hitPlayer(bullet, player) {
 }
 
 function checkEnemyActions() {
-  enemies.children.forEach(function (enemy) {
-    enemy.isAlive();
-    enemy.move(game, enemy, localPlayer);
-  });
+  enemies.children.forEach(enemyOperations);
+}
+
+function enemyOperations(enemy) {
+  enemy.isAlive();
+  enemy.move(game, enemy, localPlayer);
 }
 
 function aimRotation() {
@@ -2249,18 +2236,20 @@ function addPlayersToGame(player) {
 }
 
 function moveRemotePlayer() {
-  _eventHandlers.playerObs.on('movingPlayer', function (movePlayer) {
-    console.log(movePlayer);
-    var player = movePlayer.player;
-    var xCord = movePlayer.data.x;
-    var yCord = movePlayer.data.y;
+  _eventHandlers.playerObs.on('movingPlayer', moveOperation);
+}
 
-    var distance = Phaser.Math.distance(player.x, player.y, xCord, yCord);
-    var tween = game.add.tween(player);
-    var duration = distance * 10;
-    tween.to({ x: xCord, y: yCord }, duration);
-    tween.start();
-  });
+function moveOperation(movePlayer) {
+  console.log(movePlayer);
+  var player = movePlayer.player;
+  var xCord = movePlayer.data.x;
+  var yCord = movePlayer.data.y;
+
+  var distance = Phaser.Math.distance(player.x, player.y, xCord, yCord);
+  var tween = game.add.tween(player);
+  var duration = distance * 10;
+  tween.to({ x: xCord, y: yCord }, duration);
+  tween.start();
 }
 
 function checkRemovePlayer() {
@@ -3917,7 +3906,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 //https://github.com/fbaiodias/phaser-multiplayer-game
 
-//http://rawkes.com/articles/creating-a-real-time-multiplayer-game-with-websockets-and-node.html
+//https://github.com/Langerz82/phasertanksmultiplayer
 
 //https://github.com/crisu83/capthatflag/tree/feature/phaser-server
 
@@ -3941,6 +3930,14 @@ function setEventHandlers() {
 
   // Player move message received
   socket.on('movePlayer', onMovePlayer);
+
+  socket.on('shot', function (data) {
+    return console.log('shot', data);
+  }); //bulletHitPlayer(data);
+
+  socket.on('shoot', function (data) {
+    return console.log('shoot', data);
+  }); //shootPlayer(data.id,data.pid,data.x,data.y,data.v,data.r,data.tr);
 
   // Player removed message received
   socket.on('removePlayer', onRemovePlayer);

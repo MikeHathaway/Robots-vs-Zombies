@@ -4,6 +4,7 @@ const io = require('socket.io').listen(server)
 
 const Player = require('./Player').Player
 const players = []
+const bullets = []
 
 server.lastPlayerID = 0
 
@@ -22,6 +23,7 @@ function setEventHandlers(client){
   console.log('connected!')
   client.on('newPlayer', onNewPlayer)
   client.on('movePlayer', onMovePlayer)
+  client.on('shoot', onShoot)
   client.on('disconnect', onSocketDisconnect)
   client.on('test', (data) => { console.log(data)})
 }
@@ -50,14 +52,20 @@ function onMovePlayer(data) {
       console.log("Player not found: " + data.id)
       return
   }
-
   console.log('moving player: ', data.id, data.x)
 
   movePlayer.setX(data.x)
   movePlayer.setY(data.y)
-
   // formerly this.broadcast.emit
-  io.sockets.emit("movePlayer", {id: movePlayer.id, x: movePlayer.getX(), y: movePlayer.getY()})
+    // had semi broken movement animation with io.sockets.emit
+  this.broadcast.emit("movePlayer", {id: movePlayer.id, x: movePlayer.getX(), y: movePlayer.getY()})
+}
+
+function onShoot(data){
+  const bullet = new Bullet(Object.keys(bullets).length, data.pid, data.x, data.y, data.v, data.r, data.tr);
+  bullets.push(bullet);
+  this.broadcast.emit('shoot', bullet);
+  this.emit('shoot', bullet);
 }
 
 function onSocketDisconnect() {

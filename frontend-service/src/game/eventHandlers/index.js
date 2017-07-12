@@ -5,14 +5,14 @@
 
 //https://github.com/fbaiodias/phaser-multiplayer-game
 
-//http://rawkes.com/articles/creating-a-real-time-multiplayer-game-with-websockets-and-node.html
+//https://github.com/Langerz82/phasertanksmultiplayer
 
 //https://github.com/crisu83/capthatflag/tree/feature/phaser-server
 
 import io from 'socket.io-client'
 import EventEmitter from 'event-emitter-es6'
 
-import Player from '../player'
+import Player from '../models/player'
 import game from '../game'
 
 const socket = io('http://localhost:4000')
@@ -35,6 +35,10 @@ function setEventHandlers(){
 
   // Player move message received
   socket.on('movePlayer', onMovePlayer)
+
+  socket.on('shot', (data) => console.log('shot',data)) //bulletHitPlayer(data);
+
+  socket.on('shoot', (data) => console.log('shoot',data)) //shootPlayer(data.id,data.pid,data.x,data.y,data.v,data.r,data.tr);
 
   // Player removed message received
   socket.on('removePlayer', onRemovePlayer)

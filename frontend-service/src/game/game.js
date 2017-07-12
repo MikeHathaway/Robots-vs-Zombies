@@ -1,20 +1,17 @@
 // minimap guide
   //http://www.html5gamedevs.com/topic/14182-creating-a-mini-map-in-phaser/
 
-//game timer - womprat stomping
+//http://www.html5gamedevs.com/topic/18553-performance-issues-are-making-project-unplayable/
 
 /* ----- Phaser Dependencies ----- */
 import Bullet from './models/bullet'
 import {SingleBullet, LazerBeam} from './models/weapon'
 import Enemy from './models/enemy'
-import Player from './player'
-
+import Player from './models/player'
 
 /* ----- Server Dependencies ----- */
 import {socket, setEventHandlers, playerObs} from './eventHandlers'
 
-//import observable that defines player variables
-  //could also set player equal to game.localPlayer?
 
   /* ----- Declares global variables ----- */
   let map
@@ -28,7 +25,6 @@ import {socket, setEventHandlers, playerObs} from './eventHandlers'
     , bullets
     , weapons
     , localPlayer
-
 
 
   const gameWidth = 1000
@@ -332,10 +328,12 @@ import {socket, setEventHandlers, playerObs} from './eventHandlers'
   }
 
   function checkEnemyActions(){
-    enemies.children.forEach(enemy => {
-        enemy.isAlive()
-        enemy.move(game,enemy,localPlayer)
-    })
+    enemies.children.forEach(enemyOperations)
+  }
+
+  function enemyOperations(enemy){
+    enemy.isAlive()
+    enemy.move(game,enemy,localPlayer)
   }
 
   function aimRotation(){
@@ -359,18 +357,20 @@ import {socket, setEventHandlers, playerObs} from './eventHandlers'
   }
 
   function moveRemotePlayer(){
-    playerObs.on('movingPlayer', (movePlayer) => {
-      console.log(movePlayer)
-      const player = movePlayer.player
-      const xCord = movePlayer.data.x
-      const yCord = movePlayer.data.y
+    playerObs.on('movingPlayer', moveOperation)
+  }
 
-      const distance = Phaser.Math.distance(player.x,player.y,xCord,yCord);
-      const tween = game.add.tween(player);
-      const duration = distance*10;
-      tween.to({x:xCord,y:yCord}, duration);
-      tween.start()
-    })
+  function moveOperation(movePlayer){
+    console.log(movePlayer)
+    const player = movePlayer.player
+    const xCord = movePlayer.data.x
+    const yCord = movePlayer.data.y
+
+    const distance = Phaser.Math.distance(player.x,player.y,xCord,yCord);
+    const tween = game.add.tween(player);
+    const duration = distance*10;
+    tween.to({x:xCord,y:yCord}, duration);
+    tween.start()
   }
 
   function checkRemovePlayer(){
