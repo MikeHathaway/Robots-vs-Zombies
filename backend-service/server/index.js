@@ -3,6 +3,7 @@ const server = require('http').Server(app)
 const io = require('socket.io').listen(server)
 
 const Player = require('./Player').Player
+const Bullet = require('./Bullet').Bullet
 const players = []
 const bullets = []
 
@@ -62,7 +63,8 @@ function onMovePlayer(data) {
 }
 
 function onShoot(data){
-  const bullet = new Bullet(Object.keys(bullets).length, data.pid, data.x, data.y, data.v, data.r, data.tr);
+  console.log(data.id, ' is shooting!')
+  const bullet = new Bullet(Object.keys(bullets).length, data.id, data.x, data.y, data.v, data.r, data.tr);
   bullets.push(bullet);
   this.broadcast.emit('shoot', bullet);
   this.emit('shoot', bullet);

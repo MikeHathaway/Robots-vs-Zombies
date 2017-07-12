@@ -42,7 +42,7 @@ import {socket, setEventHandlers, playerObs} from './eventHandlers'
   })
 
   function init(){
-    game.stage.disableVisibilityChange = true;
+    game.stage.disableVisibilityChange = true
   }
 
   function preload(){
@@ -77,7 +77,7 @@ import {socket, setEventHandlers, playerObs} from './eventHandlers'
     addScore() // Score animations
 
     checkForNewPlayers()
-
+    addInstructions()
   }
 
   function update(){
@@ -85,8 +85,10 @@ import {socket, setEventHandlers, playerObs} from './eventHandlers'
     if (localPlayer) checkPlayerInputs(localPlayer)
     if (localPlayer) checkCollisions()
     if (localPlayer) moveRemotePlayer()
+
     checkScore()
     checkRemovePlayer()
+    removeInstructions()
   }
 
   function render(){
@@ -140,22 +142,22 @@ import {socket, setEventHandlers, playerObs} from './eventHandlers'
     map.setCollisionByExclusion([], true, collisionLayer)
   }
 
-
-  function addEnemies(number){
+  //https://leanpub.com/html5shootemupinanafternoon/read <- info on randomizing enemy spawn
+  function addEnemies(number = 100){
     enemies = game.add.group()
-
-    function addZombie(number = 100){
-      let i = 0
-      while(i++ < number){
-        enemies.add(new Enemy(game,gameWidth,gameHeight,'zombie'))
-      }
-    }
 
     addZombie(number)
 
     /* ----- Generate Zombies FRP ----- */
     // const source = Rx.Observable.interval(1000 /* ms */).timeInterval().take(5)
     // const subscription = source.subscribe(addZombie,handleError)
+  }
+
+  function addZombie(number){
+    let i = 0
+    while(i++ < number){
+      enemies.add(new Enemy(game,gameWidth,gameHeight,'zombie'))
+    }
   }
 
 
@@ -204,7 +206,14 @@ import {socket, setEventHandlers, playerObs} from './eventHandlers'
   function incrementScore(){
     game.score += 1
     game.scoreLabel.text = game.score
+  }
 
+  function addInstructions(){
+    const message = 'Use Arrow Keys to Move, Press Space to Fire, \n Press Enter to change weapon'
+    const messageStyle = { font: '20px monospace', fill: '#fff', align: 'center' }
+    game.instructions = game.add.text(400, 500, message, messageStyle)
+    game.instructions.anchor.setTo(0.5, 0.5)
+    game.instExpire = game.time.now + 10000
   }
 
 
@@ -229,7 +238,6 @@ import {socket, setEventHandlers, playerObs} from './eventHandlers'
 
     console.log(players)
     // game.camera.follow(game.localPlayer)
-
   }
 
   function addWeapons(){
@@ -277,6 +285,7 @@ import {socket, setEventHandlers, playerObs} from './eventHandlers'
 
     if (fireButton.isDown){
       player.weapons.children[player.currentWeapon].fire(player)
+      sendShot(player)
     }
 
     if(changeKey.isDown){
@@ -286,6 +295,13 @@ import {socket, setEventHandlers, playerObs} from './eventHandlers'
 
   function sendMovement(player){
     socket.emit('movePlayer',{id: player.id, x: player.body.x, y: player.body.y})
+  }
+
+  function sendShot(player){
+    console.log('hmm')
+    //data.id, data.x, data.y, data.v, data.r, data.tr
+    // player.weapons.children[player.currentWeapon]
+    socket.emit('shoot', {id: player.id, x: player.body.x, y: player.body.y})
   }
 
   function changeWeapon(player){
@@ -308,7 +324,8 @@ import {socket, setEventHandlers, playerObs} from './eventHandlers'
     game.physics.arcade.overlap(localPlayer.weapons, enemies, hitEnemy, null, this)
 
     /* Collide weaponry with other players */
-    game.physics.arcade.overlap(localPlayer.weapons, players, hitPlayer, null, this)
+      //currently a stretch goal to include 3v3 mode
+      // game.physics.arcade.overlap(localPlayer.weapons, players, hitPlayer, null, this)
   }
 
   function hitEnemy(bullet, enemy){
@@ -322,6 +339,7 @@ import {socket, setEventHandlers, playerObs} from './eventHandlers'
   }
 
   function hitPlayer(bullet, player){
+    console.log(bullet, player)
     player.takeDamage(bullet.parent.damage)
     // bullet.kill() //<- hits own player
     console.log("Hit Player")
@@ -361,15 +379,14 @@ import {socket, setEventHandlers, playerObs} from './eventHandlers'
   }
 
   function moveOperation(movePlayer){
-    console.log(movePlayer)
     const player = movePlayer.player
     const xCord = movePlayer.data.x
     const yCord = movePlayer.data.y
 
-    const distance = Phaser.Math.distance(player.x,player.y,xCord,yCord);
-    const tween = game.add.tween(player);
-    const duration = distance*10;
-    tween.to({x:xCord,y:yCord}, duration);
+    const distance = Phaser.Math.distance(player.x,player.y,xCord,yCord)
+    const tween = game.add.tween(player)
+    const duration = distance*10
+    tween.to({x:xCord,y:yCord}, duration)
     tween.start()
   }
 
@@ -378,6 +395,12 @@ import {socket, setEventHandlers, playerObs} from './eventHandlers'
       removePlayer.kill()
       delete game.playerMap[removePlayer.id]
     })
+  }
+
+  function removeInstructions(){
+    if(game.instructions.exists && game.time.now > game.instExpire){
+      game.instructions.destroy()
+    }
   }
 
 

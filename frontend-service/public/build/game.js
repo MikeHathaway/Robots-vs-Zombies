@@ -1984,6 +1984,7 @@ function create() {
   addScore(); // Score animations
 
   checkForNewPlayers();
+  addInstructions();
 }
 
 function update() {
@@ -1991,8 +1992,10 @@ function update() {
   if (localPlayer) checkPlayerInputs(localPlayer);
   if (localPlayer) checkCollisions();
   if (localPlayer) moveRemotePlayer();
+
   checkScore();
   checkRemovePlayer();
+  removeInstructions();
 }
 
 function render() {}
@@ -2039,23 +2042,24 @@ function forestMap() {
   map.setCollisionByExclusion([], true, collisionLayer);
 }
 
-function addEnemies(number) {
+//https://leanpub.com/html5shootemupinanafternoon/read <- info on randomizing enemy spawn
+function addEnemies() {
+  var number = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 100;
+
   enemies = game.add.group();
-
-  function addZombie() {
-    var number = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 100;
-
-    var i = 0;
-    while (i++ < number) {
-      enemies.add(new _enemy2.default(game, gameWidth, gameHeight, 'zombie'));
-    }
-  }
 
   addZombie(number);
 
   /* ----- Generate Zombies FRP ----- */
   // const source = Rx.Observable.interval(1000 /* ms */).timeInterval().take(5)
   // const subscription = source.subscribe(addZombie,handleError)
+}
+
+function addZombie(number) {
+  var i = 0;
+  while (i++ < number) {
+    enemies.add(new _enemy2.default(game, gameWidth, gameHeight, 'zombie'));
+  }
 }
 
 function createScoreAnimation(x, y, message, score) {
@@ -2103,6 +2107,14 @@ function checkScore() {
 function incrementScore() {
   game.score += 1;
   game.scoreLabel.text = game.score;
+}
+
+function addInstructions() {
+  var message = 'Use Arrow Keys to Move, Press Space to Fire, \n Press Enter to change weapon';
+  var messageStyle = { font: '20px monospace', fill: '#fff', align: 'center' };
+  game.instructions = game.add.text(400, 500, message, messageStyle);
+  game.instructions.anchor.setTo(0.5, 0.5);
+  game.instExpire = game.time.now + 10000;
 }
 
 /* =============== =============== ===============
@@ -2156,6 +2168,7 @@ function checkPlayerInputs(player) {
 
   if (fireButton.isDown) {
     player.weapons.children[player.currentWeapon].fire(player);
+    sendShot(player);
   }
 
   if (changeKey.isDown) {
@@ -2165,6 +2178,13 @@ function checkPlayerInputs(player) {
 
 function sendMovement(player) {
   _eventHandlers.socket.emit('movePlayer', { id: player.id, x: player.body.x, y: player.body.y });
+}
+
+function sendShot(player) {
+  console.log('hmm');
+  //data.id, data.x, data.y, data.v, data.r, data.tr
+  // player.weapons.children[player.currentWeapon]
+  _eventHandlers.socket.emit('shoot', { id: player.id, x: player.body.x, y: player.body.y });
 }
 
 function changeWeapon(player) {
@@ -2187,7 +2207,8 @@ function checkCollisions() {
   game.physics.arcade.overlap(localPlayer.weapons, enemies, hitEnemy, null, this);
 
   /* Collide weaponry with other players */
-  game.physics.arcade.overlap(localPlayer.weapons, players, hitPlayer, null, this);
+  //currently a stretch goal to include 3v3 mode
+  // game.physics.arcade.overlap(localPlayer.weapons, players, hitPlayer, null, this)
 }
 
 function hitEnemy(bullet, enemy) {
@@ -2201,6 +2222,7 @@ function hitEnemy(bullet, enemy) {
 }
 
 function hitPlayer(bullet, player) {
+  console.log(bullet, player);
   player.takeDamage(bullet.parent.damage);
   // bullet.kill() //<- hits own player
   console.log("Hit Player");
@@ -2240,7 +2262,6 @@ function moveRemotePlayer() {
 }
 
 function moveOperation(movePlayer) {
-  console.log(movePlayer);
   var player = movePlayer.player;
   var xCord = movePlayer.data.x;
   var yCord = movePlayer.data.y;
@@ -2257,6 +2278,12 @@ function checkRemovePlayer() {
     removePlayer.kill();
     delete game.playerMap[removePlayer.id];
   });
+}
+
+function removeInstructions() {
+  if (game.instructions.exists && game.time.now > game.instExpire) {
+    game.instructions.destroy();
+  }
 }
 
 exports.default = game;

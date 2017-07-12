@@ -9,3 +9,5 @@ const Bullet = function (id,pid,x,y,v,r,tr){
 	this.tr = tr
 	return this
 }
+
+exports.Bullet = Bullet
