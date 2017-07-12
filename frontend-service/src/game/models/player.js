@@ -5,6 +5,7 @@ class Player extends Phaser.Sprite{
     this.x = x
     this.y = y
     this.health = health || 50
+    this.maxHealth = health
     this.speed = speed || 5
     this.avatar = 'zombie'
     this.weapons = weapons

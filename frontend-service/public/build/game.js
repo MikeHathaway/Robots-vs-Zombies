@@ -1846,6 +1846,7 @@ var Player = function (_Phaser$Sprite) {
     _this.x = x;
     _this.y = y;
     _this.health = health || 50;
+    _this.maxHealth = health;
     _this.speed = speed || 5;
     _this.avatar = 'zombie';
     _this.weapons = weapons;
@@ -1999,10 +2000,10 @@ function update() {
   removeInstructions();
 }
 
-function render() {}
-//game.debug.text("Player Health: " + localPlayer.health + " / " + localPlayer.maxHealth, 32 ,32);
-//game.debug.text("Player Score: " + localPlayer.score, 32 ,64);
-
+function render() {
+  if (localPlayer) game.debug.text("Player Health: " + localPlayer.health + " / " + localPlayer.maxHealth, 32, 32);
+  //game.debug.text("Player Score:  " + localPlayer.score, 32 ,64);
+}
 
 /* =============== =============== ===============
   =============== CREATE FUNCTIONS ===============
