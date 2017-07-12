@@ -62,7 +62,7 @@ import {socket, setEventHandlers, playerObs} from './eventHandlers'
 
   function create(){
     game.physics.startSystem(Phaser.Physics.ARCADE)
-    // game.world.setBounds(-1000, -1000, 2000, 2000);
+    // game.world.setBounds(-1000, -1000, 2000, 2000)
     game.playerMap = {}
 
 
@@ -92,7 +92,8 @@ import {socket, setEventHandlers, playerObs} from './eventHandlers'
   }
 
   function render(){
-    //game.debug.spriteInfo(player, 32, 450)
+	   //game.debug.text("Player Health: " + localPlayer.health + " / " + localPlayer.maxHealth, 32 ,32);
+	   //game.debug.text("Player Score: " + localPlayer.score, 32 ,64);
   }
 
 
@@ -217,16 +218,6 @@ import {socket, setEventHandlers, playerObs} from './eventHandlers'
   }
 
 
-
-
-
-
-  /* =============== =============== ===============
-
-   =============== MULTIPLAYER FUNCTIONS ===============
-
-   =============== =============== =============== */
-
   function addPlayer(){
     players = game.add.group()
 
@@ -247,7 +238,6 @@ import {socket, setEventHandlers, playerObs} from './eventHandlers'
 
     game.weapons = weapons
   }
-
 
 
 
@@ -298,10 +288,11 @@ import {socket, setEventHandlers, playerObs} from './eventHandlers'
   }
 
   function sendShot(player){
-    console.log('hmm')
     //data.id, data.x, data.y, data.v, data.r, data.tr
-    // player.weapons.children[player.currentWeapon]
-    socket.emit('shoot', {id: player.id, x: player.body.x, y: player.body.y})
+    const weapon = player.weapons.children[player.currentWeapon]
+    console.log(player)
+    //tr ....?
+    socket.emit('shoot', {id: player.id, x: player.body.x, y: player.body.y, v: weapon.bulletSpeed, r: player.body.rotation})
   }
 
   function changeWeapon(player){
@@ -360,6 +351,19 @@ import {socket, setEventHandlers, playerObs} from './eventHandlers'
     this.getFirstExists(false).fire(sprite.x+myPoint.x, sprite.y+myPoint.y, sprite.rotation, BulletPool.BULLET_SPEED)
   }
 
+
+
+
+
+
+
+    /* =============== =============== ===============
+
+     =============== MULTIPLAYER FUNCTIONS ===============
+
+     =============== =============== =============== */
+
+
   function checkForNewPlayers(){
     playerObs.on('addPlayer', addPlayersToGame)
   }
@@ -388,6 +392,20 @@ import {socket, setEventHandlers, playerObs} from './eventHandlers'
     const duration = distance*10
     tween.to({x:xCord,y:yCord}, duration)
     tween.start()
+  }
+
+  function shootPlayer(){
+    playerObs.on('shootPlayer', shootOperation)
+  }
+
+  function shootOperation(id, pid, x, y, v, r){
+    console.log(bullets)
+    console.log(player.weapons.children[player.currentWeapon])
+    const bullet = bullets.children[id];
+    const player = game.playerMap[pid];
+    bullet.reset(x,y)
+    bullet.rotation = r
+    bullet.body.velocity = game.physics.arcade.velocityFromRotation(theta, r)
   }
 
   function checkRemovePlayer(){

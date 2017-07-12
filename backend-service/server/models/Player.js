@@ -4,6 +4,10 @@ const Player = function(startX, startY) {
     let x = startX
     let y = startY
     let id
+    let health = 5
+    let score = 0
+    let r = 0
+    let v = 0
 
     const getX = function() {
         return x

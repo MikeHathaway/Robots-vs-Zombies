@@ -38,7 +38,7 @@ function setEventHandlers(){
 
   socket.on('shot', (data) => console.log('shot',data)) //bulletHitPlayer(data);
 
-  socket.on('shoot', (data) => console.log('shoot',data)) //shootPlayer(data.id,data.pid,data.x,data.y,data.v,data.r,data.tr);
+  socket.on('shoot', onShoot) //shootPlayer(data.id,data.pid,data.x,data.y,data.v,data.r,data.tr);
 
   // Player removed message received
   socket.on('removePlayer', onRemovePlayer)
@@ -88,15 +88,13 @@ function onMovePlayer(data){
       console.log("Player (move) not found: " + data.id);
       return;
   }
-
-  console.log('movePlayer')
-
-  // movePlayer.body.x = data.x
-  // movePlayer.body.y = data.y
-
   playerObs.emit('movingPlayer', {player: movePlayer, data: data})
 }
 
+function onShoot(data){
+  console.log('shooting', data)
+  playerObs.emit('shootPlayer', {id: data.id, pid: data.pid, x: data.x, y: data.y, v: data.v, r: data.r})
+}
 
 function onRemovePlayer(data){
   const removePlayer = playerById(data.id)
@@ -113,12 +111,13 @@ function onRemovePlayer(data){
   this.emit("removePlayer", {id: data.id})
 }
 
-
-
 function playerById (id) {
   const identifiedPlayer = remotePlayers.filter(player => player.id === id)
   return identifiedPlayer.length > 0 ? identifiedPlayer[0] : false
 }
+
+
+
 
 
 export {socket, setEventHandlers, playerObs}

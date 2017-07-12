@@ -1757,13 +1757,14 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 var Bullet = function (_Phaser$Sprite) {
   _inherits(Bullet, _Phaser$Sprite);
 
-  function Bullet(game, type, tracking) {
+  function Bullet(game, type, tracking, id) {
     _classCallCheck(this, Bullet);
 
     var _this = _possibleConstructorReturn(this, (Bullet.__proto__ || Object.getPrototypeOf(Bullet)).call(this, game, 0, 0, type));
 
     _this.game = game;
     _this.type = type;
+    _this.id = id;
 
     //prevent tracking on lazers
     if (_this.type === 'lazer') {
@@ -1970,7 +1971,7 @@ function preload() {
 
 function create() {
   game.physics.startSystem(Phaser.Physics.ARCADE);
-  // game.world.setBounds(-1000, -1000, 2000, 2000);
+  // game.world.setBounds(-1000, -1000, 2000, 2000)
   game.playerMap = {};
 
   addMap('desert'); // specify map can be: ['desert', 'forest']
@@ -1999,7 +2000,8 @@ function update() {
 }
 
 function render() {}
-//game.debug.spriteInfo(player, 32, 450)
+//game.debug.text("Player Health: " + localPlayer.health + " / " + localPlayer.maxHealth, 32 ,32);
+//game.debug.text("Player Score: " + localPlayer.score, 32 ,64);
 
 
 /* =============== =============== ===============
@@ -2117,10 +2119,6 @@ function addInstructions() {
   game.instExpire = game.time.now + 10000;
 }
 
-/* =============== =============== ===============
-  =============== MULTIPLAYER FUNCTIONS ===============
-  =============== =============== =============== */
-
 function addPlayer() {
   players = game.add.group();
 
@@ -2181,10 +2179,11 @@ function sendMovement(player) {
 }
 
 function sendShot(player) {
-  console.log('hmm');
   //data.id, data.x, data.y, data.v, data.r, data.tr
-  // player.weapons.children[player.currentWeapon]
-  _eventHandlers.socket.emit('shoot', { id: player.id, x: player.body.x, y: player.body.y });
+  var weapon = player.weapons.children[player.currentWeapon];
+  console.log(player);
+  //tr ....?
+  _eventHandlers.socket.emit('shoot', { id: player.id, x: player.body.x, y: player.body.y, v: weapon.bulletSpeed, r: player.body.rotation });
 }
 
 function changeWeapon(player) {
@@ -2243,6 +2242,10 @@ function aimRotation() {
   this.getFirstExists(false).fire(sprite.x + myPoint.x, sprite.y + myPoint.y, sprite.rotation, BulletPool.BULLET_SPEED);
 }
 
+/* =============== =============== ===============
+  =============== MULTIPLAYER FUNCTIONS ===============
+  =============== =============== =============== */
+
 function checkForNewPlayers() {
   _eventHandlers.playerObs.on('addPlayer', addPlayersToGame);
 }
@@ -2271,6 +2274,20 @@ function moveOperation(movePlayer) {
   var duration = distance * 10;
   tween.to({ x: xCord, y: yCord }, duration);
   tween.start();
+}
+
+function shootPlayer() {
+  _eventHandlers.playerObs.on('shootPlayer', shootOperation);
+}
+
+function shootOperation(id, pid, x, y, v, r) {
+  console.log(bullets);
+  console.log(player.weapons.children[player.currentWeapon]);
+  var bullet = bullets.children[id];
+  var player = game.playerMap[pid];
+  bullet.reset(x, y);
+  bullet.rotation = r;
+  bullet.body.velocity = game.physics.arcade.velocityFromRotation(theta, r);
 }
 
 function checkRemovePlayer() {
@@ -3962,9 +3979,7 @@ function setEventHandlers() {
     return console.log('shot', data);
   }); //bulletHitPlayer(data);
 
-  socket.on('shoot', function (data) {
-    return console.log('shoot', data);
-  }); //shootPlayer(data.id,data.pid,data.x,data.y,data.v,data.r,data.tr);
+  socket.on('shoot', onShoot); //shootPlayer(data.id,data.pid,data.x,data.y,data.v,data.r,data.tr);
 
   // Player removed message received
   socket.on('removePlayer', onRemovePlayer);
@@ -4011,13 +4026,12 @@ function onMovePlayer(data) {
     console.log("Player (move) not found: " + data.id);
     return;
   }
-
-  console.log('movePlayer');
-
-  // movePlayer.body.x = data.x
-  // movePlayer.body.y = data.y
-
   playerObs.emit('movingPlayer', { player: movePlayer, data: data });
+}
+
+function onShoot(data) {
+  console.log('shooting', data);
+  playerObs.emit('shootPlayer', { id: data.id, pid: data.pid, x: data.x, y: data.y, v: data.v, r: data.r });
 }
 
 function onRemovePlayer(data) {
@@ -4195,7 +4209,7 @@ var Weapon = function (_Phaser$Group) {
     value: function addBullets(weapon, game, type, instances) {
       var count = 0;
       while (count++ < instances) {
-        weapon.add(new _bullet2.default(game, type, true), true);
+        weapon.add(new _bullet2.default(game, type, true, count), true);
       }
     }
   }]);

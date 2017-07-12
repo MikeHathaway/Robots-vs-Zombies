@@ -13,7 +13,7 @@ setInterval (function () {
 			//console.log("elapsedTime: " + elapsedTime);
 
 			//console.log("radians:"+bullet.r/Math.PI);
-			const theta = bullet.r + bullet.tr
+			const theta = bullet.r
 			const x = Math.round(bullet.x+(Math.cos(theta) * bullet.v) * elapsedTime);
 			const y = Math.round(bullet.y+(Math.sin(theta) * bullet.v) * elapsedTime);
 			console.log("x:"+x+",y:"+y);
@@ -30,7 +30,7 @@ setInterval (function () {
 			const p2 = rotatePoint(-30,-30, player.x,player.y,theta);
 			if (pointRectangleIntersection({x:x,y:y},
 			    {x1:Math.min(p1.x,p2.x),x2:Math.max(p1.x,p2.x),
-                             y1:Math.min(p1.y,p2.y), y2:Math.max(p1.y, p2.y)}))
+           y1:Math.min(p1.y,p2.y), y2:Math.max(p1.y, p2.y)}))
 			{
 				bullet.hid = player.id;
 				console.log("PLAYER HIT!!!!!!!");

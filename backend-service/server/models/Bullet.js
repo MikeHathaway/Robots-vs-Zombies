@@ -1,4 +1,4 @@
-const Bullet = function (id,pid,x,y,v,r,tr){
+const Bullet = function (id,pid,x,y,v,r){
 	this.dt = Date.now()
 	this.id = id
 	this.pid = pid
@@ -6,7 +6,6 @@ const Bullet = function (id,pid,x,y,v,r,tr){
 	this.y = y
 	this.v = v
 	this.r = r
-	this.tr = tr
 	return this
 }
 

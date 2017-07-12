@@ -1,8 +1,9 @@
 class Bullet extends Phaser.Sprite{
-  constructor(game,type,tracking){
+  constructor(game,type,tracking,id){
     super(game,0,0,type)
     this.game = game
     this.type = type
+    this.id = id
 
     //prevent tracking on lazers
     if(this.type === 'lazer'){
