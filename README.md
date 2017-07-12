@@ -1,7 +1,7 @@
 
 # Rebuild Civilization. Overcome the Zombies.
 
-[MMORTS](https://frontend-service-pnmkifnxmt.now.sh) focused upon rebuilding after the Zombies appeared
+[MMORTS](frontend-service-gnhabjcebk.now.sh) focused upon rebuilding after the Zombies appeared
 
 # Realtime Infrastructure
 
@@ -21,10 +21,6 @@
 ```
 sudo docker-compose up
 ```  
-
-280821530317.dkr.ecr.us-east-2.amazonaws.com/civilization-zombie
-
-http://docs.aws.amazon.com/AmazonECS/latest/developerguide/ECS_GetStarted.html
 
 ## Author
 

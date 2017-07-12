@@ -81,12 +81,16 @@ function onMovePlayer(data){
   const movePlayer = playerById(data.id);
 
   if (!movePlayer) {
-      console.log("Player not found: " + data.id);
+      console.log("Player (move) not found: " + data.id);
       return;
   }
 
-  movePlayer.body.x = data.x
-  movePlayer.body.y = data.y
+  console.log('movePlayer')
+
+  // movePlayer.body.x = data.x
+  // movePlayer.body.y = data.y
+
+  playerObs.emit('movingPlayer', {player: movePlayer, data: data})
 }
 
 
@@ -95,7 +99,7 @@ function onRemovePlayer(data){
 
   // Player not found
   if (!removePlayer) {
-    console.log('Player not found: ', data.id)
+    console.log('Player (remove) not found: ', data.id)
     return
   }
 

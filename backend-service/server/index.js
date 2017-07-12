@@ -33,7 +33,7 @@ function onNewPlayer(data) {
   console.log('new played added: ', this.id)
 
   //formely this.broadcast.emit
-  this.emit('newPlayer', {id: newPlayer.id, x: newPlayer.getX(), y: newPlayer.getY()})
+  io.sockets.emit('newPlayer', {id: newPlayer.id, x: newPlayer.getX(), y: newPlayer.getY()})
 
   players.forEach(player => {
     this.emit('newPlayer', {id: player.id, x: player.getX(), y: player.getY()})
@@ -56,7 +56,8 @@ function onMovePlayer(data) {
   movePlayer.setX(data.x)
   movePlayer.setY(data.y)
 
-  this.broadcast.emit("movePlayer", {id: movePlayer.id, x: movePlayer.getX(), y: movePlayer.getY()})
+  // formerly this.broadcast.emit
+  io.sockets.emit("movePlayer", {id: movePlayer.id, x: movePlayer.getX(), y: movePlayer.getY()})
 }
 
 function onSocketDisconnect() {

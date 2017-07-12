@@ -1957,11 +1957,16 @@ var score = 0;
 
 /* ----- Start Game Instance ----- */
 var game = new Phaser.Game(gameWidth, gameHeight, Phaser.AUTO, 'game-container', {
+  init: init,
   preload: preload,
   create: create,
   update: update,
   render: render
 });
+
+function init() {
+  game.stage.disableVisibilityChange = true;
+}
 
 function preload() {
   game.load.crossOrigin = 'anonymous';
@@ -1997,10 +2002,10 @@ function create() {
 }
 
 function update() {
-  console.log(game.playerMap);
   if (localPlayer) checkEnemyActions();
   if (localPlayer) checkPlayerInputs(localPlayer);
   if (localPlayer) checkCollisions();
+  if (localPlayer) moveRemotePlayer();
   checkScore();
   checkRemovePlayer();
 }
@@ -2241,6 +2246,21 @@ function addPlayersToGame(player) {
     localPlayer = player;
     game.camera.follow(localPlayer);
   }
+}
+
+function moveRemotePlayer() {
+  _eventHandlers.playerObs.on('movingPlayer', function (movePlayer) {
+    console.log(movePlayer);
+    var player = movePlayer.player;
+    var xCord = movePlayer.data.x;
+    var yCord = movePlayer.data.y;
+
+    var distance = Phaser.Math.distance(player.x, player.y, xCord, yCord);
+    var tween = game.add.tween(player);
+    var duration = distance * 10;
+    tween.to({ x: xCord, y: yCord }, duration);
+    tween.start();
+  });
 }
 
 function checkRemovePlayer() {
@@ -3964,12 +3984,16 @@ function onMovePlayer(data) {
   var movePlayer = playerById(data.id);
 
   if (!movePlayer) {
-    console.log("Player not found: " + data.id);
+    console.log("Player (move) not found: " + data.id);
     return;
   }
 
-  movePlayer.body.x = data.x;
-  movePlayer.body.y = data.y;
+  console.log('movePlayer');
+
+  // movePlayer.body.x = data.x
+  // movePlayer.body.y = data.y
+
+  playerObs.emit('movingPlayer', { player: movePlayer, data: data });
 }
 
 function onRemovePlayer(data) {
@@ -3977,7 +4001,7 @@ function onRemovePlayer(data) {
 
   // Player not found
   if (!removePlayer) {
-    console.log('Player not found: ', data.id);
+    console.log('Player (remove) not found: ', data.id);
     return;
   }
 

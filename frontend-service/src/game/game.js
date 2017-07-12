@@ -38,12 +38,16 @@ import {socket, setEventHandlers, playerObs} from './eventHandlers'
 
   /* ----- Start Game Instance ----- */
   const game = new Phaser.Game(gameWidth, gameHeight, Phaser.AUTO, 'game-container', {
+      init: init,
       preload: preload,
       create: create,
       update: update,
       render: render
   })
 
+  function init(){
+    game.stage.disableVisibilityChange = true;
+  }
 
   function preload(){
     game.load.crossOrigin = 'anonymous'
@@ -81,10 +85,10 @@ import {socket, setEventHandlers, playerObs} from './eventHandlers'
   }
 
   function update(){
-    console.log(game.playerMap)
     if (localPlayer) checkEnemyActions()
     if (localPlayer) checkPlayerInputs(localPlayer)
     if (localPlayer) checkCollisions()
+    if (localPlayer) moveRemotePlayer()
     checkScore()
     checkRemovePlayer()
   }
@@ -352,6 +356,21 @@ import {socket, setEventHandlers, playerObs} from './eventHandlers'
       localPlayer = player
       game.camera.follow(localPlayer)
     }
+  }
+
+  function moveRemotePlayer(){
+    playerObs.on('movingPlayer', (movePlayer) => {
+      console.log(movePlayer)
+      const player = movePlayer.player
+      const xCord = movePlayer.data.x
+      const yCord = movePlayer.data.y
+
+      const distance = Phaser.Math.distance(player.x,player.y,xCord,yCord);
+      const tween = game.add.tween(player);
+      const duration = distance*10;
+      tween.to({x:xCord,y:yCord}, duration);
+      tween.start()
+    })
   }
 
   function checkRemovePlayer(){
