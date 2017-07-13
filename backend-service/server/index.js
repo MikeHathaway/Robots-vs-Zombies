@@ -69,8 +69,8 @@ function onShoot(data){
   // const bullet = new Bullet(Object.keys(bullets).length, data.id, data.x, data.y, data.v, data.r, data.tr);
   const bullet = new Bullet(Object.keys(bullets).length, data.id, data.x, data.y, data.v, data.r);
   bullets.push(bullet);
-  this.broadcast.emit('shoot', bullet);
-  this.emit('shoot', bullet);
+  this.volatile.broadcast.emit('shoot', bullet);
+  this.volatile.emit('shoot', bullet);
 }
 
 function onSocketDisconnect() {
@@ -121,8 +121,8 @@ setInterval (function () {
 				bullet.hid = player.id;
 				console.log("PLAYER HIT!!!!!!!");
 				const packet = {bullet: bullet, targetHealth: --player.health, srcScore: ++player.score};
-				gSocket.broadcast.emit('shot',packet);
-				gSocket.emit('shot',packet);
+				gSocket.volatile.broadcast.emit('shot',packet);
+				gSocket.volatile.emit('shot',packet);
 				bullets.splice(bullet,1);
 				delete bullet;
 				continue;

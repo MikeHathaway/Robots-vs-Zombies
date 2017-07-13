@@ -33,7 +33,8 @@ import {socket, setEventHandlers, playerObs} from './eventHandlers'
 
 
   /* ----- Start Game Instance ----- */
-  const game = new Phaser.Game(gameWidth, gameHeight, Phaser.AUTO, 'game-container', {
+    //formerly Phaser.AUTO for rendering; forcing Phaser.CANVAS to boost performacne
+  const game = new Phaser.Game(gameWidth, gameHeight, Phaser.CANVAS, 'game-container', {
       init: init,
       preload: preload,
       create: create,
@@ -67,16 +68,16 @@ import {socket, setEventHandlers, playerObs} from './eventHandlers'
 
     addMap('desert') // specify map can be: ['desert', 'forest']
     addEnemies(5) //specify number of enemies to be added
-
     addWeapons()
     addPlayer() // <- currently incomplete, need to finish tie up
+    addInstructions()
+
     setEventHandlers() // Start listening for events
 
     addInputs() // Add game controls
     addScore() // Score animations
 
     checkForNewPlayers()
-    addInstructions()
   }
 
   function update(){
@@ -87,7 +88,6 @@ import {socket, setEventHandlers, playerObs} from './eventHandlers'
     /* Multiplayer Functions */
     if (localPlayer) moveRemotePlayer()
     if (localPlayer) shootPlayer()
-
 
     checkScore()
     checkRemovePlayer()
@@ -277,7 +277,7 @@ import {socket, setEventHandlers, playerObs} from './eventHandlers'
     }
 
     if (fireButton.isDown){
-      player.weapons.children[player.currentWeapon].fire(player)
+      // player.weapons.children[player.currentWeapon].fire(player)
       sendShot(player)
     }
 
@@ -286,14 +286,6 @@ import {socket, setEventHandlers, playerObs} from './eventHandlers'
     }
   }
 
-  function sendMovement(player){
-    socket.emit('movePlayer',{id: player.id, x: player.body.x, y: player.body.y})
-  }
-
-  function sendShot(player){
-    const weapon = player.weapons.children[player.currentWeapon]
-    socket.emit('shoot', {id: player.id, x: player.body.x, y: player.body.y, v: weapon.bulletSpeed, r: player.body.rotation})
-  }
 
   function changeWeapon(player){
     if(player.currentWeapon === 1){
@@ -352,6 +344,11 @@ import {socket, setEventHandlers, playerObs} from './eventHandlers'
   }
 
 
+  function removeInstructions(){
+    if(game.instructions.exists && game.time.now > game.instExpire){
+      game.instructions.destroy()
+    }
+  }
 
 
 
@@ -362,6 +359,43 @@ import {socket, setEventHandlers, playerObs} from './eventHandlers'
      =============== MULTIPLAYER FUNCTIONS ===============
 
      =============== =============== =============== */
+
+
+  function sendShot(player){
+     const weapon = player.weapons.children[player.currentWeapon]
+
+     if(checkTimeToFire(player,weapon)){
+       socket.emit('shoot', {id: player.id, x: player.body.x, y: player.body.y, v: weapon.bulletSpeed, r: player.body.rotation})
+     }
+  }
+
+  function checkTimeToFire(player, weapon){
+     if (game.time.time < weapon.nextFire) {
+       return false
+     }
+     else{
+       weapon.nextFire = game.time.time + weapon.fireRate;
+       return true
+     }
+  }
+
+  function shootPlayer(){
+    playerObs.on('shootPlayer', shootOperation)
+  }
+
+    //data -> id, pid, x, y, v, r
+    //functioning, but bullet rotation is currently locked to 0 as players dont rotate
+    //angle, speed, this.body.velocity
+  function shootOperation(data){
+    const player = game.playerMap[data.pid];
+    const weapon = player.weapons.children[player.currentWeapon]
+    const bullet = weapon.children[data.id]
+    bullet.reset(data.x,data.y)
+    bullet.rotation = data.r
+    // weapon.fire(player)
+    // bullet.body.velocity = game.physics.arcade.velocityFromRotation(bullet.rotation, bullet.body.velocity)
+    game.physics.arcade.velocityFromAngle(bullet.rotation, bullet.bulletSpeed, bullet.body.velocity)
+  }
 
 
   function checkForNewPlayers(){
@@ -376,6 +410,10 @@ import {socket, setEventHandlers, playerObs} from './eventHandlers'
       localPlayer = player
       game.camera.follow(localPlayer)
     }
+  }
+
+  function sendMovement(player){
+     socket.emit('movePlayer',{id: player.id, x: player.body.x, y: player.body.y})
   }
 
   function moveRemotePlayer(){
@@ -394,34 +432,15 @@ import {socket, setEventHandlers, playerObs} from './eventHandlers'
     tween.start()
   }
 
-  function shootPlayer(){
-    playerObs.on('shootPlayer', shootOperation)
-  }
-
-    //data -> id, pid, x, y, v, r
-  function shootOperation(data){
-    // const bullet = bullets.children[id];
-    const player = game.playerMap[data.pid];
-    const bullet = player.weapons.children[player.currentWeapon].children[data.id]
-    console.log(bullet)
-    bullet.reset(data.x,data.y)
-    bullet.rotation = data.r
-    bullet.body.velocity = game.physics.arcade.velocityFromRotation(bullet.rotation)
-    //bullet.body.velocity = game.physics.arcade.velocityFromRotation(theta, r)
-  }
-
   function checkRemovePlayer(){
-    playerObs.on('removePlayer', (removePlayer) => {
-      removePlayer.kill()
-      delete game.playerMap[removePlayer.id]
-    })
+    playerObs.on('removePlayer', removeOperations)
   }
 
-  function removeInstructions(){
-    if(game.instructions.exists && game.time.now > game.instExpire){
-      game.instructions.destroy()
-    }
+  function removeOperations(removePlayer){
+    removePlayer.kill()
+    delete game.playerMap[removePlayer.id]
   }
+
 
 
 export default game

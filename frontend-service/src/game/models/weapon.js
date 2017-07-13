@@ -1,7 +1,7 @@
 //tutorial this is based upon
   //https://github.com/photonstorm/phaser-coding-tips/blob/master/issue-007/bulletpool.html
 
- //http://phaser.io/docs/2.4.4/Phaser.Group.html
+//boost performance by reducing the rate of fire?
 
 import Bullet from './bullet'
 
@@ -34,9 +34,9 @@ export class SingleBullet extends Weapon {
     super(game)
     this.nextFire = 0
     this.bulletSpeed = 600;
-    this.fireRate = 100
+    this.fireRate = 1000
     this.damage = 5
-    this.addBullets(this,game,type,64)
+    this.addBullets(this,game,type,120)
   }
 }
 
@@ -46,8 +46,8 @@ export class LazerBeam extends Weapon {
     super(game)
     this.nextFire = 0
     this.bulletSpeed = 600;
-    this.fireRate = 100
-    this.damage = 5
-    this.addBullets(this,game,type,64)
+    this.fireRate = 500
+    this.damage = 3
+    this.addBullets(this,game,type,120)
   }
 }

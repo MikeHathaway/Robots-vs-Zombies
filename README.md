@@ -1,7 +1,7 @@
 
 # Rebuild Civilization. Overcome the Zombies.
 
-[MMORTS](frontend-service-gnhabjcebk.now.sh) focused upon rebuilding after the Zombies appeared
+[MMORTS](frontend-service-zmxlosghyt.now.sh) focused upon rebuilding after the Zombies appeared
 
 # Realtime Infrastructure
 

@@ -1,5 +1,6 @@
 //http://www.dynetisgames.com/2017/03/06/how-to-make-a-multiplayer-online-game-with-phaser-socket-io-and-node-js/
 //https://github.com/Jerenaux/basic-mmo-phaser/blob/master/js/client.js
+//http://www.html5gamedevs.com/topic/29104-how-to-make-a-multiplayer-online-game-with-phaser-socketio-and-nodejs/
 
 //https://gamedev.stackexchange.com/questions/124434/phaser-io-with-socket-io-what-should-the-server-calculate-and-what-the-client
 
@@ -9,13 +10,20 @@
 
 //https://github.com/crisu83/capthatflag/tree/feature/phaser-server
 
+//http://www.gabrielgambetta.com/client-side-prediction-server-reconciliation.html
+
 import io from 'socket.io-client'
 import EventEmitter from 'event-emitter-es6'
 
 import Player from '../models/player'
 import game from '../game'
 
-const socket = io('http://localhost:4000')
+let port = 'https://backend-service-zszkextbov.now.sh'
+if(process.env.ENVIRONMENT === 'development') port = 'https://localhost:4000'
+
+console.log(port)
+
+const socket = io(port)
 
 const playerObs = new EventEmitter()
 
