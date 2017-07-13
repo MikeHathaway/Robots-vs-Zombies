@@ -4,8 +4,13 @@ const io = require('socket.io').listen(server)
 
 const Player = require('./models/Player').Player
 const Bullet = require('./models/Bullet').Bullet
+const Enemy = require('./models/Bullet').Enemy
+
 const players = []
 const bullets = []
+const enemies = []
+
+server.lastEnemyId = 0
 
 let gSocket = null
 
@@ -24,6 +29,7 @@ function setEventHandlers(client){
   gSocket = client
   console.log('connected!')
   client.on('newPlayer', onNewPlayer)
+  client.on('newEnemies', onNewEnemies)
   client.on('movePlayer', onMovePlayer)
   client.on('shoot', onShoot)
   client.on('disconnect', onSocketDisconnect)
@@ -44,8 +50,18 @@ function onNewPlayer(data) {
   })
 
   players.push(newPlayer);
-
 }
+
+
+function onNewEnemies(data){
+  const newEnemy = new Enemy(data.x, data.y)
+  newEnemy.id = server.lastEnemyId++
+
+  io.sockets.emit('newEnemy', {id: newEnemy.id, x: newEnemy.x, y: newEnemy.y})
+
+  enemies.push(newEnemy)
+}
+
 
 function onMovePlayer(data) {
   const movePlayer = playerById(data.id);
@@ -83,7 +99,7 @@ function onSocketDisconnect() {
   }
   players.splice(players.indexOf(removePlayer), 1)
   this.broadcast.emit('removePlayer', {id: this.id})
-  // io.emit('removePlayer', "A user disconnected");
+  io.emit('removePlayer', "A user disconnected");
 }
 
 
@@ -139,13 +155,13 @@ function rotatePoint(px,py,ox,oy,theta){
 }
 
 function pointRectangleIntersection(p, r) {
-    console.log("p.x:"+p.x+",p.y:"+p.y);
-    console.log("x1:"+r.x1+",y1:"+r.y1+",x2:"+r.x2+",y2:"+r.y2);
-    return p.x >= r.x1 && p.x <= r.x2 && p.y >= r.y1 && p.y <= r.y2;
+  console.log("p.x:"+p.x+",p.y:"+p.y);
+  console.log("x1:"+r.x1+",y1:"+r.y1+",x2:"+r.x2+",y2:"+r.y2);
+  return p.x >= r.x1 && p.x <= r.x2 && p.y >= r.y1 && p.y <= r.y2;
 }
 
 function randomInt (low, high) {
-    return Math.floor(Math.random() * (high - low) + low);
+  return Math.floor(Math.random() * (high - low) + low);
 }
 
 function playerById (id) {

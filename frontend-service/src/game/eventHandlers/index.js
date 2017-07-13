@@ -41,6 +41,8 @@ function setEventHandlers(){
   // New player message received
   socket.on('newPlayer', onNewPlayer)
 
+  socket.on('newEnemy', onNewEnemy)
+
   // Player move message received
   socket.on('movePlayer', onMovePlayer)
 
@@ -62,11 +64,11 @@ function onSocketDisconnect(){
   console.log('Disconnected from socket server')
 }
 
+
 function onNewPlayer(data){
   console.log('New player connected:', data)
 
   const duplicate = playerById(data.id)
-
 
   if (duplicate) {
     console.log('Duplicate player!')
@@ -89,6 +91,23 @@ function localPlayer(game,data){
   remotePlayers.push(newPlayer)
 }
 
+
+function onNewEnemy(data){
+  let i = 0
+  while(i++ < data.number){
+    const newEnemy = new Enemy(game,gameWidth,gameHeight,'zombie')
+  }
+}
+
+//change to game.enemies??
+function addZombie(number){
+  let i = 0
+  while(i++ < number){
+    enemies.add(new Enemy(game,gameWidth,gameHeight,'zombie'))
+  }
+}
+
+
 function onMovePlayer(data){
   const movePlayer = playerById(data.id);
 
@@ -102,6 +121,7 @@ function onMovePlayer(data){
 function onShoot(data){
   playerObs.emit('shootPlayer', {id: data.id, pid: data.pid, x: data.x, y: data.y, v: data.v, r: data.r})
 }
+
 
 function onRemovePlayer(data){
   const removePlayer = playerById(data.id)
@@ -118,13 +138,11 @@ function onRemovePlayer(data){
   this.emit("removePlayer", {id: data.id})
 }
 
+
 function playerById (id) {
   const identifiedPlayer = remotePlayers.filter(player => player.id === id)
   return identifiedPlayer.length > 0 ? identifiedPlayer[0] : false
 }
-
-
-
 
 
 export {socket, setEventHandlers, playerObs}

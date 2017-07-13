@@ -4190,6 +4190,8 @@ function setEventHandlers() {
   // New player message received
   socket.on('newPlayer', onNewPlayer);
 
+  socket.on('newEnemy', onNewEnemy);
+
   // Player move message received
   socket.on('movePlayer', onMovePlayer);
 
@@ -4235,6 +4237,21 @@ function localPlayer(game, data) {
   var newPlayer = new _player2.default(game, data.x, data.y, 'zombie', 50, 5, game.weapons, data.id);
   playerObs.emit('addPlayer', newPlayer);
   remotePlayers.push(newPlayer);
+}
+
+function onNewEnemy(data) {
+  var i = 0;
+  while (i++ < data.number) {
+    var newEnemy = new Enemy(_game2.default, gameWidth, gameHeight, 'zombie');
+  }
+}
+
+//change to game.enemies??
+function addZombie(number) {
+  var i = 0;
+  while (i++ < number) {
+    enemies.add(new Enemy(_game2.default, gameWidth, gameHeight, 'zombie'));
+  }
 }
 
 function onMovePlayer(data) {
