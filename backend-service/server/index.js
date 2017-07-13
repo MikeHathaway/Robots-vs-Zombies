@@ -95,7 +95,7 @@ setInterval (function () {
 		for (let id2 in players) {
 			const player = players[id2];
 			if (!player || player.id == bullet.pid) continue;
-			elapsedTime = (Date.now() - bullet.dt) / 1000;
+			let elapsedTime = (Date.now() - bullet.dt) / 1000;
 			//console.log("elapsedTime: " + elapsedTime);
 
 			//console.log("radians:"+bullet.r/Math.PI);
@@ -120,7 +120,7 @@ setInterval (function () {
 			{
 				bullet.hid = player.id;
 				console.log("PLAYER HIT!!!!!!!");
-				const packet = {bullet:bullet, targetHealth:--player.health, srcScore:++player.score};
+				const packet = {bullet: bullet, targetHealth: --player.health, srcScore: ++player.score};
 				gSocket.broadcast.emit('shot',packet);
 				gSocket.emit('shot',packet);
 				bullets.splice(bullet,1);

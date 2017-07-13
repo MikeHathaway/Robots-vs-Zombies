@@ -65,7 +65,6 @@ import {socket, setEventHandlers, playerObs} from './eventHandlers'
     // game.world.setBounds(-1000, -1000, 2000, 2000)
     game.playerMap = {}
 
-
     addMap('desert') // specify map can be: ['desert', 'forest']
     addEnemies(5) //specify number of enemies to be added
 
@@ -84,7 +83,11 @@ import {socket, setEventHandlers, playerObs} from './eventHandlers'
     if (localPlayer) checkEnemyActions()
     if (localPlayer) checkPlayerInputs(localPlayer)
     if (localPlayer) checkCollisions()
+
+    /* Multiplayer Functions */
     if (localPlayer) moveRemotePlayer()
+    if (localPlayer) shootPlayer()
+
 
     checkScore()
     checkRemovePlayer()
@@ -93,7 +96,7 @@ import {socket, setEventHandlers, playerObs} from './eventHandlers'
 
   function render(){
 	   if (localPlayer) game.debug.text("Player Health: " + localPlayer.health + " / " + localPlayer.maxHealth, 32 ,32);
-	   //game.debug.text("Player Score:  " + localPlayer.score, 32 ,64);
+	   if (localPlayer) game.debug.text("Player Score:  " + game.score, 32 ,64);
   }
 
 
@@ -288,10 +291,7 @@ import {socket, setEventHandlers, playerObs} from './eventHandlers'
   }
 
   function sendShot(player){
-    //data.id, data.x, data.y, data.v, data.r, data.tr
     const weapon = player.weapons.children[player.currentWeapon]
-    console.log(player)
-    //tr ....?
     socket.emit('shoot', {id: player.id, x: player.body.x, y: player.body.y, v: weapon.bulletSpeed, r: player.body.rotation})
   }
 
@@ -398,14 +398,16 @@ import {socket, setEventHandlers, playerObs} from './eventHandlers'
     playerObs.on('shootPlayer', shootOperation)
   }
 
-  function shootOperation(id, pid, x, y, v, r){
-    console.log(bullets)
-    console.log(player.weapons.children[player.currentWeapon])
-    const bullet = bullets.children[id];
-    const player = game.playerMap[pid];
-    bullet.reset(x,y)
-    bullet.rotation = r
-    bullet.body.velocity = game.physics.arcade.velocityFromRotation(theta, r)
+    //data -> id, pid, x, y, v, r
+  function shootOperation(data){
+    // const bullet = bullets.children[id];
+    const player = game.playerMap[data.pid];
+    const bullet = player.weapons.children[player.currentWeapon].children[data.id]
+    console.log(bullet)
+    bullet.reset(data.x,data.y)
+    bullet.rotation = data.r
+    bullet.body.velocity = game.physics.arcade.velocityFromRotation(bullet.rotation)
+    //bullet.body.velocity = game.physics.arcade.velocityFromRotation(theta, r)
   }
 
   function checkRemovePlayer(){

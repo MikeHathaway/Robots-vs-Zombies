@@ -1993,7 +1993,10 @@ function update() {
   if (localPlayer) checkEnemyActions();
   if (localPlayer) checkPlayerInputs(localPlayer);
   if (localPlayer) checkCollisions();
+
+  /* Multiplayer Functions */
   if (localPlayer) moveRemotePlayer();
+  if (localPlayer) shootPlayer();
 
   checkScore();
   checkRemovePlayer();
@@ -2002,7 +2005,7 @@ function update() {
 
 function render() {
   if (localPlayer) game.debug.text("Player Health: " + localPlayer.health + " / " + localPlayer.maxHealth, 32, 32);
-  //game.debug.text("Player Score:  " + localPlayer.score, 32 ,64);
+  if (localPlayer) game.debug.text("Player Score:  " + game.score, 32, 64);
 }
 
 /* =============== =============== ===============
@@ -2180,10 +2183,7 @@ function sendMovement(player) {
 }
 
 function sendShot(player) {
-  //data.id, data.x, data.y, data.v, data.r, data.tr
   var weapon = player.weapons.children[player.currentWeapon];
-  console.log(player);
-  //tr ....?
   _eventHandlers.socket.emit('shoot', { id: player.id, x: player.body.x, y: player.body.y, v: weapon.bulletSpeed, r: player.body.rotation });
 }
 
@@ -2281,14 +2281,16 @@ function shootPlayer() {
   _eventHandlers.playerObs.on('shootPlayer', shootOperation);
 }
 
-function shootOperation(id, pid, x, y, v, r) {
-  console.log(bullets);
-  console.log(player.weapons.children[player.currentWeapon]);
-  var bullet = bullets.children[id];
-  var player = game.playerMap[pid];
-  bullet.reset(x, y);
-  bullet.rotation = r;
-  bullet.body.velocity = game.physics.arcade.velocityFromRotation(theta, r);
+//data -> id, pid, x, y, v, r
+function shootOperation(data) {
+  // const bullet = bullets.children[id];
+  var player = game.playerMap[data.pid];
+  var bullet = player.weapons.children[player.currentWeapon].children[data.id];
+  console.log(bullet);
+  bullet.reset(data.x, data.y);
+  bullet.rotation = data.r;
+  bullet.body.velocity = game.physics.arcade.velocityFromRotation(bullet.rotation);
+  //bullet.body.velocity = game.physics.arcade.velocityFromRotation(theta, r)
 }
 
 function checkRemovePlayer() {
@@ -4031,7 +4033,6 @@ function onMovePlayer(data) {
 }
 
 function onShoot(data) {
-  console.log('shooting', data);
   playerObs.emit('shootPlayer', { id: data.id, pid: data.pid, x: data.x, y: data.y, v: data.v, r: data.r });
 }
 

@@ -92,7 +92,6 @@ function onMovePlayer(data){
 }
 
 function onShoot(data){
-  console.log('shooting', data)
   playerObs.emit('shootPlayer', {id: data.id, pid: data.pid, x: data.x, y: data.y, v: data.v, r: data.r})
 }
 
