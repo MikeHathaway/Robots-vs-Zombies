@@ -12,7 +12,7 @@
 
 //http://www.gabrielgambetta.com/client-side-prediction-server-reconciliation.html
 
-
+//https://socket.io/docs/using-multiple-nodes/
 
 import io from 'socket.io-client'
 import EventEmitter from 'event-emitter-es6'
@@ -20,11 +20,11 @@ import EventEmitter from 'event-emitter-es6'
 import Player from '../models/player'
 import game from '../game'
 
-// let port = 'https://backend-service-zszkextbov.now.sh'
+// let port = 'https://backend-service-ewbtarfvys.now.sh'
 // if(process.env.ENVIRONMENT === 'development') port = 'https://localhost:4000'
 
-//'http://localhost:4000'
-const socket = io('https://backend-service-ewbtarfvys.now.sh')
+//
+const socket = io('http://localhost:4000')
 
 const playerObs = new EventEmitter()
 

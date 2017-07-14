@@ -1,7 +1,7 @@
 
 # Rebuild Civilization. Overcome the Zombies.
 
- focused upon rebuilding after the Zombies appeared
+ <!-- focused upon rebuilding after the Zombies appeared -->
 
 # [Play Now](frontend-service-zmxlosghyt.now.sh)
 

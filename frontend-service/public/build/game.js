@@ -2012,6 +2012,7 @@ function update() {
 function render() {
   if (localPlayer) game.debug.text("Player Health: " + localPlayer.health + " / " + localPlayer.maxHealth, 32, 32);
   if (localPlayer) game.debug.text("Player Score:  " + game.score, 32, 64);
+  if (localPlayer) game.debug.text("Enemies Remaining:  " + enemyMap.length, 32, 96);
 }
 
 /* =============== =============== ===============
@@ -3979,9 +3980,10 @@ var _game2 = _interopRequireDefault(_game);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-// let port = 'https://backend-service-zszkextbov.now.sh'
+// let port = 'https://backend-service-ewbtarfvys.now.sh'
 // if(process.env.ENVIRONMENT === 'development') port = 'https://localhost:4000'
 
+//
 //http://www.dynetisgames.com/2017/03/06/how-to-make-a-multiplayer-online-game-with-phaser-socket-io-and-node-js/
 //https://github.com/Jerenaux/basic-mmo-phaser/blob/master/js/client.js
 //http://www.html5gamedevs.com/topic/29104-how-to-make-a-multiplayer-online-game-with-phaser-socketio-and-nodejs/
@@ -3996,6 +3998,8 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 //http://www.gabrielgambetta.com/client-side-prediction-server-reconciliation.html
 
+//https://socket.io/docs/using-multiple-nodes/
+
 var socket = (0, _socket2.default)('http://localhost:4000');
 
 var playerObs = new _eventEmitterEs2.default();
@@ -4006,6 +4010,7 @@ function setEventHandlers() {
 
   socket.emit('test', { balls: 'balls' });
 
+  // trigger game start
   socket.emit('newPlayer', { x: _game2.default.startX, y: _game2.default.startY });
 
   socket.on('connect', onSocketConnected);
@@ -4016,6 +4021,7 @@ function setEventHandlers() {
   // New player message received
   socket.on('newPlayer', onNewPlayer);
 
+  // add enemies to the game
   socket.on('newEnemies', onNewEnemies);
 
   // Player move message received

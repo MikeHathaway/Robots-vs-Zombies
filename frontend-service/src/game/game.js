@@ -100,8 +100,10 @@ import {socket, setEventHandlers, playerObs} from './eventHandlers'
   }
 
   function render(){
-	   if (localPlayer) game.debug.text("Player Health: " + localPlayer.health + " / " + localPlayer.maxHealth, 32 ,32);
-	   if (localPlayer) game.debug.text("Player Score:  " + game.score, 32 ,64);
+	   if (localPlayer) game.debug.text("Player Health: " + localPlayer.health + " / " + localPlayer.maxHealth, 32, 32);
+	   if (localPlayer) game.debug.text("Player Score:  " + game.score, 32, 64);
+     if (localPlayer) game.debug.text("Enemies Remaining:  " + enemyMap.length, 32, 96);
+
   }
 
 
