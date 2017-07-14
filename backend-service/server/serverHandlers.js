@@ -24,6 +24,7 @@ module.exports = function(io){
     client.on('newPlayer', onNewPlayer)
     client.on('newEnemies', onNewEnemies)
     client.on('movePlayer', onMovePlayer)
+    client.on('moveEnemy', onMoveEnemy)
     client.on('shoot', onShoot)
     client.on('disconnect', onSocketDisconnect)
     client.on('test', (data) => { console.log(data)})
@@ -81,15 +82,32 @@ module.exports = function(io){
     this.broadcast.emit("movePlayer", {id: movePlayer.id, x: movePlayer.getX(), y: movePlayer.getY()})
   }
 
+
+  function onMoveEnemy(data){
+    const moveEnemy = enemyById(data.id)
+
+    if (!movePlayer) {
+        console.log("Player not found: " + data.id)
+        return
+    }
+
+    moveEnemy.setX(data.x)
+    moveEnemy.setY(data.y)
+
+    io.sockets.emit('moveEnemy', {id: moveEnemy.id, x: moveEnemy.x, y: moveEnemy.y})
+
+  }
+
+
   function onShoot(data){
     console.log(data.id, ' is shooting!')
-    console.log(data)
-    // const bullet = new Bullet(Object.keys(bullets).length, data.id, data.x, data.y, data.v, data.r, data.tr);
     const bullet = new Bullet(Object.keys(bullets).length, data.id, data.x, data.y, data.v, data.r);
     bullets.push(bullet);
+    // console.log('checking collisions!',checkCollisions)
     this.volatile.broadcast.emit('shoot', bullet);
     this.volatile.emit('shoot', bullet);
   }
+
 
   function onSocketDisconnect() {
     console.log("Player has disconnected: " + this.id)
@@ -108,16 +126,19 @@ module.exports = function(io){
 
 
 
+  //const checkCollisions =
   setInterval (function () {
       // For each Players go through the bullets if any contact report.
   	for (let i=0; i < bullets.length; ++i){
   		const bullet = bullets[i];
   		if (!bullet) continue;
-  		for (let id2 in players) {
-  			const player = players[id2];
-  			if (!player || player.id == bullet.pid) continue;
+  		for (let id2 in enemies) {
+  			const enemy = enemies[id2];
+        console.log(enemy)
+  			if (!enemy || enemy.id == bullet.pid) continue;
   			let elapsedTime = (Date.now() - bullet.dt) / 1000;
   			//console.log("elapsedTime: " + elapsedTime);
+
 
   			//console.log("radians:"+bullet.r/Math.PI);
   			let theta = bullet.r
@@ -132,18 +153,18 @@ module.exports = function(io){
   			}
   			//console.log("radians2:"+player.r);
 
-        theta = player.r;
-  			const p1 = rotatePoint(30,30, player.x,player.y,theta);
-  			const p2 = rotatePoint(-30,-30, player.x,player.y,theta);
+        theta = enemy.r;
+  			const p1 = rotatePoint(30,30, enemy.x,enemy.y,theta);
+  			const p2 = rotatePoint(-30,-30, enemy.x,enemy.y,theta);
   			if (pointRectangleIntersection({x:x,y:y},
   			    {x1:Math.min(p1.x,p2.x),x2:Math.max(p1.x,p2.x),
              y1:Math.min(p1.y,p2.y), y2:Math.max(p1.y, p2.y)}))
   			{
 
-          /*  MODIFY PLAYER HIT TO ENEMY HIT!! */
-  				bullet.hid = player.id;
-  				console.log("PLAYER HIT!!!!!!!");
-  				const packet = {bullet: bullet, targetHealth: --player.health, srcScore: ++player.score};
+          /*  Bullet is passing the intersection check */
+  				bullet.hid = enemy.id;
+  				console.log("Enemy HIT!!!!!!!");
+  				const packet = {bullet: bullet, enemy: enemy, targetHealth: --enemy.health} //, srcScore: ++player.score};
   				gSocket.volatile.broadcast.emit('shot',packet);
   				gSocket.volatile.emit('shot',packet);
   				bullets.splice(bullet,1);
@@ -176,5 +197,10 @@ function randomInt (low, high) {
 
 function playerById (id) {
   const identifiedPlayer = players.filter(player => player.id === id)
+  return identifiedPlayer.length > 0 ? identifiedPlayer[0] : false
+}
+
+function enemyById (id) {
+  const identifiedEnemy = enemies.filter(enemy => enemy.id === id)
   return identifiedPlayer.length > 0 ? identifiedPlayer[0] : false
 }

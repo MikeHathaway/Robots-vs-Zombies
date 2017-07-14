@@ -51,12 +51,17 @@ function setEventHandlers(){
   // Player move message received
   socket.on('movePlayer', onMovePlayer)
 
-  socket.on('shot', (data) => console.log('shot',data)) //bulletHitPlayer(data);
+  // Enemy move message received
+  socket.on('moveEnemy', onMoveEnemy)
 
   socket.on('shoot', onShoot) //shootPlayer(data.id,data.pid,data.x,data.y,data.v,data.r,data.tr);
 
+  socket.on('shot', onEnemyShot) //bulletHitPlayer(data);
+
   // Player removed message received
   socket.on('removePlayer', onRemovePlayer)
+
+  socket.on('test', (data) => console.log('test', data))
 }
 
 function onSocketConnected(){
@@ -113,8 +118,24 @@ function onMovePlayer(data){
   playerObs.emit('movingPlayer', {player: movePlayer, data: data})
 }
 
+//need to modify this to accept enemy collection
+function onMoveEnemy(data){
+  const moveEnemy = playerById(data.id);
+
+  if (!moveEnemy) {
+      console.log("Player (move) not found: " + data.id);
+      return;
+  }
+  playerObs.emit('movingEnemy', {enemy: moveEnemy, data: data})
+}
+
+
 function onShoot(data){
   playerObs.emit('shootPlayer', {id: data.id, pid: data.pid, x: data.x, y: data.y, v: data.v, r: data.r})
+}
+
+function onEnemyShot(data){
+  console.log('enemy shot',data)
 }
 
 

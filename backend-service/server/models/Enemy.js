@@ -8,7 +8,7 @@
 //   this.health = health || 30
 //   return this
 // }
-// 
+//
 // exports.Enemy = Enemy
 
 class Enemy {
@@ -20,6 +20,14 @@ class Enemy {
     this.scoreValue = scoreValue || 2
     this.type = type || 'zombie'
     this.health = health || 30
+  }
+
+  setX(newX) {
+      this.x = newX
+  }
+
+  setY(newY) {
+      this.y = newY
   }
 }
 

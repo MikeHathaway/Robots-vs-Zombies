@@ -259,21 +259,21 @@ import {socket, setEventHandlers, playerObs} from './eventHandlers'
   function checkPlayerInputs(player){
     if (cursors.left.isDown){
       player.body.x -= player.body.velocity.x
-      sendMovement(player)
+      sendPlayerMovement(player)
     }
     if (cursors.right.isDown){
       player.body.x += player.body.velocity.x
-      sendMovement(player)
+      sendPlayerMovement(player)
     }
 
     if (cursors.up.isDown){
       player.body.y -= player.body.velocity.y
-      sendMovement(player)
+      sendPlayerMovement(player)
     }
 
     if (cursors.down.isDown){
       player.body.y += player.body.velocity.y
-      sendMovement(player)
+      sendPlayerMovement(player)
     }
 
     if (fireButton.isDown){
@@ -334,7 +334,8 @@ import {socket, setEventHandlers, playerObs} from './eventHandlers'
 
   function enemyOperations(enemy){
     enemy.isAlive()
-    enemy.move(game,enemy,localPlayer)
+    //enemy.move(game,enemy,localPlayer)
+    sendEnemyMovement(enemy)
   }
 
   function aimRotation(){
@@ -383,7 +384,6 @@ import {socket, setEventHandlers, playerObs} from './eventHandlers'
     playerObs.on('shootPlayer', shootOperation)
   }
 
-  //remove velocity from angle to create a mine!!
   function shootOperation(data){
     const player = game.playerMap[data.pid];
     const weapon = player.weapons.children[player.currentWeapon]
@@ -393,6 +393,15 @@ import {socket, setEventHandlers, playerObs} from './eventHandlers'
     // weapon.fire(player)
     // bullet.body.velocity = game.physics.arcade.velocityFromRotation(bullet.rotation, bullet.body.velocity)
     game.physics.arcade.velocityFromAngle(bullet.rotation, bullet.bulletSpeed, bullet.body.velocity)
+  }
+
+  //similar to shoot operation, but removes velocity factor
+  function layMine(){
+    const player = game.playerMap[data.pid];
+    const weapon = player.weapons.children[player.currentWeapon]
+    const bullet = weapon.children[data.id]
+    bullet.reset(data.x,data.y)
+    bullet.rotation = data.r
   }
 
 
@@ -410,15 +419,16 @@ import {socket, setEventHandlers, playerObs} from './eventHandlers'
     }
   }
 
-  function sendMovement(player){
+
+  function sendPlayerMovement(player){
      socket.emit('movePlayer',{id: player.id, x: player.body.x, y: player.body.y})
   }
 
   function moveRemotePlayer(){
-    playerObs.on('movingPlayer', moveOperation)
+    playerObs.on('movingPlayer', movePlayerOperation)
   }
 
-  function moveOperation(movePlayer){
+  function movePlayerOperation(movePlayer){
     const player = movePlayer.player
     const xCord = movePlayer.data.x
     const yCord = movePlayer.data.y
@@ -429,6 +439,20 @@ import {socket, setEventHandlers, playerObs} from './eventHandlers'
     tween.to({x:xCord,y:yCord}, duration)
     tween.start()
   }
+
+
+  function sendEnemyMovement(enemy){
+    socket.emit('moveEnemy',{id: enemy.id, x: enemy.body.x, y: enemy.body.y})
+  }
+
+  function moveEnemy(){
+    playerObs.on('movingEnemy', moveEnemyOperation)
+  }
+
+  function moveEnemyOperation(moveEnemy){
+    console.log('moveEnemyOperation', moveEnemy)
+  }
+
 
   function checkRemovePlayer(){
     playerObs.on('removePlayer', removeOperations)

@@ -2152,21 +2152,21 @@ function addWeapons() {
 function checkPlayerInputs(player) {
   if (cursors.left.isDown) {
     player.body.x -= player.body.velocity.x;
-    sendMovement(player);
+    sendPlayerMovement(player);
   }
   if (cursors.right.isDown) {
     player.body.x += player.body.velocity.x;
-    sendMovement(player);
+    sendPlayerMovement(player);
   }
 
   if (cursors.up.isDown) {
     player.body.y -= player.body.velocity.y;
-    sendMovement(player);
+    sendPlayerMovement(player);
   }
 
   if (cursors.down.isDown) {
     player.body.y += player.body.velocity.y;
-    sendMovement(player);
+    sendPlayerMovement(player);
   }
 
   if (fireButton.isDown) {
@@ -2226,7 +2226,8 @@ function checkEnemyActions() {
 
 function enemyOperations(enemy) {
   enemy.isAlive();
-  enemy.move(game, enemy, localPlayer);
+  //enemy.move(game,enemy,localPlayer)
+  sendEnemyMovement(enemy);
 }
 
 function aimRotation() {
@@ -2266,7 +2267,6 @@ function shootPlayer() {
   _eventHandlers.playerObs.on('shootPlayer', shootOperation);
 }
 
-//remove velocity from angle to create a mine!!
 function shootOperation(data) {
   var player = game.playerMap[data.pid];
   var weapon = player.weapons.children[player.currentWeapon];
@@ -2276,6 +2276,15 @@ function shootOperation(data) {
   // weapon.fire(player)
   // bullet.body.velocity = game.physics.arcade.velocityFromRotation(bullet.rotation, bullet.body.velocity)
   game.physics.arcade.velocityFromAngle(bullet.rotation, bullet.bulletSpeed, bullet.body.velocity);
+}
+
+//similar to shoot operation, but removes velocity factor
+function layMine() {
+  var player = game.playerMap[data.pid];
+  var weapon = player.weapons.children[player.currentWeapon];
+  var bullet = weapon.children[data.id];
+  bullet.reset(data.x, data.y);
+  bullet.rotation = data.r;
 }
 
 function checkForNewPlayers() {
@@ -2292,15 +2301,15 @@ function addPlayersToGame(player) {
   }
 }
 
-function sendMovement(player) {
+function sendPlayerMovement(player) {
   _eventHandlers.socket.emit('movePlayer', { id: player.id, x: player.body.x, y: player.body.y });
 }
 
 function moveRemotePlayer() {
-  _eventHandlers.playerObs.on('movingPlayer', moveOperation);
+  _eventHandlers.playerObs.on('movingPlayer', movePlayerOperation);
 }
 
-function moveOperation(movePlayer) {
+function movePlayerOperation(movePlayer) {
   var player = movePlayer.player;
   var xCord = movePlayer.data.x;
   var yCord = movePlayer.data.y;
@@ -2310,6 +2319,18 @@ function moveOperation(movePlayer) {
   var duration = distance * 10;
   tween.to({ x: xCord, y: yCord }, duration);
   tween.start();
+}
+
+function sendEnemyMovement(enemy) {
+  _eventHandlers.socket.emit('moveEnemy', { id: enemy.id, x: enemy.body.x, y: enemy.body.y });
+}
+
+function moveEnemy() {
+  _eventHandlers.playerObs.on('movingEnemy', moveEnemyOperation);
+}
+
+function moveEnemyOperation(moveEnemy) {
+  console.log('moveEnemyOperation', moveEnemy);
 }
 
 function checkRemovePlayer() {
@@ -2325,10 +2346,10 @@ function addRemoteEnemies() {
   _eventHandlers.playerObs.on('addEnemies', enemyOperations);
 }
 
-//may need to rename to resolve naming collision
+//Need to restrict message flow once expected number of enemies generated
 function enemyOperations(enemyData) {
   // if(enemyMap.length <  enemyData.enemyList.length){
-  console.log('enemyData', enemyData);
+  // console.log('enemyData',enemyData)
   if (enemyMap.length < 5) {
     enemyData.enemyList.forEach(function (enemy) {
       var newEnemy = new _enemy2.default(game, enemy.x, enemy.y, enemy.type);
@@ -4027,14 +4048,19 @@ function setEventHandlers() {
   // Player move message received
   socket.on('movePlayer', onMovePlayer);
 
-  socket.on('shot', function (data) {
-    return console.log('shot', data);
-  }); //bulletHitPlayer(data);
+  // Enemy move message received
+  socket.on('moveEnemy', onMoveEnemy);
 
   socket.on('shoot', onShoot); //shootPlayer(data.id,data.pid,data.x,data.y,data.v,data.r,data.tr);
 
+  socket.on('shot', onEnemyShot); //bulletHitPlayer(data);
+
   // Player removed message received
   socket.on('removePlayer', onRemovePlayer);
+
+  socket.on('test', function (data) {
+    return console.log('test', data);
+  });
 }
 
 function onSocketConnected() {
@@ -4086,8 +4112,23 @@ function onMovePlayer(data) {
   playerObs.emit('movingPlayer', { player: movePlayer, data: data });
 }
 
+//need to modify this to accept enemy collection
+function onMoveEnemy(data) {
+  var moveEnemy = playerById(data.id);
+
+  if (!moveEnemy) {
+    console.log("Player (move) not found: " + data.id);
+    return;
+  }
+  playerObs.emit('movingEnemy', { enemy: moveEnemy, data: data });
+}
+
 function onShoot(data) {
   playerObs.emit('shootPlayer', { id: data.id, pid: data.pid, x: data.x, y: data.y, v: data.v, r: data.r });
+}
+
+function onEnemyShot(data) {
+  console.log('enemy shot', data);
 }
 
 function onRemovePlayer(data) {
