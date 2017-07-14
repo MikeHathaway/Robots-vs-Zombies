@@ -1,3 +1,4 @@
+const Game = require('./models/Game')
 const Player = require('./models/Player').Player
 const Bullet = require('./models/Bullet').Bullet
 const Enemy = require('./models/Enemy').Enemy
@@ -13,7 +14,9 @@ let gSocket = null
 
 module.exports = function(io){
 
-  io.sockets.on('connection', setEventHandlers)
+  //formerly io.sockets.on('connection', setEventHandlers)
+  //define a single namespace through which to connect (enabling multiplexing)
+  io.of('/').on('connection', setEventHandlers)
 
   function setEventHandlers(client){
     gSocket = client

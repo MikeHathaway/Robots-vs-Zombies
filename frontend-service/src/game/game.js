@@ -444,10 +444,10 @@ import {socket, setEventHandlers, playerObs} from './eventHandlers'
     playerObs.on('addEnemies', enemyOperations)
   }
 
-  //may need to rename to resolve naming collision
+  //Need to restrict message flow once expected number of enemies generated
   function enemyOperations(enemyData){
     // if(enemyMap.length <  enemyData.enemyList.length){
-    console.log('enemyData',enemyData)
+    // console.log('enemyData',enemyData)
     if(enemyMap.length < 5){
       enemyData.enemyList.forEach(enemy => {
         const newEnemy = new Enemy(game,enemy.x,enemy.y,enemy.type)

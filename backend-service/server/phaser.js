@@ -2,7 +2,10 @@
 
 const Canvas = require('canvas')
 const jsdom = require('jsdom')
-const document = jsdom.jsdom(null)
+const { JSDOM } = jsdom;
+// const document = jsdom.jsdom(null)
+const { document } = (new JSDOM()).window;
+console.log(document)
 const window = document.parentWindow
 let Phaser
 
