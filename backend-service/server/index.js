@@ -66,7 +66,7 @@ function onNewEnemies(data){
     }
   }
   // io.sockets.emit('newEnemy', {id: newEnemy.id, x: newEnemy.x, y: newEnemy.y})
-  io.sockets.emit('newEnemies', {enemies: enemies})
+  io.sockets.emit('newEnemies', {enemyList: enemies})
 }
 
 

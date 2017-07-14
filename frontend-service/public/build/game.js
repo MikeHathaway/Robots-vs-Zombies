@@ -1991,6 +1991,7 @@ function create() {
 }
 
 function update() {
+
   if (localPlayer) checkEnemyActions();
   if (localPlayer) checkPlayerInputs(localPlayer);
   if (localPlayer) checkCollisions();
@@ -1998,6 +1999,8 @@ function update() {
   /* Multiplayer Functions */
   if (localPlayer) moveRemotePlayer();
   if (localPlayer) shootPlayer();
+
+  addRemoteEnemies();
 
   checkScore();
   checkRemovePlayer();
@@ -2017,14 +2020,6 @@ function addInputs() {
   cursors = game.input.keyboard.createCursorKeys();
   fireButton = game.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR);
   changeKey = game.input.keyboard.addKey(Phaser.Keyboard.ENTER);
-}
-
-function addInputsTwo() {
-  return {
-    cursors: game.input.keyboard.createCursorKeys(),
-    fireButton: game.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR),
-    changeKey: game.input.keyboard.addKey(Phaser.Keyboard.ENTER)
-  };
 }
 
 function addMap(type) {
@@ -2056,7 +2051,7 @@ function addEnemies() {
   enemies = game.add.group();
   _eventHandlers.socket.emit('newEnemies', { number: number, x: gameWidth, y: gameHeight });
 
-  addZombie(number);
+  // addZombie(number)
 }
 
 function triggerEnemySpawn() {
@@ -2323,12 +2318,17 @@ function removeOperations(removePlayer) {
   delete game.playerMap[removePlayer.id];
 }
 
-function addEnemies() {
+function addRemoteEnemies() {
   _eventHandlers.playerObs.on('addEnemies', enemyOperations);
 }
 
+//may need to rename to resolve naming collision
 function enemyOperations(enemyData) {
-  console.log('Enemy Data:', enemyData);
+  console.log(enemyData);
+  enemyData.enemyList.forEach(function (enemy) {
+    enemies.add(new _enemy2.default(game, enemy.x, enemy.y, enemy.type));
+    console.log('enemy: ', enemy, enemies);
+  });
 }
 
 exports.default = game;

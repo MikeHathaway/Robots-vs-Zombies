@@ -81,6 +81,7 @@ import {socket, setEventHandlers, playerObs} from './eventHandlers'
   }
 
   function update(){
+
     if (localPlayer) checkEnemyActions()
     if (localPlayer) checkPlayerInputs(localPlayer)
     if (localPlayer) checkCollisions()
@@ -88,6 +89,8 @@ import {socket, setEventHandlers, playerObs} from './eventHandlers'
     /* Multiplayer Functions */
     if (localPlayer) moveRemotePlayer()
     if (localPlayer) shootPlayer()
+
+    addRemoteEnemies()
 
     checkScore()
     checkRemovePlayer()
@@ -114,15 +117,6 @@ import {socket, setEventHandlers, playerObs} from './eventHandlers'
     fireButton = game.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR)
     changeKey = game.input.keyboard.addKey(Phaser.Keyboard.ENTER)
   }
-
-  function addInputsTwo(){
-    return {
-      cursors: game.input.keyboard.createCursorKeys(),
-      fireButton: game.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR),
-      changeKey: game.input.keyboard.addKey(Phaser.Keyboard.ENTER)
-    }
-  }
-
 
   function addMap(type){
     if(type === 'desert') desertMap()
@@ -442,12 +436,17 @@ import {socket, setEventHandlers, playerObs} from './eventHandlers'
   }
 
 
-  function addEnemies(){
+  function addRemoteEnemies(){
     playerObs.on('addEnemies', enemyOperations)
   }
 
+  //may need to rename to resolve naming collision
   function enemyOperations(enemyData){
-    console.log('Enemy Data:', enemyData)
+    console.log(enemyData)
+    enemyData.enemyList.forEach(enemy => {
+      enemies.add(new Enemy(game,enemy.x,enemy.y,enemy.type))
+      console.log('enemy: ', enemy, enemies)
+    })
   }
 
 
