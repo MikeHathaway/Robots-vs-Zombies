@@ -1,12 +1,17 @@
 
 # Rebuild Civilization. Overcome the Zombies.
 
-[MMORTS](frontend-service-zmxlosghyt.now.sh) focused upon rebuilding after the Zombies appeared
+ focused upon rebuilding after the Zombies appeared
+
+# [Play Now](frontend-service-zmxlosghyt.now.sh)
+
+Continuously running zombie survial mode. Scales with the number of players
 
 # Realtime Infrastructure
 
 *  RxJS
 *  Phaser
+*  nginx
 *  React
 *  Feathers
 *  MongoDB

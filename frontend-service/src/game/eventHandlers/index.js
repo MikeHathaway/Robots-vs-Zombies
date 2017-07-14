@@ -12,6 +12,8 @@
 
 //http://www.gabrielgambetta.com/client-side-prediction-server-reconciliation.html
 
+
+
 import io from 'socket.io-client'
 import EventEmitter from 'event-emitter-es6'
 
@@ -21,7 +23,8 @@ import game from '../game'
 // let port = 'https://backend-service-zszkextbov.now.sh'
 // if(process.env.ENVIRONMENT === 'development') port = 'https://localhost:4000'
 
-const socket = io('http://localhost:4000')
+//'http://localhost:4000'
+const socket = io('https://backend-service-ewbtarfvys.now.sh')
 
 const playerObs = new EventEmitter()
 
@@ -31,6 +34,7 @@ function setEventHandlers(){
 
   socket.emit('test', {balls: 'balls'})
 
+  // trigger game start
   socket.emit('newPlayer', {x: game.startX, y: game.startY})
 
   socket.on('connect', onSocketConnected)
@@ -41,6 +45,7 @@ function setEventHandlers(){
   // New player message received
   socket.on('newPlayer', onNewPlayer)
 
+  // add enemies to the game
   socket.on('newEnemies', onNewEnemies)
 
   // Player move message received

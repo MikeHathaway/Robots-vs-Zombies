@@ -31,6 +31,8 @@ import {socket, setEventHandlers, playerObs} from './eventHandlers'
   const gameHeight = 800
   const score = 0
 
+  const enemyMap = []
+
 
   /* ----- Start Game Instance ----- */
     //formerly Phaser.AUTO for rendering; forcing Phaser.CANVAS to boost performacne
@@ -442,11 +444,18 @@ import {socket, setEventHandlers, playerObs} from './eventHandlers'
 
   //may need to rename to resolve naming collision
   function enemyOperations(enemyData){
-    console.log(enemyData)
-    enemyData.enemyList.forEach(enemy => {
-      enemies.add(new Enemy(game,enemy.x,enemy.y,enemy.type))
-      console.log('enemy: ', enemy, enemies)
-    })
+    // if(enemyMap.length <  enemyData.enemyList.length){
+    console.log('enemyData',enemyData)
+    if(enemyMap.length < 5){
+      enemyData.enemyList.forEach(enemy => {
+        const newEnemy = new Enemy(game,enemy.x,enemy.y,enemy.type)
+        enemies.add(newEnemy)
+        return enemyMap.push(newEnemy)
+        console.log('enemy: ', enemy, enemies)
+      })
+    }
+    // console.log('additional enemy data',enemyData)
+
   }
 
 

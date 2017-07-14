@@ -1942,6 +1942,8 @@ var gameWidth = 1000;
 var gameHeight = 800;
 var score = 0;
 
+var enemyMap = [];
+
 /* ----- Start Game Instance ----- */
 //formerly Phaser.AUTO for rendering; forcing Phaser.CANVAS to boost performacne
 var game = new Phaser.Game(gameWidth, gameHeight, Phaser.CANVAS, 'game-container', {
@@ -2324,11 +2326,17 @@ function addRemoteEnemies() {
 
 //may need to rename to resolve naming collision
 function enemyOperations(enemyData) {
-  console.log(enemyData);
-  enemyData.enemyList.forEach(function (enemy) {
-    enemies.add(new _enemy2.default(game, enemy.x, enemy.y, enemy.type));
-    console.log('enemy: ', enemy, enemies);
-  });
+  // if(enemyMap.length <  enemyData.enemyList.length){
+  console.log('enemyData', enemyData);
+  if (enemyMap.length < 5) {
+    enemyData.enemyList.forEach(function (enemy) {
+      var newEnemy = new _enemy2.default(game, enemy.x, enemy.y, enemy.type);
+      enemies.add(newEnemy);
+      return enemyMap.push(newEnemy);
+      console.log('enemy: ', enemy, enemies);
+    });
+  }
+  // console.log('additional enemy data',enemyData)
 }
 
 exports.default = game;
