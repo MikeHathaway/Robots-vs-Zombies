@@ -103,7 +103,7 @@ module.exports = g;
  * Expose `debug()` as the module.
  */
 
-exports = module.exports = __webpack_require__(33);
+exports = module.exports = __webpack_require__(32);
 exports.log = log;
 exports.formatArgs = formatArgs;
 exports.save = save;
@@ -283,7 +283,7 @@ function localstorage() {
   } catch (e) {}
 }
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(19)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(45)))
 
 /***/ }),
 /* 2 */
@@ -462,15 +462,15 @@ Emitter.prototype.hasListeners = function(event){
  * Module dependencies.
  */
 
-var keys = __webpack_require__(40);
+var keys = __webpack_require__(39);
 var hasBinary = __webpack_require__(15);
-var sliceBuffer = __webpack_require__(29);
-var after = __webpack_require__(28);
-var utf8 = __webpack_require__(41);
+var sliceBuffer = __webpack_require__(28);
+var after = __webpack_require__(27);
+var utf8 = __webpack_require__(40);
 
 var base64encoder;
 if (global && global.ArrayBuffer) {
-  base64encoder = __webpack_require__(31);
+  base64encoder = __webpack_require__(30);
 }
 
 /**
@@ -528,7 +528,7 @@ var err = { type: 'error', data: 'parser error' };
  * Create a blob api even for blob builder when vendor prefixes exist
  */
 
-var Blob = __webpack_require__(32);
+var Blob = __webpack_require__(31);
 
 /**
  * Encodes a packet.
@@ -1291,7 +1291,7 @@ Transport.prototype.onClose = function () {
 
 /* WEBPACK VAR INJECTION */(function(global) {// browser shim for xmlhttprequest module
 
-var hasCORS = __webpack_require__(43);
+var hasCORS = __webpack_require__(42);
 
 module.exports = function (opts) {
   var xdomain = opts.xdomain;
@@ -1342,7 +1342,7 @@ var debug = __webpack_require__(1)('socket.io-parser');
 var Emitter = __webpack_require__(2);
 var hasBin = __webpack_require__(15);
 var binary = __webpack_require__(48);
-var isBuf = __webpack_require__(23);
+var isBuf = __webpack_require__(22);
 
 /**
  * Protocol version.
@@ -1902,9 +1902,9 @@ var _bullet = __webpack_require__(9);
 
 var _bullet2 = _interopRequireDefault(_bullet);
 
-var _weapon = __webpack_require__(27);
+var _weapon = __webpack_require__(26);
 
-var _enemy = __webpack_require__(26);
+var _enemy = __webpack_require__(25);
 
 var _enemy2 = _interopRequireDefault(_enemy);
 
@@ -1912,7 +1912,7 @@ var _player = __webpack_require__(10);
 
 var _player2 = _interopRequireDefault(_player);
 
-var _eventHandlers = __webpack_require__(25);
+var _eventHandlers = __webpack_require__(24);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -2054,12 +2054,14 @@ function addEnemies() {
   var number = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 100;
 
   enemies = game.add.group();
+  _eventHandlers.socket.emit('newEnemies', { number: number, x: gameWidth, y: gameHeight });
 
   addZombie(number);
+}
 
-  /* ----- Generate Zombies FRP ----- */
-  // const source = Rx.Observable.interval(1000 /* ms */).timeInterval().take(5)
-  // const subscription = source.subscribe(addZombie,handleError)
+function triggerEnemySpawn() {
+  var source = Rx.Observable.interval(1000 /* ms */).timeInterval().take(5);
+  var subscription = source.subscribe(addZombie, handleError);
 }
 
 function addZombie(number) {
@@ -2221,7 +2223,7 @@ function hitPlayer(bullet, player) {
 }
 
 function checkEnemyActions() {
-  enemies.children.forEach(enemyOperations);
+  if (enemies) enemies.children.forEach(enemyOperations);
 }
 
 function enemyOperations(enemy) {
@@ -2266,9 +2268,7 @@ function shootPlayer() {
   _eventHandlers.playerObs.on('shootPlayer', shootOperation);
 }
 
-//data -> id, pid, x, y, v, r
-//functioning, but bullet rotation is currently locked to 0 as players dont rotate
-//angle, speed, this.body.velocity
+//remove velocity from angle to create a mine!!
 function shootOperation(data) {
   var player = game.playerMap[data.pid];
   var weapon = player.weapons.children[player.currentWeapon];
@@ -2323,6 +2323,14 @@ function removeOperations(removePlayer) {
   delete game.playerMap[removePlayer.id];
 }
 
+function addEnemies() {
+  _eventHandlers.playerObs.on('addEnemies', enemyOperations);
+}
+
+function enemyOperations(enemyData) {
+  console.log('Enemy Data:', enemyData);
+}
+
 exports.default = game;
 
 /***/ }),
@@ -2363,9 +2371,9 @@ module.exports = function(obj, fn){
  */
 
 var XMLHttpRequest = __webpack_require__(7);
-var XHR = __webpack_require__(38);
-var JSONP = __webpack_require__(37);
-var websocket = __webpack_require__(39);
+var XHR = __webpack_require__(37);
+var JSONP = __webpack_require__(36);
+var websocket = __webpack_require__(38);
 
 /**
  * Export transports.
@@ -2426,7 +2434,7 @@ var Transport = __webpack_require__(6);
 var parseqs = __webpack_require__(5);
 var parser = __webpack_require__(3);
 var inherit = __webpack_require__(4);
-var yeast = __webpack_require__(24);
+var yeast = __webpack_require__(23);
 var debug = __webpack_require__(1)('engine.io-client:polling');
 
 /**
@@ -2807,196 +2815,6 @@ module.exports = function parseuri(str) {
 
 /***/ }),
 /* 19 */
-/***/ (function(module, exports) {
-
-// shim for using process in browser
-var process = module.exports = {};
-
-// cached from whatever global is present so that test runners that stub it
-// don't break things.  But we need to wrap it in a try catch in case it is
-// wrapped in strict mode code which doesn't define any globals.  It's inside a
-// function because try/catches deoptimize in certain engines.
-
-var cachedSetTimeout;
-var cachedClearTimeout;
-
-function defaultSetTimout() {
-    throw new Error('setTimeout has not been defined');
-}
-function defaultClearTimeout () {
-    throw new Error('clearTimeout has not been defined');
-}
-(function () {
-    try {
-        if (typeof setTimeout === 'function') {
-            cachedSetTimeout = setTimeout;
-        } else {
-            cachedSetTimeout = defaultSetTimout;
-        }
-    } catch (e) {
-        cachedSetTimeout = defaultSetTimout;
-    }
-    try {
-        if (typeof clearTimeout === 'function') {
-            cachedClearTimeout = clearTimeout;
-        } else {
-            cachedClearTimeout = defaultClearTimeout;
-        }
-    } catch (e) {
-        cachedClearTimeout = defaultClearTimeout;
-    }
-} ())
-function runTimeout(fun) {
-    if (cachedSetTimeout === setTimeout) {
-        //normal enviroments in sane situations
-        return setTimeout(fun, 0);
-    }
-    // if setTimeout wasn't available but was latter defined
-    if ((cachedSetTimeout === defaultSetTimout || !cachedSetTimeout) && setTimeout) {
-        cachedSetTimeout = setTimeout;
-        return setTimeout(fun, 0);
-    }
-    try {
-        // when when somebody has screwed with setTimeout but no I.E. maddness
-        return cachedSetTimeout(fun, 0);
-    } catch(e){
-        try {
-            // When we are in I.E. but the script has been evaled so I.E. doesn't trust the global object when called normally
-            return cachedSetTimeout.call(null, fun, 0);
-        } catch(e){
-            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error
-            return cachedSetTimeout.call(this, fun, 0);
-        }
-    }
-
-
-}
-function runClearTimeout(marker) {
-    if (cachedClearTimeout === clearTimeout) {
-        //normal enviroments in sane situations
-        return clearTimeout(marker);
-    }
-    // if clearTimeout wasn't available but was latter defined
-    if ((cachedClearTimeout === defaultClearTimeout || !cachedClearTimeout) && clearTimeout) {
-        cachedClearTimeout = clearTimeout;
-        return clearTimeout(marker);
-    }
-    try {
-        // when when somebody has screwed with setTimeout but no I.E. maddness
-        return cachedClearTimeout(marker);
-    } catch (e){
-        try {
-            // When we are in I.E. but the script has been evaled so I.E. doesn't  trust the global object when called normally
-            return cachedClearTimeout.call(null, marker);
-        } catch (e){
-            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error.
-            // Some versions of I.E. have different rules for clearTimeout vs setTimeout
-            return cachedClearTimeout.call(this, marker);
-        }
-    }
-
-
-
-}
-var queue = [];
-var draining = false;
-var currentQueue;
-var queueIndex = -1;
-
-function cleanUpNextTick() {
-    if (!draining || !currentQueue) {
-        return;
-    }
-    draining = false;
-    if (currentQueue.length) {
-        queue = currentQueue.concat(queue);
-    } else {
-        queueIndex = -1;
-    }
-    if (queue.length) {
-        drainQueue();
-    }
-}
-
-function drainQueue() {
-    if (draining) {
-        return;
-    }
-    var timeout = runTimeout(cleanUpNextTick);
-    draining = true;
-
-    var len = queue.length;
-    while(len) {
-        currentQueue = queue;
-        queue = [];
-        while (++queueIndex < len) {
-            if (currentQueue) {
-                currentQueue[queueIndex].run();
-            }
-        }
-        queueIndex = -1;
-        len = queue.length;
-    }
-    currentQueue = null;
-    draining = false;
-    runClearTimeout(timeout);
-}
-
-process.nextTick = function (fun) {
-    var args = new Array(arguments.length - 1);
-    if (arguments.length > 1) {
-        for (var i = 1; i < arguments.length; i++) {
-            args[i - 1] = arguments[i];
-        }
-    }
-    queue.push(new Item(fun, args));
-    if (queue.length === 1 && !draining) {
-        runTimeout(drainQueue);
-    }
-};
-
-// v8 likes predictible objects
-function Item(fun, array) {
-    this.fun = fun;
-    this.array = array;
-}
-Item.prototype.run = function () {
-    this.fun.apply(null, this.array);
-};
-process.title = 'browser';
-process.browser = true;
-process.env = {};
-process.argv = [];
-process.version = ''; // empty string to avoid regexp issues
-process.versions = {};
-
-function noop() {}
-
-process.on = noop;
-process.addListener = noop;
-process.once = noop;
-process.off = noop;
-process.removeListener = noop;
-process.removeAllListeners = noop;
-process.emit = noop;
-process.prependListener = noop;
-process.prependOnceListener = noop;
-
-process.listeners = function (name) { return [] }
-
-process.binding = function (name) {
-    throw new Error('process.binding is not supported');
-};
-
-process.cwd = function () { return '/' };
-process.chdir = function (dir) {
-    throw new Error('process.chdir is not supported');
-};
-process.umask = function() { return 0; };
-
-
-/***/ }),
-/* 20 */
 /***/ (function(module, exports, __webpack_require__) {
 
 
@@ -3004,15 +2822,15 @@ process.umask = function() { return 0; };
  * Module dependencies.
  */
 
-var eio = __webpack_require__(34);
-var Socket = __webpack_require__(22);
+var eio = __webpack_require__(33);
+var Socket = __webpack_require__(21);
 var Emitter = __webpack_require__(2);
 var parser = __webpack_require__(8);
-var on = __webpack_require__(21);
+var on = __webpack_require__(20);
 var bind = __webpack_require__(12);
 var debug = __webpack_require__(1)('socket.io-client:manager');
 var indexOf = __webpack_require__(16);
-var Backoff = __webpack_require__(30);
+var Backoff = __webpack_require__(29);
 
 /**
  * IE6+ hasOwnProperty
@@ -3575,7 +3393,7 @@ Manager.prototype.onreconnect = function () {
 
 
 /***/ }),
-/* 21 */
+/* 20 */
 /***/ (function(module, exports) {
 
 
@@ -3605,7 +3423,7 @@ function on (obj, ev, fn) {
 
 
 /***/ }),
-/* 22 */
+/* 21 */
 /***/ (function(module, exports, __webpack_require__) {
 
 
@@ -3616,7 +3434,7 @@ function on (obj, ev, fn) {
 var parser = __webpack_require__(8);
 var Emitter = __webpack_require__(2);
 var toArray = __webpack_require__(49);
-var on = __webpack_require__(21);
+var on = __webpack_require__(20);
 var bind = __webpack_require__(12);
 var debug = __webpack_require__(1)('socket.io-client:socket');
 var parseqs = __webpack_require__(5);
@@ -4029,7 +3847,7 @@ Socket.prototype.compress = function (compress) {
 
 
 /***/ }),
-/* 23 */
+/* 22 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global) {
@@ -4049,7 +3867,7 @@ function isBuf(obj) {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 24 */
+/* 23 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4124,11 +3942,11 @@ module.exports = yeast;
 
 
 /***/ }),
-/* 25 */
+/* 24 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-/* WEBPACK VAR INJECTION */(function(process) {
+
 
 Object.defineProperty(exports, "__esModule", {
   value: true
@@ -4139,7 +3957,7 @@ var _socket = __webpack_require__(46);
 
 var _socket2 = _interopRequireDefault(_socket);
 
-var _eventEmitterEs = __webpack_require__(42);
+var _eventEmitterEs = __webpack_require__(41);
 
 var _eventEmitterEs2 = _interopRequireDefault(_eventEmitterEs);
 
@@ -4152,6 +3970,9 @@ var _game = __webpack_require__(11);
 var _game2 = _interopRequireDefault(_game);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+// let port = 'https://backend-service-zszkextbov.now.sh'
+// if(process.env.ENVIRONMENT === 'development') port = 'https://localhost:4000'
 
 //http://www.dynetisgames.com/2017/03/06/how-to-make-a-multiplayer-online-game-with-phaser-socket-io-and-node-js/
 //https://github.com/Jerenaux/basic-mmo-phaser/blob/master/js/client.js
@@ -4167,18 +3988,15 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 //http://www.gabrielgambetta.com/client-side-prediction-server-reconciliation.html
 
-var port = 'https://backend-service-zszkextbov.now.sh';
-if (process.env.ENVIRONMENT === 'development') port = 'https://localhost:4000';
-
-console.log(port);
-
-var socket = (0, _socket2.default)(port);
+var socket = (0, _socket2.default)('http://localhost:4000');
 
 var playerObs = new _eventEmitterEs2.default();
 
 var remotePlayers = [];
 
 function setEventHandlers() {
+
+  socket.emit('test', { balls: 'balls' });
 
   socket.emit('newPlayer', { x: _game2.default.startX, y: _game2.default.startY });
 
@@ -4190,7 +4008,7 @@ function setEventHandlers() {
   // New player message received
   socket.on('newPlayer', onNewPlayer);
 
-  socket.on('newEnemy', onNewEnemy);
+  socket.on('newEnemies', onNewEnemies);
 
   // Player move message received
   socket.on('movePlayer', onMovePlayer);
@@ -4239,19 +4057,9 @@ function localPlayer(game, data) {
   remotePlayers.push(newPlayer);
 }
 
-function onNewEnemy(data) {
-  var i = 0;
-  while (i++ < data.number) {
-    var newEnemy = new Enemy(_game2.default, gameWidth, gameHeight, 'zombie');
-  }
-}
-
-//change to game.enemies??
-function addZombie(number) {
-  var i = 0;
-  while (i++ < number) {
-    enemies.add(new Enemy(_game2.default, gameWidth, gameHeight, 'zombie'));
-  }
+function onNewEnemies(data) {
+  console.log('New Enemies: ', data);
+  playerObs.emit('addEnemies', data);
 }
 
 function onMovePlayer(data) {
@@ -4293,10 +4101,9 @@ function playerById(id) {
 exports.socket = socket;
 exports.setEventHandlers = setEventHandlers;
 exports.playerObs = playerObs;
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(19)))
 
 /***/ }),
-/* 26 */
+/* 25 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4388,7 +4195,7 @@ function genMovement(factor) {
 exports.default = Enemy;
 
 /***/ }),
-/* 27 */
+/* 26 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4497,7 +4304,7 @@ var LazerBeam = exports.LazerBeam = function (_Weapon2) {
 }(Weapon);
 
 /***/ }),
-/* 28 */
+/* 27 */
 /***/ (function(module, exports) {
 
 module.exports = after
@@ -4531,7 +4338,7 @@ function noop() {}
 
 
 /***/ }),
-/* 29 */
+/* 28 */
 /***/ (function(module, exports) {
 
 /**
@@ -4566,7 +4373,7 @@ module.exports = function(arraybuffer, start, end) {
 
 
 /***/ }),
-/* 30 */
+/* 29 */
 /***/ (function(module, exports) {
 
 
@@ -4657,7 +4464,7 @@ Backoff.prototype.setJitter = function(jitter){
 
 
 /***/ }),
-/* 31 */
+/* 30 */
 /***/ (function(module, exports) {
 
 /*
@@ -4730,7 +4537,7 @@ Backoff.prototype.setJitter = function(jitter){
 
 
 /***/ }),
-/* 32 */
+/* 31 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global) {/**
@@ -4833,7 +4640,7 @@ module.exports = (function() {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 33 */
+/* 32 */
 /***/ (function(module, exports, __webpack_require__) {
 
 
@@ -4849,7 +4656,7 @@ exports.coerce = coerce;
 exports.disable = disable;
 exports.enable = enable;
 exports.enabled = enabled;
-exports.humanize = __webpack_require__(44);
+exports.humanize = __webpack_require__(43);
 
 /**
  * The currently active debug mode names, and names to skip.
@@ -5041,19 +4848,19 @@ function coerce(val) {
 
 
 /***/ }),
+/* 33 */
+/***/ (function(module, exports, __webpack_require__) {
+
+
+module.exports = __webpack_require__(34);
+
+
+/***/ }),
 /* 34 */
 /***/ (function(module, exports, __webpack_require__) {
 
 
 module.exports = __webpack_require__(35);
-
-
-/***/ }),
-/* 35 */
-/***/ (function(module, exports, __webpack_require__) {
-
-
-module.exports = __webpack_require__(36);
 
 /**
  * Exports parser
@@ -5065,7 +4872,7 @@ module.exports.parser = __webpack_require__(3);
 
 
 /***/ }),
-/* 36 */
+/* 35 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global) {/**
@@ -5078,7 +4885,7 @@ var debug = __webpack_require__(1)('engine.io-client:socket');
 var index = __webpack_require__(16);
 var parser = __webpack_require__(3);
 var parseuri = __webpack_require__(18);
-var parsejson = __webpack_require__(45);
+var parsejson = __webpack_require__(44);
 var parseqs = __webpack_require__(5);
 
 /**
@@ -5816,7 +5623,7 @@ Socket.prototype.filterUpgrades = function (upgrades) {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 37 */
+/* 36 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global) {
@@ -6054,7 +5861,7 @@ JSONPPolling.prototype.doWrite = function (data, fn) {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 38 */
+/* 37 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global) {/**
@@ -6474,7 +6281,7 @@ function unloadHandler () {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 39 */
+/* 38 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global) {/**
@@ -6485,7 +6292,7 @@ var Transport = __webpack_require__(6);
 var parser = __webpack_require__(3);
 var parseqs = __webpack_require__(5);
 var inherit = __webpack_require__(4);
-var yeast = __webpack_require__(24);
+var yeast = __webpack_require__(23);
 var debug = __webpack_require__(1)('engine.io-client:websocket');
 var BrowserWebSocket = global.WebSocket || global.MozWebSocket;
 var NodeWebSocket;
@@ -6767,7 +6574,7 @@ WS.prototype.check = function () {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 40 */
+/* 39 */
 /***/ (function(module, exports) {
 
 
@@ -6792,7 +6599,7 @@ module.exports = Object.keys || function keys (obj){
 
 
 /***/ }),
-/* 41 */
+/* 40 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(module, global) {var __WEBPACK_AMD_DEFINE_RESULT__;/*! https://mths.be/utf8js v2.1.2 by @mathias */
@@ -7053,7 +6860,7 @@ module.exports = Object.keys || function keys (obj){
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(50)(module), __webpack_require__(0)))
 
 /***/ }),
-/* 42 */
+/* 41 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -7309,7 +7116,7 @@ module.exports = EventEmitter;
 
 
 /***/ }),
-/* 43 */
+/* 42 */
 /***/ (function(module, exports) {
 
 
@@ -7332,7 +7139,7 @@ try {
 
 
 /***/ }),
-/* 44 */
+/* 43 */
 /***/ (function(module, exports) {
 
 /**
@@ -7490,7 +7297,7 @@ function plural(ms, n, name) {
 
 
 /***/ }),
-/* 45 */
+/* 44 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global) {/**
@@ -7528,6 +7335,196 @@ module.exports = function parsejson(data) {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
+/* 45 */
+/***/ (function(module, exports) {
+
+// shim for using process in browser
+var process = module.exports = {};
+
+// cached from whatever global is present so that test runners that stub it
+// don't break things.  But we need to wrap it in a try catch in case it is
+// wrapped in strict mode code which doesn't define any globals.  It's inside a
+// function because try/catches deoptimize in certain engines.
+
+var cachedSetTimeout;
+var cachedClearTimeout;
+
+function defaultSetTimout() {
+    throw new Error('setTimeout has not been defined');
+}
+function defaultClearTimeout () {
+    throw new Error('clearTimeout has not been defined');
+}
+(function () {
+    try {
+        if (typeof setTimeout === 'function') {
+            cachedSetTimeout = setTimeout;
+        } else {
+            cachedSetTimeout = defaultSetTimout;
+        }
+    } catch (e) {
+        cachedSetTimeout = defaultSetTimout;
+    }
+    try {
+        if (typeof clearTimeout === 'function') {
+            cachedClearTimeout = clearTimeout;
+        } else {
+            cachedClearTimeout = defaultClearTimeout;
+        }
+    } catch (e) {
+        cachedClearTimeout = defaultClearTimeout;
+    }
+} ())
+function runTimeout(fun) {
+    if (cachedSetTimeout === setTimeout) {
+        //normal enviroments in sane situations
+        return setTimeout(fun, 0);
+    }
+    // if setTimeout wasn't available but was latter defined
+    if ((cachedSetTimeout === defaultSetTimout || !cachedSetTimeout) && setTimeout) {
+        cachedSetTimeout = setTimeout;
+        return setTimeout(fun, 0);
+    }
+    try {
+        // when when somebody has screwed with setTimeout but no I.E. maddness
+        return cachedSetTimeout(fun, 0);
+    } catch(e){
+        try {
+            // When we are in I.E. but the script has been evaled so I.E. doesn't trust the global object when called normally
+            return cachedSetTimeout.call(null, fun, 0);
+        } catch(e){
+            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error
+            return cachedSetTimeout.call(this, fun, 0);
+        }
+    }
+
+
+}
+function runClearTimeout(marker) {
+    if (cachedClearTimeout === clearTimeout) {
+        //normal enviroments in sane situations
+        return clearTimeout(marker);
+    }
+    // if clearTimeout wasn't available but was latter defined
+    if ((cachedClearTimeout === defaultClearTimeout || !cachedClearTimeout) && clearTimeout) {
+        cachedClearTimeout = clearTimeout;
+        return clearTimeout(marker);
+    }
+    try {
+        // when when somebody has screwed with setTimeout but no I.E. maddness
+        return cachedClearTimeout(marker);
+    } catch (e){
+        try {
+            // When we are in I.E. but the script has been evaled so I.E. doesn't  trust the global object when called normally
+            return cachedClearTimeout.call(null, marker);
+        } catch (e){
+            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error.
+            // Some versions of I.E. have different rules for clearTimeout vs setTimeout
+            return cachedClearTimeout.call(this, marker);
+        }
+    }
+
+
+
+}
+var queue = [];
+var draining = false;
+var currentQueue;
+var queueIndex = -1;
+
+function cleanUpNextTick() {
+    if (!draining || !currentQueue) {
+        return;
+    }
+    draining = false;
+    if (currentQueue.length) {
+        queue = currentQueue.concat(queue);
+    } else {
+        queueIndex = -1;
+    }
+    if (queue.length) {
+        drainQueue();
+    }
+}
+
+function drainQueue() {
+    if (draining) {
+        return;
+    }
+    var timeout = runTimeout(cleanUpNextTick);
+    draining = true;
+
+    var len = queue.length;
+    while(len) {
+        currentQueue = queue;
+        queue = [];
+        while (++queueIndex < len) {
+            if (currentQueue) {
+                currentQueue[queueIndex].run();
+            }
+        }
+        queueIndex = -1;
+        len = queue.length;
+    }
+    currentQueue = null;
+    draining = false;
+    runClearTimeout(timeout);
+}
+
+process.nextTick = function (fun) {
+    var args = new Array(arguments.length - 1);
+    if (arguments.length > 1) {
+        for (var i = 1; i < arguments.length; i++) {
+            args[i - 1] = arguments[i];
+        }
+    }
+    queue.push(new Item(fun, args));
+    if (queue.length === 1 && !draining) {
+        runTimeout(drainQueue);
+    }
+};
+
+// v8 likes predictible objects
+function Item(fun, array) {
+    this.fun = fun;
+    this.array = array;
+}
+Item.prototype.run = function () {
+    this.fun.apply(null, this.array);
+};
+process.title = 'browser';
+process.browser = true;
+process.env = {};
+process.argv = [];
+process.version = ''; // empty string to avoid regexp issues
+process.versions = {};
+
+function noop() {}
+
+process.on = noop;
+process.addListener = noop;
+process.once = noop;
+process.off = noop;
+process.removeListener = noop;
+process.removeAllListeners = noop;
+process.emit = noop;
+process.prependListener = noop;
+process.prependOnceListener = noop;
+
+process.listeners = function (name) { return [] }
+
+process.binding = function (name) {
+    throw new Error('process.binding is not supported');
+};
+
+process.cwd = function () { return '/' };
+process.chdir = function (dir) {
+    throw new Error('process.chdir is not supported');
+};
+process.umask = function() { return 0; };
+
+
+/***/ }),
 /* 46 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -7538,7 +7535,7 @@ module.exports = function parsejson(data) {
 
 var url = __webpack_require__(47);
 var parser = __webpack_require__(8);
-var Manager = __webpack_require__(20);
+var Manager = __webpack_require__(19);
 var debug = __webpack_require__(1)('socket.io-client');
 
 /**
@@ -7623,8 +7620,8 @@ exports.connect = lookup;
  * @api public
  */
 
-exports.Manager = __webpack_require__(20);
-exports.Socket = __webpack_require__(22);
+exports.Manager = __webpack_require__(19);
+exports.Socket = __webpack_require__(21);
 
 
 /***/ }),
@@ -7720,7 +7717,7 @@ function url (uri, loc) {
  */
 
 var isArray = __webpack_require__(17);
-var isBuf = __webpack_require__(23);
+var isBuf = __webpack_require__(22);
 var toString = Object.prototype.toString;
 var withNativeBlob = typeof global.Blob === 'function' || toString.call(global.Blob) === '[object BlobConstructor]';
 var withNativeFile = typeof global.File === 'function' || toString.call(global.File) === '[object FileConstructor]';

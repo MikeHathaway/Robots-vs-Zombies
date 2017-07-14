@@ -18,18 +18,18 @@ import EventEmitter from 'event-emitter-es6'
 import Player from '../models/player'
 import game from '../game'
 
-let port = 'https://backend-service-zszkextbov.now.sh'
-if(process.env.ENVIRONMENT === 'development') port = 'https://localhost:4000'
+// let port = 'https://backend-service-zszkextbov.now.sh'
+// if(process.env.ENVIRONMENT === 'development') port = 'https://localhost:4000'
 
-console.log(port)
-
-const socket = io(port)
+const socket = io('http://localhost:4000')
 
 const playerObs = new EventEmitter()
 
 const remotePlayers = []
 
 function setEventHandlers(){
+
+  socket.emit('test', {balls: 'balls'})
 
   socket.emit('newPlayer', {x: game.startX, y: game.startY})
 
@@ -41,7 +41,7 @@ function setEventHandlers(){
   // New player message received
   socket.on('newPlayer', onNewPlayer)
 
-  socket.on('newEnemy', onNewEnemy)
+  socket.on('newEnemies', onNewEnemies)
 
   // Player move message received
   socket.on('movePlayer', onMovePlayer)
@@ -92,19 +92,9 @@ function localPlayer(game,data){
 }
 
 
-function onNewEnemy(data){
-  let i = 0
-  while(i++ < data.number){
-    const newEnemy = new Enemy(game,gameWidth,gameHeight,'zombie')
-  }
-}
-
-//change to game.enemies??
-function addZombie(number){
-  let i = 0
-  while(i++ < number){
-    enemies.add(new Enemy(game,gameWidth,gameHeight,'zombie'))
-  }
+function onNewEnemies(data){
+  console.log('New Enemies: ',data)
+  playerObs.emit('addEnemies', data)
 }
 
 

@@ -149,12 +149,14 @@ import {socket, setEventHandlers, playerObs} from './eventHandlers'
   //https://leanpub.com/html5shootemupinanafternoon/read <- info on randomizing enemy spawn
   function addEnemies(number = 100){
     enemies = game.add.group()
+    socket.emit('newEnemies',{number: number, x: gameWidth, y: gameHeight})
 
-    addZombie(number)
+    // addZombie(number)
+  }
 
-    /* ----- Generate Zombies FRP ----- */
-    // const source = Rx.Observable.interval(1000 /* ms */).timeInterval().take(5)
-    // const subscription = source.subscribe(addZombie,handleError)
+  function triggerEnemySpawn(){
+    const source = Rx.Observable.interval(1000 /* ms */).timeInterval().take(5)
+    const subscription = source.subscribe(addZombie,handleError)
   }
 
   function addZombie(number){
@@ -329,7 +331,7 @@ import {socket, setEventHandlers, playerObs} from './eventHandlers'
   }
 
   function checkEnemyActions(){
-    enemies.children.forEach(enemyOperations)
+    if(enemies) enemies.children.forEach(enemyOperations)
   }
 
   function enemyOperations(enemy){
@@ -383,9 +385,7 @@ import {socket, setEventHandlers, playerObs} from './eventHandlers'
     playerObs.on('shootPlayer', shootOperation)
   }
 
-    //data -> id, pid, x, y, v, r
-    //functioning, but bullet rotation is currently locked to 0 as players dont rotate
-    //angle, speed, this.body.velocity
+  //remove velocity from angle to create a mine!!
   function shootOperation(data){
     const player = game.playerMap[data.pid];
     const weapon = player.weapons.children[player.currentWeapon]
@@ -439,6 +439,15 @@ import {socket, setEventHandlers, playerObs} from './eventHandlers'
   function removeOperations(removePlayer){
     removePlayer.kill()
     delete game.playerMap[removePlayer.id]
+  }
+
+
+  function addEnemies(){
+    playerObs.on('addEnemies', enemyOperations)
+  }
+
+  function enemyOperations(enemyData){
+    console.log('Enemy Data:', enemyData)
   }
 
 

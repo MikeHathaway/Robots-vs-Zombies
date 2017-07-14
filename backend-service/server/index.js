@@ -4,7 +4,7 @@ const io = require('socket.io').listen(server)
 
 const Player = require('./models/Player').Player
 const Bullet = require('./models/Bullet').Bullet
-const Enemy = require('./models/Bullet').Enemy
+const Enemy = require('./models/Enemy').Enemy
 
 const players = []
 const bullets = []
@@ -54,12 +54,19 @@ function onNewPlayer(data) {
 
 
 function onNewEnemies(data){
-  const newEnemy = new Enemy(data.x, data.y)
-  newEnemy.id = server.lastEnemyId++
-
-  io.sockets.emit('newEnemy', {id: newEnemy.id, x: newEnemy.x, y: newEnemy.y})
-
-  enemies.push(newEnemy)
+  console.log(enemies.length)
+  //ensure that enemies are only added once
+  if(enemies.length === 0){
+    let currentNum = 0
+    console.log(data, server.lastEnemyId)
+    while(currentNum++ < data.number){
+      const newEnemy = new Enemy(server.lastEnemyId, data.x, data.y)
+      server.lastEnemyId++
+      enemies.push(newEnemy)
+    }
+  }
+  // io.sockets.emit('newEnemy', {id: newEnemy.id, x: newEnemy.x, y: newEnemy.y})
+  io.sockets.emit('newEnemies', {enemies: enemies})
 }
 
 
@@ -103,6 +110,9 @@ function onSocketDisconnect() {
 }
 
 
+
+
+
 setInterval (function () {
     // For each Players go through the bullets if any contact report.
 	for (let i=0; i < bullets.length; ++i){
@@ -134,6 +144,8 @@ setInterval (function () {
 			    {x1:Math.min(p1.x,p2.x),x2:Math.max(p1.x,p2.x),
            y1:Math.min(p1.y,p2.y), y2:Math.max(p1.y, p2.y)}))
 			{
+
+        /*  MODIFY PLAYER HIT TO ENEMY HIT!! */
 				bullet.hid = player.id;
 				console.log("PLAYER HIT!!!!!!!");
 				const packet = {bullet: bullet, targetHealth: --player.health, srcScore: ++player.score};
