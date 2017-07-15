@@ -7,11 +7,14 @@
 //https://gamedevelopment.tutsplus.com/tutorials/creating-isometric-worlds-primer-for-game-developers-updated--cms-28392
   // ^includes a really cool minimap
 
+//https://gamedevacademy.org/how-to-make-an-infinitely-scrolling-game-with-phaser/
+
 /* ----- Phaser Dependencies ----- */
 import Bullet from './models/bullet'
 import {SingleBullet, LazerBeam} from './models/weapon'
 import Enemy from './models/enemy'
 import Player from './models/player'
+import mainMenu from './mainMenu'
 
 /* ----- Server Dependencies ----- */
 import {socket, setEventHandlers, playerObs} from './eventHandlers'
@@ -57,6 +60,9 @@ import {socket, setEventHandlers, playerObs} from './eventHandlers'
   function preload(){
     game.load.crossOrigin = 'anonymous'
 
+    game.load.image('preloadbar', 'assets/preloader-bar.png');
+    game.load.image('space', 'assets/space.png');
+
     game.load.tilemap('desert', './assets/tilemaps/desert.json', null, Phaser.Tilemap.TILED_JSON)
     game.load.tilemap('forest', './assets/tilemaps/forest.json', null, Phaser.Tilemap.TILED_JSON)
     game.load.image('forestTiles', './assets/tilemaps/trees-and-bushes.png')
@@ -70,9 +76,14 @@ import {socket, setEventHandlers, playerObs} from './eventHandlers'
   }
 
   function create(){
+    // mainMenu()
+
     game.physics.startSystem(Phaser.Physics.ARCADE)
     // game.world.setBounds(-1000, -1000, 2000, 2000)
     game.playerMap = {}
+    game.scale.pageAlignHorizontally = true;
+    this.scale.pageAlignVertically = true;
+
 
     addMap('desert') // specify map can be: ['desert', 'forest']
     addEnemies(numEnemies) //specify number of enemies to be added
@@ -120,6 +131,26 @@ import {socket, setEventHandlers, playerObs} from './eventHandlers'
    =============== CREATE FUNCTIONS ===============
 
    =============== =============== =============== */
+
+  // function mainMenu(){
+  //   game.background = game.add.tileSprite(0, 0, game.width, game.height, 'space');
+  //
+  //   //give it speed in x
+  //   game.background.autoScroll(-20, 0);
+  //
+  //   //start game text
+  //   let text = "Tap to begin";
+  //   let style = { font: "30px Arial", fill: "#fff", align: "center" };
+  //   const t = game.add.text(game.width/2, game.height/2, text, style);
+  //   t.anchor.set(0.5);
+  //
+  //   //highest score
+  //   text = "Highest score: "+game.score;
+  //   style = { font: "15px Arial", fill: "#fff", align: "center" };
+  //
+  //   const h = game.add.text(game.width/2, game.height/2 + 50, text, style);
+  //   h.anchor.set(0.5);
+  // }
 
   function addInputs(){
     cursors = game.input.keyboard.createCursorKeys()
