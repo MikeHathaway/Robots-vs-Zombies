@@ -9,12 +9,17 @@
 
 //https://gamedevacademy.org/how-to-make-an-infinitely-scrolling-game-with-phaser/
 
+//http://perplexingtech.weebly.com/game-dev-blog/using-states-in-phaserjs-javascript-game-developement
+
 /* ----- Phaser Dependencies ----- */
 import Bullet from './models/bullet'
 import {SingleBullet, LazerBeam} from './models/weapon'
 import Enemy from './models/enemy'
 import Player from './models/player'
-import mainMenu from './mainMenu'
+
+
+/* ----- State Dependencies ----- */
+import {mainMenu, waitForInput} from './states/mainMenu'
 
 /* ----- Server Dependencies ----- */
 import {socket, setEventHandlers, playerObs} from './eventHandlers'
@@ -76,14 +81,10 @@ import {socket, setEventHandlers, playerObs} from './eventHandlers'
   }
 
   function create(){
-    // mainMenu()
+    console.log('main menu', mainMenu)
+    mainMenu()
 
-    game.physics.startSystem(Phaser.Physics.ARCADE)
-    // game.world.setBounds(-1000, -1000, 2000, 2000)
-    game.playerMap = {}
-    game.scale.pageAlignHorizontally = true;
-    this.scale.pageAlignVertically = true;
-
+    configureGame()
 
     addMap('desert') // specify map can be: ['desert', 'forest']
     addEnemies(numEnemies) //specify number of enemies to be added
@@ -102,6 +103,7 @@ import {socket, setEventHandlers, playerObs} from './eventHandlers'
   }
 
   function update(){
+    waitForInput()
 
     if (localPlayer) checkEnemyActions()
     if (localPlayer) checkPlayerInputs(localPlayer)
@@ -132,25 +134,14 @@ import {socket, setEventHandlers, playerObs} from './eventHandlers'
 
    =============== =============== =============== */
 
-  // function mainMenu(){
-  //   game.background = game.add.tileSprite(0, 0, game.width, game.height, 'space');
-  //
-  //   //give it speed in x
-  //   game.background.autoScroll(-20, 0);
-  //
-  //   //start game text
-  //   let text = "Tap to begin";
-  //   let style = { font: "30px Arial", fill: "#fff", align: "center" };
-  //   const t = game.add.text(game.width/2, game.height/2, text, style);
-  //   t.anchor.set(0.5);
-  //
-  //   //highest score
-  //   text = "Highest score: "+game.score;
-  //   style = { font: "15px Arial", fill: "#fff", align: "center" };
-  //
-  //   const h = game.add.text(game.width/2, game.height/2 + 50, text, style);
-  //   h.anchor.set(0.5);
-  // }
+  function configureGame(){
+    game.physics.startSystem(Phaser.Physics.ARCADE)
+    game.forceSingleUpdate = true //suggested sync config
+    // game.world.setBounds(-1000, -1000, 2000, 2000)
+    game.playerMap = {}
+    game.scale.pageAlignHorizontally = true;
+    game.scale.pageAlignVertically = true;
+  }
 
   function addInputs(){
     cursors = game.input.keyboard.createCursorKeys()
@@ -361,7 +352,7 @@ import {socket, setEventHandlers, playerObs} from './eventHandlers'
 
   function enemyOperations(enemy){
     enemy.isAlive()
-    enemy.move(game,enemy,localPlayer)
+    // enemy.move(game,enemy,localPlayer)
     sendEnemyMovement(enemy)
   }
 
@@ -469,7 +460,24 @@ import {socket, setEventHandlers, playerObs} from './eventHandlers'
 
 
   function sendEnemyMovement(enemy){
+    identifyNextPosition(enemy)
     socket.emit('moveEnemy',{id: enemy.id, x: enemy.body.x, y: enemy.body.y})
+  }
+
+  function identifyNextPosition(enemy){
+    const enemyRange = enemy.speed * 10
+
+    for(let pid in game.playerMap){
+      const player = game.playerMap[pid]
+      if(Math.floor(Math.random() * 2) === 1){
+        if((Math.floor(enemy.body.x) - Math.floor(player.body.x)) < enemyRange) return enemy.body.x += enemy.speed
+        if((Math.floor(enemy.body.x) + Math.floor(player.body.x)) > enemyRange) return enemy.body.x -= enemy.speed
+      }
+      else {
+        if((Math.floor(enemy.body.y) - Math.floor(player.body.y)) < enemyRange) return enemy.body.y += enemy.speed
+        if((Math.floor(enemy.body.y) + Math.floor(player.body.y)) > enemyRange) return enemy.body.y -= enemy.speed
+      }
+    }
   }
 
   function moveEnemy(){
@@ -478,6 +486,15 @@ import {socket, setEventHandlers, playerObs} from './eventHandlers'
 
   function moveEnemyOperation(moveEnemy){
     console.log('moveEnemyOperation', moveEnemy)
+    const enemy = moveEnemy.enemy
+    const xCord = moveEnemy.data.x
+    const yCord = moveEnemy.data.y
+
+    const distance = Phaser.Math.distance(enemy.x,enemy.y,xCord,yCord)
+    const tween = game.add.tween(enemy)
+    // const duration = distance*10
+    tween.to({x:xCord,y:yCord}, 0) //formerly duration
+    tween.start()
   }
 
 

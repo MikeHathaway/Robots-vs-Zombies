@@ -1,6 +1,6 @@
 // Found at: https://github.com/crisu83/capthatflag/blob/feature/phaser-server/server/app/phaser.js
 
-const Canvas = require('canvas')
+const Canvas = require('canvas') //need to reinstall canvas
 const jsdom = require('jsdom')
 const { JSDOM } = jsdom;
 // const document = jsdom.jsdom(null)

@@ -23,8 +23,8 @@ import game from '../game'
 // let port = 'https://backend-service-ewbtarfvys.now.sh'
 // if(process.env.ENVIRONMENT === 'development') port = 'https://localhost:4000'
 
-//
-const socket = io('http://localhost:4000')
+//'http://localhost:4000'
+const socket = io('https://backend-service-ahfvrxigmx.now.sh')
 
 const playerObs = new EventEmitter()
 

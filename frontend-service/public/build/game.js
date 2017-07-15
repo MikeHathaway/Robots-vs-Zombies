@@ -1137,9 +1137,9 @@ var _bullet = __webpack_require__(10);
 
 var _bullet2 = _interopRequireDefault(_bullet);
 
-var _weapon = __webpack_require__(27);
+var _weapon = __webpack_require__(26);
 
-var _enemy = __webpack_require__(26);
+var _enemy = __webpack_require__(25);
 
 var _enemy2 = _interopRequireDefault(_enemy);
 
@@ -1147,15 +1147,16 @@ var _player = __webpack_require__(11);
 
 var _player2 = _interopRequireDefault(_player);
 
-var _mainMenu = __webpack_require__(25);
-
-var _mainMenu2 = _interopRequireDefault(_mainMenu);
+var _mainMenu = __webpack_require__(27);
 
 var _eventHandlers = __webpack_require__(24);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 /* ----- Declares global variables ----- */
+
+
+/* ----- State Dependencies ----- */
 // minimap guide
 //http://www.html5gamedevs.com/topic/14182-creating-a-mini-map-in-phaser/
 
@@ -1166,6 +1167,8 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 // ^includes a really cool minimap
 
 //https://gamedevacademy.org/how-to-make-an-infinitely-scrolling-game-with-phaser/
+
+//http://perplexingtech.weebly.com/game-dev-blog/using-states-in-phaserjs-javascript-game-developement
 
 /* ----- Phaser Dependencies ----- */
 var map = void 0,
@@ -1223,13 +1226,10 @@ function preload() {
 }
 
 function create() {
-  // mainMenu()
+  console.log('main menu', _mainMenu.mainMenu);
+  (0, _mainMenu.mainMenu)();
 
-  game.physics.startSystem(Phaser.Physics.ARCADE);
-  // game.world.setBounds(-1000, -1000, 2000, 2000)
-  game.playerMap = {};
-  game.scale.pageAlignHorizontally = true;
-  this.scale.pageAlignVertically = true;
+  configureGame();
 
   addMap('desert'); // specify map can be: ['desert', 'forest']
   addEnemies(numEnemies); //specify number of enemies to be added
@@ -1248,6 +1248,7 @@ function create() {
 }
 
 function update() {
+  (0, _mainMenu.waitForInput)();
 
   if (localPlayer) checkEnemyActions();
   if (localPlayer) checkPlayerInputs(localPlayer);
@@ -1272,25 +1273,14 @@ function render() {
   =============== CREATE FUNCTIONS ===============
   =============== =============== =============== */
 
-// function mainMenu(){
-//   game.background = game.add.tileSprite(0, 0, game.width, game.height, 'space');
-//
-//   //give it speed in x
-//   game.background.autoScroll(-20, 0);
-//
-//   //start game text
-//   let text = "Tap to begin";
-//   let style = { font: "30px Arial", fill: "#fff", align: "center" };
-//   const t = game.add.text(game.width/2, game.height/2, text, style);
-//   t.anchor.set(0.5);
-//
-//   //highest score
-//   text = "Highest score: "+game.score;
-//   style = { font: "15px Arial", fill: "#fff", align: "center" };
-//
-//   const h = game.add.text(game.width/2, game.height/2 + 50, text, style);
-//   h.anchor.set(0.5);
-// }
+function configureGame() {
+  game.physics.startSystem(Phaser.Physics.ARCADE);
+  game.forceSingleUpdate = true; //suggested sync config
+  // game.world.setBounds(-1000, -1000, 2000, 2000)
+  game.playerMap = {};
+  game.scale.pageAlignHorizontally = true;
+  game.scale.pageAlignVertically = true;
+}
 
 function addInputs() {
   cursors = game.input.keyboard.createCursorKeys();
@@ -1491,7 +1481,7 @@ function checkEnemyActions() {
 
 function enemyOperations(enemy) {
   enemy.isAlive();
-  enemy.move(game, enemy, localPlayer);
+  // enemy.move(game,enemy,localPlayer)
   sendEnemyMovement(enemy);
 }
 
@@ -1587,7 +1577,36 @@ function movePlayerOperation(movePlayer) {
 }
 
 function sendEnemyMovement(enemy) {
+  identifyNextPosition(enemy);
   _eventHandlers.socket.emit('moveEnemy', { id: enemy.id, x: enemy.body.x, y: enemy.body.y });
+}
+
+function identifyNextPosition(enemy) {
+  var enemyRange = enemy.speed * 10;
+
+  for (var pid in game.playerMap) {
+    var player = game.playerMap[pid];
+    if (Math.floor(Math.random() * 2) === 1) {
+      if (Math.floor(enemy.body.x) - Math.floor(player.body.x) < enemyRange) return enemy.body.x += enemy.speed;
+      if (Math.floor(enemy.body.x) + Math.floor(player.body.x) > enemyRange) return enemy.body.x -= enemy.speed;
+    } else {
+      if (Math.floor(enemy.body.y) - Math.floor(player.body.y) < enemyRange) return enemy.body.y += enemy.speed;
+      if (Math.floor(enemy.body.y) + Math.floor(player.body.y) > enemyRange) return enemy.body.y -= enemy.speed;
+    }
+    // else {
+    //   if(Math.floor(Math.random() * 2) === 1) return genMovement(enemy.body.x)
+    //   else{
+    //     return genMovement(enemy.body.y)
+    //   }
+    // }
+  }
+}
+
+function genMovement(factor, speed) {
+  if (Math.floor(Math.random() * 2) === 1) {
+    return Math.floor(factor * (Math.round(Math.random()) * speed));
+  }
+  return Math.floor(factor * (Math.round(Math.random()) * speed)) * -1;
 }
 
 function moveEnemy() {
@@ -1596,6 +1615,15 @@ function moveEnemy() {
 
 function moveEnemyOperation(moveEnemy) {
   console.log('moveEnemyOperation', moveEnemy);
+  var enemy = moveEnemy.enemy;
+  var xCord = moveEnemy.data.x;
+  var yCord = moveEnemy.data.y;
+
+  var distance = Phaser.Math.distance(enemy.x, enemy.y, xCord, yCord);
+  var tween = game.add.tween(enemy);
+  // const duration = distance*10
+  tween.to({ x: xCord, y: yCord }, 0); //formerly duration
+  tween.start();
 }
 
 function checkRemovePlayer() {
@@ -4207,58 +4235,6 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _game = __webpack_require__(6);
-
-var _game2 = _interopRequireDefault(_game);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-var mainMenu = _game2.default.MainMenu.prototype = {
-  //give it speed in x
-  create: function create() {
-    //show the space tile, repeated
-    this.background = this.game.add.tileSprite(0, 0, this.game.width, this.game.height, 'space');
-
-    //give it speed in x
-    this.background.autoScroll(-20, 0);
-
-    //start game text
-    var text = "Tap to begin";
-    var style = { font: "30px Arial", fill: "#fff", align: "center" };
-    var t = this.game.add.text(this.game.width / 2, this.game.height / 2, text, style);
-    t.anchor.set(0.5);
-
-    //highest score
-    text = "Highest score: " + this.highestScore;
-    style = { font: "15px Arial", fill: "#fff", align: "center" };
-
-    var h = this.game.add.text(this.game.width / 2, this.game.height / 2 + 50, text, style);
-    h.anchor.set(0.5);
-  },
-  update: function update() {
-    if (this.game.input.activePointer.justPressed()) {
-      this.game.state.start('Game');
-    }
-  }
-};
-
-undefined.background = undefined.game.add.tileSprite(0, 0, undefined.game.width, undefined.game.height, 'space');
-
-undefined.background.autoScroll(-20, 0);
-
-exports.default = mainMenu;
-
-/***/ }),
-/* 26 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -4342,7 +4318,7 @@ function genMovement(factor) {
 exports.default = Enemy;
 
 /***/ }),
-/* 27 */
+/* 26 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4449,6 +4425,51 @@ var LazerBeam = exports.LazerBeam = function (_Weapon2) {
 
   return LazerBeam;
 }(Weapon);
+
+/***/ }),
+/* 27 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.mainMenu = mainMenu;
+exports.waitForInput = waitForInput;
+
+var _game = __webpack_require__(6);
+
+var _game2 = _interopRequireDefault(_game);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function mainMenu() {
+  _game2.default.background = _game2.default.add.tileSprite(0, 0, _game2.default.width, _game2.default.height, 'space');
+
+  //give it speed in x
+  _game2.default.background.autoScroll(-20, 0);
+
+  //start game text
+  var text = "Tap to begin";
+  var style = { font: "30px Arial", fill: "#fff", align: "center" };
+  var t = _game2.default.add.text(_game2.default.width / 2, _game2.default.height / 2, text, style);
+  t.anchor.set(0.5);
+
+  //highest score
+  text = "Highest score: " + _game2.default.score;
+  style = { font: "15px Arial", fill: "#fff", align: "center" };
+
+  var h = _game2.default.add.text(_game2.default.width / 2, _game2.default.height / 2 + 50, text, style);
+  h.anchor.set(0.5);
+}
+
+function waitForInput() {
+  if (_game2.default.input.activePointer.justPressed()) {
+    _game2.default.state.start('Game');
+  }
+}
 
 /***/ }),
 /* 28 */
