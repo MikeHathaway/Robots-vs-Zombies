@@ -1,0 +1,6 @@
+Add a defeat screen
+Information about game state (player joined, chat messages)
+Starting game screen
+Subtle audio
+
+Progressively add people in the demo

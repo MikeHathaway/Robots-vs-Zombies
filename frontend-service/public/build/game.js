@@ -1935,6 +1935,10 @@ var map = void 0,
 
 //http://www.html5gamedevs.com/topic/18553-performance-issues-are-making-project-unplayable/
 
+//https://developer.tizen.org/community/tip-tech/creating-isometric-world-phaser.js-using-isometric-plugin
+//https://gamedevelopment.tutsplus.com/tutorials/creating-isometric-worlds-primer-for-game-developers-updated--cms-28392
+// ^includes a really cool minimap
+
 /* ----- Phaser Dependencies ----- */
 
 
@@ -1943,6 +1947,7 @@ var gameHeight = 800;
 var score = 0;
 
 var enemyMap = [];
+var numEnemies = 5;
 
 /* ----- Start Game Instance ----- */
 //formerly Phaser.AUTO for rendering; forcing Phaser.CANVAS to boost performacne
@@ -1979,7 +1984,7 @@ function create() {
   game.playerMap = {};
 
   addMap('desert'); // specify map can be: ['desert', 'forest']
-  addEnemies(5); //specify number of enemies to be added
+  addEnemies(numEnemies); //specify number of enemies to be added
   addWeapons();
   addPlayer(); // <- currently incomplete, need to finish tie up
   addInstructions();
@@ -1990,6 +1995,8 @@ function create() {
   addScore(); // Score animations
 
   checkForNewPlayers();
+
+  addRemoteEnemies(); // render enemies received from server
 }
 
 function update() {
@@ -2001,8 +2008,6 @@ function update() {
   /* Multiplayer Functions */
   if (localPlayer) moveRemotePlayer();
   if (localPlayer) shootPlayer();
-
-  addRemoteEnemies();
 
   checkScore();
   checkRemovePlayer();
@@ -2053,21 +2058,13 @@ function addEnemies() {
 
   enemies = game.add.group();
   _eventHandlers.socket.emit('newEnemies', { number: number, x: gameWidth, y: gameHeight });
-
-  // addZombie(number)
 }
 
-function triggerEnemySpawn() {
-  var source = Rx.Observable.interval(1000 /* ms */).timeInterval().take(5);
-  var subscription = source.subscribe(addZombie, handleError);
-}
+// function triggerEnemySpawn(){
+//   const source = Rx.Observable.interval(1000 /* ms */).timeInterval().take(5)
+//   const subscription = source.subscribe(addZombie,handleError)
+// }
 
-function addZombie(number) {
-  var i = 0;
-  while (i++ < number) {
-    enemies.add(new _enemy2.default(game, gameWidth, gameHeight, 'zombie'));
-  }
-}
 
 function createScoreAnimation(x, y, message, score) {
   var scoreFont = "20px Arial";
@@ -2226,7 +2223,7 @@ function checkEnemyActions() {
 
 function enemyOperations(enemy) {
   enemy.isAlive();
-  //enemy.move(game,enemy,localPlayer)
+  enemy.move(game, enemy, localPlayer);
   sendEnemyMovement(enemy);
 }
 
@@ -2292,7 +2289,7 @@ function checkForNewPlayers() {
 }
 
 function addPlayersToGame(player) {
-  console.log('Event received');
+  console.log('Playerd added');
   players.add(player);
   game.playerMap[player.id] = player;
   if (!localPlayer) {
@@ -2316,8 +2313,8 @@ function movePlayerOperation(movePlayer) {
 
   var distance = Phaser.Math.distance(player.x, player.y, xCord, yCord);
   var tween = game.add.tween(player);
-  var duration = distance * 10;
-  tween.to({ x: xCord, y: yCord }, duration);
+  // const duration = distance*10
+  tween.to({ x: xCord, y: yCord }, 5); //formerly duration
   tween.start();
 }
 
@@ -2343,19 +2340,17 @@ function removeOperations(removePlayer) {
 }
 
 function addRemoteEnemies() {
-  _eventHandlers.playerObs.on('addEnemies', enemyOperations);
+  _eventHandlers.playerObs.on('addEnemies', addEnemyOperation);
 }
 
 //Need to restrict message flow once expected number of enemies generated
-function enemyOperations(enemyData) {
-  // if(enemyMap.length <  enemyData.enemyList.length){
+function addEnemyOperation(enemyData) {
   // console.log('enemyData',enemyData)
   if (enemyMap.length < 5) {
     enemyData.enemyList.forEach(function (enemy) {
-      var newEnemy = new _enemy2.default(game, enemy.x, enemy.y, enemy.type);
+      var newEnemy = new _enemy2.default(game, enemy.x, enemy.y, enemy.type, enemy.id);
       enemies.add(newEnemy);
       return enemyMap.push(newEnemy);
-      console.log('enemy: ', enemy, enemies);
     });
   }
   // console.log('additional enemy data',enemyData)
@@ -4026,6 +4021,7 @@ var socket = (0, _socket2.default)('http://localhost:4000');
 var playerObs = new _eventEmitterEs2.default();
 
 var remotePlayers = [];
+var enemies = [];
 
 function setEventHandlers() {
 
@@ -4098,28 +4094,31 @@ function localPlayer(game, data) {
 }
 
 function onNewEnemies(data) {
-  console.log('New Enemies: ', data);
+  console.log('new enemies to add!', data.enemyList);
+  // enemies.push(data) <- make it game.enemies?
   playerObs.emit('addEnemies', data);
+  data.enemyList.forEach(function (enemy) {
+    return enemies.push(enemy);
+  });
 }
 
 function onMovePlayer(data) {
   var movePlayer = playerById(data.id);
-
-  if (!movePlayer) {
-    console.log("Player (move) not found: " + data.id);
-    return;
-  }
-  playerObs.emit('movingPlayer', { player: movePlayer, data: data });
+  return movePlayer ? playerObs.emit('movingPlayer', { player: movePlayer, data: data }) : false;
 }
 
 //need to modify this to accept enemy collection
 function onMoveEnemy(data) {
-  var moveEnemy = playerById(data.id);
+  var moveEnemy = enemyById(data.id);
+  // return moveEnemy ? playerObs.emit('movingEnemy', {enemy: moveEnemy, data: data}) : false
 
   if (!moveEnemy) {
-    console.log("Player (move) not found: " + data.id);
+    // console.log("Enemy (move) not found: " + data.id);
     return;
   }
+
+  console.log('move enemy received');
+
   playerObs.emit('movingEnemy', { enemy: moveEnemy, data: data });
 }
 
@@ -4151,6 +4150,13 @@ function playerById(id) {
     return player.id === id;
   });
   return identifiedPlayer.length > 0 ? identifiedPlayer[0] : false;
+}
+
+function enemyById(id) {
+  var identifiedEnemy = enemies.filter(function (enemy) {
+    return enemy.id === id;
+  });
+  return identifiedEnemy.length > 0 ? identifiedEnemy[0] : false;
 }
 
 exports.socket = socket;
@@ -4187,7 +4193,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 var Enemy = function (_Phaser$Sprite) {
   _inherits(Enemy, _Phaser$Sprite);
 
-  function Enemy(game, x, y, type) {
+  function Enemy(game, x, y, type, id) {
     _classCallCheck(this, Enemy);
 
     var _this = _possibleConstructorReturn(this, (Enemy.__proto__ || Object.getPrototypeOf(Enemy)).call(this, game, 0, 0, 'zombie'));
@@ -4197,6 +4203,7 @@ var Enemy = function (_Phaser$Sprite) {
     _this.speed = 2;
     _this.type = type;
     _this.health = 30;
+    _this.id = id;
     game.physics.enable(_this);
     return _this;
   }

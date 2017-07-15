@@ -29,6 +29,7 @@ const socket = io('http://localhost:4000')
 const playerObs = new EventEmitter()
 
 const remotePlayers = []
+const enemies = []
 
 function setEventHandlers(){
 
@@ -103,29 +104,30 @@ function localPlayer(game,data){
 
 
 function onNewEnemies(data){
-  console.log('New Enemies: ',data)
+  console.log('new enemies to add!', data.enemyList)
+  // enemies.push(data) <- make it game.enemies?
   playerObs.emit('addEnemies', data)
+  data.enemyList.forEach(enemy => enemies.push(enemy))
 }
 
 
 function onMovePlayer(data){
   const movePlayer = playerById(data.id);
-
-  if (!movePlayer) {
-      console.log("Player (move) not found: " + data.id);
-      return;
-  }
-  playerObs.emit('movingPlayer', {player: movePlayer, data: data})
+  return movePlayer ? playerObs.emit('movingPlayer', {player: movePlayer, data: data}) : false
 }
 
 //need to modify this to accept enemy collection
 function onMoveEnemy(data){
-  const moveEnemy = playerById(data.id);
+  const moveEnemy = enemyById(data.id);
+  // return moveEnemy ? playerObs.emit('movingEnemy', {enemy: moveEnemy, data: data}) : false
 
   if (!moveEnemy) {
-      console.log("Player (move) not found: " + data.id);
+      // console.log("Enemy (move) not found: " + data.id);
       return;
   }
+
+  console.log('move enemy received')
+
   playerObs.emit('movingEnemy', {enemy: moveEnemy, data: data})
 }
 
@@ -158,6 +160,11 @@ function onRemovePlayer(data){
 function playerById (id) {
   const identifiedPlayer = remotePlayers.filter(player => player.id === id)
   return identifiedPlayer.length > 0 ? identifiedPlayer[0] : false
+}
+
+function enemyById (id) {
+  const identifiedEnemy = enemies.filter(enemy => enemy.id === id)
+  return identifiedEnemy.length > 0 ? identifiedEnemy[0] : false
 }
 
 

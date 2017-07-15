@@ -86,8 +86,8 @@ module.exports = function(io){
   function onMoveEnemy(data){
     const moveEnemy = enemyById(data.id)
 
-    if (!movePlayer) {
-        console.log("Player not found: " + data.id)
+    if (!moveEnemy) {
+        console.log("Enemy not found: " + data.id)
         return
     }
 
@@ -202,5 +202,5 @@ function playerById (id) {
 
 function enemyById (id) {
   const identifiedEnemy = enemies.filter(enemy => enemy.id === id)
-  return identifiedPlayer.length > 0 ? identifiedPlayer[0] : false
+  return identifiedEnemy.length > 0 ? identifiedEnemy[0] : false
 }

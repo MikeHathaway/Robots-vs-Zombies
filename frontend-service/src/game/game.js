@@ -3,6 +3,10 @@
 
 //http://www.html5gamedevs.com/topic/18553-performance-issues-are-making-project-unplayable/
 
+//https://developer.tizen.org/community/tip-tech/creating-isometric-world-phaser.js-using-isometric-plugin
+//https://gamedevelopment.tutsplus.com/tutorials/creating-isometric-worlds-primer-for-game-developers-updated--cms-28392
+  // ^includes a really cool minimap
+
 /* ----- Phaser Dependencies ----- */
 import Bullet from './models/bullet'
 import {SingleBullet, LazerBeam} from './models/weapon'
@@ -32,6 +36,7 @@ import {socket, setEventHandlers, playerObs} from './eventHandlers'
   const score = 0
 
   const enemyMap = []
+  const numEnemies = 5
 
 
   /* ----- Start Game Instance ----- */
@@ -43,6 +48,7 @@ import {socket, setEventHandlers, playerObs} from './eventHandlers'
       update: update,
       render: render
   })
+
 
   function init(){
     game.stage.disableVisibilityChange = true
@@ -69,7 +75,7 @@ import {socket, setEventHandlers, playerObs} from './eventHandlers'
     game.playerMap = {}
 
     addMap('desert') // specify map can be: ['desert', 'forest']
-    addEnemies(5) //specify number of enemies to be added
+    addEnemies(numEnemies) //specify number of enemies to be added
     addWeapons()
     addPlayer() // <- currently incomplete, need to finish tie up
     addInstructions()
@@ -80,6 +86,8 @@ import {socket, setEventHandlers, playerObs} from './eventHandlers'
     addScore() // Score animations
 
     checkForNewPlayers()
+
+    addRemoteEnemies() // render enemies received from server
   }
 
   function update(){
@@ -92,8 +100,6 @@ import {socket, setEventHandlers, playerObs} from './eventHandlers'
     if (localPlayer) moveRemotePlayer()
     if (localPlayer) shootPlayer()
 
-    addRemoteEnemies()
-
     checkScore()
     checkRemovePlayer()
     removeInstructions()
@@ -103,7 +109,6 @@ import {socket, setEventHandlers, playerObs} from './eventHandlers'
 	   if (localPlayer) game.debug.text("Player Health: " + localPlayer.health + " / " + localPlayer.maxHealth, 32, 32);
 	   if (localPlayer) game.debug.text("Player Score:  " + game.score, 32, 64);
      if (localPlayer) game.debug.text("Enemies Remaining:  " + enemyMap.length, 32, 96);
-
   }
 
 
@@ -148,21 +153,12 @@ import {socket, setEventHandlers, playerObs} from './eventHandlers'
   function addEnemies(number = 100){
     enemies = game.add.group()
     socket.emit('newEnemies',{number: number, x: gameWidth, y: gameHeight})
-
-    // addZombie(number)
   }
 
-  function triggerEnemySpawn(){
-    const source = Rx.Observable.interval(1000 /* ms */).timeInterval().take(5)
-    const subscription = source.subscribe(addZombie,handleError)
-  }
-
-  function addZombie(number){
-    let i = 0
-    while(i++ < number){
-      enemies.add(new Enemy(game,gameWidth,gameHeight,'zombie'))
-    }
-  }
+  // function triggerEnemySpawn(){
+  //   const source = Rx.Observable.interval(1000 /* ms */).timeInterval().take(5)
+  //   const subscription = source.subscribe(addZombie,handleError)
+  // }
 
 
   function createScoreAnimation(x,y,message,score){
@@ -334,7 +330,7 @@ import {socket, setEventHandlers, playerObs} from './eventHandlers'
 
   function enemyOperations(enemy){
     enemy.isAlive()
-    //enemy.move(game,enemy,localPlayer)
+    enemy.move(game,enemy,localPlayer)
     sendEnemyMovement(enemy)
   }
 
@@ -410,7 +406,7 @@ import {socket, setEventHandlers, playerObs} from './eventHandlers'
   }
 
   function addPlayersToGame(player){
-    console.log('Event received')
+    console.log('Playerd added')
     players.add(player)
     game.playerMap[player.id] = player
     if(!localPlayer) {
@@ -435,8 +431,8 @@ import {socket, setEventHandlers, playerObs} from './eventHandlers'
 
     const distance = Phaser.Math.distance(player.x,player.y,xCord,yCord)
     const tween = game.add.tween(player)
-    const duration = distance*10
-    tween.to({x:xCord,y:yCord}, duration)
+    // const duration = distance*10
+    tween.to({x:xCord,y:yCord}, 5) //formerly duration
     tween.start()
   }
 
@@ -465,19 +461,17 @@ import {socket, setEventHandlers, playerObs} from './eventHandlers'
 
 
   function addRemoteEnemies(){
-    playerObs.on('addEnemies', enemyOperations)
+    playerObs.on('addEnemies', addEnemyOperation)
   }
 
   //Need to restrict message flow once expected number of enemies generated
-  function enemyOperations(enemyData){
-    // if(enemyMap.length <  enemyData.enemyList.length){
+  function addEnemyOperation(enemyData){
     // console.log('enemyData',enemyData)
     if(enemyMap.length < 5){
       enemyData.enemyList.forEach(enemy => {
-        const newEnemy = new Enemy(game,enemy.x,enemy.y,enemy.type)
+        const newEnemy = new Enemy(game,enemy.x,enemy.y,enemy.type,enemy.id)
         enemies.add(newEnemy)
         return enemyMap.push(newEnemy)
-        console.log('enemy: ', enemy, enemies)
       })
     }
     // console.log('additional enemy data',enemyData)
