@@ -24,7 +24,7 @@ import game from '../game'
 // if(process.env.ENVIRONMENT === 'development') port = 'https://localhost:4000'
 
 //'http://localhost:4000'
-const socket = io('https://backend-service-ahfvrxigmx.now.sh')
+const socket = io('http://localhost:4000')
 
 const playerObs = new EventEmitter()
 
@@ -122,11 +122,11 @@ function onMoveEnemy(data){
   // return moveEnemy ? playerObs.emit('movingEnemy', {enemy: moveEnemy, data: data}) : false
 
   if (!moveEnemy) {
-      // console.log("Enemy (move) not found: " + data.id);
+      console.log("Enemy (move) not found: " + data.id);
       return;
   }
 
-  console.log('move enemy received')
+  console.log('move enemy received', moveEnemy, data)
 
   playerObs.emit('movingEnemy', {enemy: moveEnemy, data: data})
 }
@@ -144,7 +144,6 @@ function onEnemyShot(data){
 function onRemovePlayer(data){
   const removePlayer = playerById(data.id)
 
-  // Player not found
   if (!removePlayer) {
     console.log('Player (remove) not found: ', data.id)
     return

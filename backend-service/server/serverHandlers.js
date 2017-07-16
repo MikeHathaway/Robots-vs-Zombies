@@ -60,6 +60,7 @@ module.exports = function(io){
         game.lastEnemyId++
         enemies.push(newEnemy)
       }
+
     }
     // io.sockets.emit('newEnemy', {id: newEnemy.id, x: newEnemy.x, y: newEnemy.y})
     io.sockets.emit('newEnemies', {enemyList: enemies})
@@ -77,8 +78,7 @@ module.exports = function(io){
 
     movePlayer.setX(data.x)
     movePlayer.setY(data.y)
-    // formerly this.broadcast.emit
-      // had semi broken movement animation with io.sockets.emit
+
     this.broadcast.emit("movePlayer", {id: movePlayer.id, x: movePlayer.getX(), y: movePlayer.getY()})
   }
 
@@ -94,8 +94,25 @@ module.exports = function(io){
     moveEnemy.setX(data.x)
     moveEnemy.setY(data.y)
 
+    // this.broadcast.emit("moveEnemy", {id: moveEnemy.id, x: moveEnemy.x, y: moveEnemy.y})
     io.sockets.emit('moveEnemy', {id: moveEnemy.id, x: moveEnemy.x, y: moveEnemy.y})
 
+  }
+
+  //Identify best means of moving enemies
+  function identifyNextPosition(enemy){
+    const enemyRange = enemy.speed * 10
+
+    for(const player in players){
+      if(Math.floor(Math.random() * 2) === 1){
+        if((Math.floor(enemy.x) - Math.floor(player.x)) < enemyRange) return enemy.x += enemy.speed
+        if((Math.floor(enemy.x) + Math.floor(player.x)) > enemyRange) return enemy.x -= enemy.speed
+      }
+      else {
+        if((Math.floor(enemy.y) - Math.floor(player.y)) < enemyRange) return enemy.y += enemy.speed
+        if((Math.floor(enemy.y) + Math.floor(player.y)) > enemyRange) return enemy.y -= enemy.speed
+      }
+    }
   }
 
 
@@ -103,9 +120,11 @@ module.exports = function(io){
     console.log(data.id, ' is shooting!')
     const bullet = new Bullet(Object.keys(bullets).length, data.id, data.x, data.y, data.v, data.r);
     bullets.push(bullet);
-    // console.log('checking collisions!',checkCollisions)
-    this.volatile.broadcast.emit('shoot', bullet);
-    this.volatile.emit('shoot', bullet);
+
+    // this.volatile.broadcast.emit('shoot', bullet);
+    // this.volatile.emit('shoot', bullet);
+    this.broadcast.emit('shoot', bullet);
+    this.emit('shoot', bullet);
   }
 
 

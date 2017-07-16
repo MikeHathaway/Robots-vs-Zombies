@@ -1232,7 +1232,10 @@ function create() {
   configureGame();
 
   addMap('desert'); // specify map can be: ['desert', 'forest']
+
+  // need to figure out a way to check whether or not to add new enemies
   addEnemies(numEnemies); //specify number of enemies to be added
+
   addWeapons();
   addPlayer(); // <- currently incomplete, need to finish tie up
   addInstructions();
@@ -1250,12 +1253,14 @@ function create() {
 function update() {
   (0, _mainMenu.waitForInput)();
 
-  if (localPlayer) checkEnemyActions();
   if (localPlayer) checkPlayerInputs(localPlayer);
   if (localPlayer) checkCollisions();
 
   /* Multiplayer Functions */
   if (localPlayer) moveRemotePlayer();
+
+  if (localPlayer) checkEnemyActions();
+  if (localPlayer) moveRemoteEnemy();
   if (localPlayer) shootPlayer();
 
   checkScore();
@@ -1528,13 +1533,12 @@ function shootOperation(data) {
   var bullet = weapon.children[data.id];
   bullet.reset(data.x, data.y);
   bullet.rotation = data.r;
-  // weapon.fire(player)
   // bullet.body.velocity = game.physics.arcade.velocityFromRotation(bullet.rotation, bullet.body.velocity)
-  game.physics.arcade.velocityFromAngle(bullet.rotation, bullet.bulletSpeed, bullet.body.velocity);
+  game.physics.arcade.velocityFromAngle(bullet.rotation, weapon.bulletSpeed, bullet.body.velocity);
 }
 
 //similar to shoot operation, but removes velocity factor
-function layMine() {
+function layMine(data) {
   var player = game.playerMap[data.pid];
   var weapon = player.weapons.children[player.currentWeapon];
   var bullet = weapon.children[data.id];
@@ -1593,23 +1597,10 @@ function identifyNextPosition(enemy) {
       if (Math.floor(enemy.body.y) - Math.floor(player.body.y) < enemyRange) return enemy.body.y += enemy.speed;
       if (Math.floor(enemy.body.y) + Math.floor(player.body.y) > enemyRange) return enemy.body.y -= enemy.speed;
     }
-    // else {
-    //   if(Math.floor(Math.random() * 2) === 1) return genMovement(enemy.body.x)
-    //   else{
-    //     return genMovement(enemy.body.y)
-    //   }
-    // }
   }
 }
 
-function genMovement(factor, speed) {
-  if (Math.floor(Math.random() * 2) === 1) {
-    return Math.floor(factor * (Math.round(Math.random()) * speed));
-  }
-  return Math.floor(factor * (Math.round(Math.random()) * speed)) * -1;
-}
-
-function moveEnemy() {
+function moveRemoteEnemy() {
   _eventHandlers.playerObs.on('movingEnemy', moveEnemyOperation);
 }
 
@@ -1621,8 +1612,7 @@ function moveEnemyOperation(moveEnemy) {
 
   var distance = Phaser.Math.distance(enemy.x, enemy.y, xCord, yCord);
   var tween = game.add.tween(enemy);
-  // const duration = distance*10
-  tween.to({ x: xCord, y: yCord }, 0); //formerly duration
+  tween.to({ x: xCord, y: yCord }, 0);
   tween.start();
 }
 
@@ -1641,7 +1631,6 @@ function addRemoteEnemies() {
 
 //Need to restrict message flow once expected number of enemies generated
 function addEnemyOperation(enemyData) {
-  // console.log('enemyData',enemyData)
   if (enemyMap.length < 5) {
     enemyData.enemyList.forEach(function (enemy) {
       var newEnemy = new _enemy2.default(game, enemy.x, enemy.y, enemy.type, enemy.id);
@@ -4060,7 +4049,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 // let port = 'https://backend-service-ewbtarfvys.now.sh'
 // if(process.env.ENVIRONMENT === 'development') port = 'https://localhost:4000'
 
-//
+//'http://localhost:4000'
 //http://www.dynetisgames.com/2017/03/06/how-to-make-a-multiplayer-online-game-with-phaser-socket-io-and-node-js/
 //https://github.com/Jerenaux/basic-mmo-phaser/blob/master/js/client.js
 //http://www.html5gamedevs.com/topic/29104-how-to-make-a-multiplayer-online-game-with-phaser-socketio-and-nodejs/
@@ -4174,11 +4163,11 @@ function onMoveEnemy(data) {
   // return moveEnemy ? playerObs.emit('movingEnemy', {enemy: moveEnemy, data: data}) : false
 
   if (!moveEnemy) {
-    // console.log("Enemy (move) not found: " + data.id);
+    console.log("Enemy (move) not found: " + data.id);
     return;
   }
 
-  console.log('move enemy received');
+  console.log('move enemy received', moveEnemy, data);
 
   playerObs.emit('movingEnemy', { enemy: moveEnemy, data: data });
 }
@@ -4194,7 +4183,6 @@ function onEnemyShot(data) {
 function onRemovePlayer(data) {
   var removePlayer = playerById(data.id);
 
-  // Player not found
   if (!removePlayer) {
     console.log('Player (remove) not found: ', data.id);
     return;

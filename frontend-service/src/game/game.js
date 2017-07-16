@@ -87,7 +87,10 @@ import {socket, setEventHandlers, playerObs} from './eventHandlers'
     configureGame()
 
     addMap('desert') // specify map can be: ['desert', 'forest']
+
+    // need to figure out a way to check whether or not to add new enemies
     addEnemies(numEnemies) //specify number of enemies to be added
+
     addWeapons()
     addPlayer() // <- currently incomplete, need to finish tie up
     addInstructions()
@@ -105,12 +108,14 @@ import {socket, setEventHandlers, playerObs} from './eventHandlers'
   function update(){
     waitForInput()
 
-    if (localPlayer) checkEnemyActions()
     if (localPlayer) checkPlayerInputs(localPlayer)
     if (localPlayer) checkCollisions()
 
     /* Multiplayer Functions */
     if (localPlayer) moveRemotePlayer()
+
+    if (localPlayer) checkEnemyActions()
+    if (localPlayer) moveRemoteEnemy()
     if (localPlayer) shootPlayer()
 
     checkScore()
@@ -393,7 +398,7 @@ import {socket, setEventHandlers, playerObs} from './eventHandlers'
        return false
      }
      else{
-       weapon.nextFire = game.time.time + weapon.fireRate;
+       weapon.nextFire = game.time.time + weapon.fireRate
        return true
      }
   }
@@ -408,13 +413,12 @@ import {socket, setEventHandlers, playerObs} from './eventHandlers'
     const bullet = weapon.children[data.id]
     bullet.reset(data.x,data.y)
     bullet.rotation = data.r
-    // weapon.fire(player)
     // bullet.body.velocity = game.physics.arcade.velocityFromRotation(bullet.rotation, bullet.body.velocity)
-    game.physics.arcade.velocityFromAngle(bullet.rotation, bullet.bulletSpeed, bullet.body.velocity)
+    game.physics.arcade.velocityFromAngle(bullet.rotation, weapon.bulletSpeed, bullet.body.velocity)
   }
 
   //similar to shoot operation, but removes velocity factor
-  function layMine(){
+  function layMine(data){
     const player = game.playerMap[data.pid];
     const weapon = player.weapons.children[player.currentWeapon]
     const bullet = weapon.children[data.id]
@@ -480,7 +484,7 @@ import {socket, setEventHandlers, playerObs} from './eventHandlers'
     }
   }
 
-  function moveEnemy(){
+  function moveRemoteEnemy(){
     playerObs.on('movingEnemy', moveEnemyOperation)
   }
 
@@ -492,8 +496,7 @@ import {socket, setEventHandlers, playerObs} from './eventHandlers'
 
     const distance = Phaser.Math.distance(enemy.x,enemy.y,xCord,yCord)
     const tween = game.add.tween(enemy)
-    // const duration = distance*10
-    tween.to({x:xCord,y:yCord}, 0) //formerly duration
+    tween.to({x:xCord,y:yCord}, 0)
     tween.start()
   }
 
@@ -514,7 +517,6 @@ import {socket, setEventHandlers, playerObs} from './eventHandlers'
 
   //Need to restrict message flow once expected number of enemies generated
   function addEnemyOperation(enemyData){
-    // console.log('enemyData',enemyData)
     if(enemyMap.length < 5){
       enemyData.enemyList.forEach(enemy => {
         const newEnemy = new Enemy(game,enemy.x,enemy.y,enemy.type,enemy.id)
