@@ -1581,23 +1581,7 @@ function movePlayerOperation(movePlayer) {
 }
 
 function sendEnemyMovement(enemy) {
-  identifyNextPosition(enemy);
   _eventHandlers.socket.emit('moveEnemy', { id: enemy.id, x: enemy.body.x, y: enemy.body.y });
-}
-
-function identifyNextPosition(enemy) {
-  var enemyRange = enemy.speed * 10;
-
-  for (var pid in game.playerMap) {
-    var player = game.playerMap[pid];
-    if (Math.floor(Math.random() * 2) === 1) {
-      if (Math.floor(enemy.body.x) - Math.floor(player.body.x) < enemyRange) return enemy.body.x += enemy.speed;
-      if (Math.floor(enemy.body.x) + Math.floor(player.body.x) > enemyRange) return enemy.body.x -= enemy.speed;
-    } else {
-      if (Math.floor(enemy.body.y) - Math.floor(player.body.y) < enemyRange) return enemy.body.y += enemy.speed;
-      if (Math.floor(enemy.body.y) + Math.floor(player.body.y) > enemyRange) return enemy.body.y -= enemy.speed;
-    }
-  }
 }
 
 function moveRemoteEnemy() {
@@ -1605,15 +1589,22 @@ function moveRemoteEnemy() {
 }
 
 function moveEnemyOperation(moveEnemy) {
-  console.log('moveEnemyOperation', moveEnemy);
-  var enemy = moveEnemy.enemy;
+  console.log('moving enemy id', moveEnemy.data.id);
+  var enemy = enemyById(moveEnemy.data.id);
   var xCord = moveEnemy.data.x;
   var yCord = moveEnemy.data.y;
 
-  var distance = Phaser.Math.distance(enemy.x, enemy.y, xCord, yCord);
+  var distance = Phaser.Math.distance(enemy.body.x, enemy.body.y, xCord, yCord);
   var tween = game.add.tween(enemy);
   tween.to({ x: xCord, y: yCord }, 0);
   tween.start();
+}
+
+function enemyById(id) {
+  var identifiedEnemy = enemyMap.filter(function (enemy) {
+    return enemy.id === id;
+  });
+  return identifiedEnemy.length > 0 ? identifiedEnemy[0] : false;
 }
 
 function checkRemovePlayer() {
@@ -4169,7 +4160,9 @@ function onMoveEnemy(data) {
 
   console.log('move enemy received', moveEnemy, data);
 
-  playerObs.emit('movingEnemy', { enemy: moveEnemy, data: data });
+  //need to reduce quantity of information being transported
+  // playerObs.emit('movingEnemy', {enemy: moveEnemy, data: data})
+  playerObs.emit('movingEnemy', { data: data });
 }
 
 function onShoot(data) {

@@ -128,7 +128,10 @@ function onMoveEnemy(data){
 
   console.log('move enemy received', moveEnemy, data)
 
-  playerObs.emit('movingEnemy', {enemy: moveEnemy, data: data})
+  //need to reduce quantity of information being transported
+  // playerObs.emit('movingEnemy', {enemy: moveEnemy, data: data})
+  playerObs.emit('movingEnemy', {data: data})
+
 }
 
 

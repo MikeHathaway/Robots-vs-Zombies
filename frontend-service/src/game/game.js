@@ -464,24 +464,7 @@ import {socket, setEventHandlers, playerObs} from './eventHandlers'
 
 
   function sendEnemyMovement(enemy){
-    identifyNextPosition(enemy)
     socket.emit('moveEnemy',{id: enemy.id, x: enemy.body.x, y: enemy.body.y})
-  }
-
-  function identifyNextPosition(enemy){
-    const enemyRange = enemy.speed * 10
-
-    for(let pid in game.playerMap){
-      const player = game.playerMap[pid]
-      if(Math.floor(Math.random() * 2) === 1){
-        if((Math.floor(enemy.body.x) - Math.floor(player.body.x)) < enemyRange) return enemy.body.x += enemy.speed
-        if((Math.floor(enemy.body.x) + Math.floor(player.body.x)) > enemyRange) return enemy.body.x -= enemy.speed
-      }
-      else {
-        if((Math.floor(enemy.body.y) - Math.floor(player.body.y)) < enemyRange) return enemy.body.y += enemy.speed
-        if((Math.floor(enemy.body.y) + Math.floor(player.body.y)) > enemyRange) return enemy.body.y -= enemy.speed
-      }
-    }
   }
 
   function moveRemoteEnemy(){
@@ -489,15 +472,20 @@ import {socket, setEventHandlers, playerObs} from './eventHandlers'
   }
 
   function moveEnemyOperation(moveEnemy){
-    console.log('moveEnemyOperation', moveEnemy)
-    const enemy = moveEnemy.enemy
+    console.log('moving enemy id',moveEnemy.data.id)
+    const enemy = enemyById(moveEnemy.data.id)
     const xCord = moveEnemy.data.x
     const yCord = moveEnemy.data.y
 
-    const distance = Phaser.Math.distance(enemy.x,enemy.y,xCord,yCord)
+    const distance = Phaser.Math.distance(enemy.body.x,enemy.body.y,xCord,yCord)
     const tween = game.add.tween(enemy)
     tween.to({x:xCord,y:yCord}, 0)
     tween.start()
+  }
+
+  function enemyById (id) {
+    const identifiedEnemy = enemyMap.filter(enemy => enemy.id === id)
+    return identifiedEnemy.length > 0 ? identifiedEnemy[0] : false
   }
 
 

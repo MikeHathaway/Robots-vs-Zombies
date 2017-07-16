@@ -91,11 +91,12 @@ module.exports = function(io){
         return
     }
 
-    moveEnemy.setX(data.x)
-    moveEnemy.setY(data.y)
+    // moveEnemy.setX(data.x)
+    // moveEnemy.setY(data.y)
+    identifyNextPosition(moveEnemy)
 
     // this.broadcast.emit("moveEnemy", {id: moveEnemy.id, x: moveEnemy.x, y: moveEnemy.y})
-    io.sockets.emit('moveEnemy', {id: moveEnemy.id, x: moveEnemy.x, y: moveEnemy.y})
+    io.volatile.sockets.emit('moveEnemy', {id: moveEnemy.id, x: moveEnemy.x, y: moveEnemy.y})
 
   }
 
