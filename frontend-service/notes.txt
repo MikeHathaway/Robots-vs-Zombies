@@ -4,3 +4,8 @@ Starting game screen
 Subtle audio
 
 Progressively add people in the demo
+
+Questions:
+  Do things outside of the update loop
+  Using Tweens for animation
+  How to go about using interpolation

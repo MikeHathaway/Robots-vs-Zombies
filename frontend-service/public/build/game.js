@@ -63,7 +63,7 @@
 /******/ 	__webpack_require__.p = "/";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 6);
+/******/ 	return __webpack_require__(__webpack_require__.s = 4);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -103,7 +103,7 @@ module.exports = g;
  * Expose `debug()` as the module.
  */
 
-exports = module.exports = __webpack_require__(33);
+exports = module.exports = __webpack_require__(35);
 exports.log = log;
 exports.formatArgs = formatArgs;
 exports.save = save;
@@ -283,7 +283,7 @@ function localstorage() {
   } catch (e) {}
 }
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(46)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(48)))
 
 /***/ }),
 /* 2 */
@@ -462,15 +462,15 @@ Emitter.prototype.hasListeners = function(event){
  * Module dependencies.
  */
 
-var keys = __webpack_require__(40);
-var hasBinary = __webpack_require__(15);
+var keys = __webpack_require__(42);
+var hasBinary = __webpack_require__(16);
 var sliceBuffer = __webpack_require__(29);
 var after = __webpack_require__(28);
-var utf8 = __webpack_require__(41);
+var utf8 = __webpack_require__(43);
 
 var base64encoder;
 if (global && global.ArrayBuffer) {
-  base64encoder = __webpack_require__(31);
+  base64encoder = __webpack_require__(33);
 }
 
 /**
@@ -528,7 +528,7 @@ var err = { type: 'error', data: 'parser error' };
  * Create a blob api even for blob builder when vendor prefixes exist
  */
 
-var Blob = __webpack_require__(32);
+var Blob = __webpack_require__(34);
 
 /**
  * Encodes a packet.
@@ -1069,61 +1069,6 @@ exports.decodePayloadAsBinary = function (data, binaryType, callback) {
 
 /***/ }),
 /* 4 */
-/***/ (function(module, exports) {
-
-
-module.exports = function(a, b){
-  var fn = function(){};
-  fn.prototype = b.prototype;
-  a.prototype = new fn;
-  a.prototype.constructor = a;
-};
-
-/***/ }),
-/* 5 */
-/***/ (function(module, exports) {
-
-/**
- * Compiles a querystring
- * Returns string representation of the object
- *
- * @param {Object}
- * @api private
- */
-
-exports.encode = function (obj) {
-  var str = '';
-
-  for (var i in obj) {
-    if (obj.hasOwnProperty(i)) {
-      if (str.length) str += '&';
-      str += encodeURIComponent(i) + '=' + encodeURIComponent(obj[i]);
-    }
-  }
-
-  return str;
-};
-
-/**
- * Parses a simple querystring into an object
- *
- * @param {String} qs
- * @api private
- */
-
-exports.decode = function(qs){
-  var qry = {};
-  var pairs = qs.split('&');
-  for (var i = 0, l = pairs.length; i < l; i++) {
-    var pair = pairs[i].split('=');
-    qry[decodeURIComponent(pair[0])] = decodeURIComponent(pair[1]);
-  }
-  return qry;
-};
-
-
-/***/ }),
-/* 6 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1133,7 +1078,7 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _bullet = __webpack_require__(10);
+var _bullet = __webpack_require__(12);
 
 var _bullet2 = _interopRequireDefault(_bullet);
 
@@ -1143,13 +1088,13 @@ var _enemy = __webpack_require__(25);
 
 var _enemy2 = _interopRequireDefault(_enemy);
 
-var _player = __webpack_require__(11);
+var _player = __webpack_require__(8);
 
 var _player2 = _interopRequireDefault(_player);
 
 var _mainMenu = __webpack_require__(27);
 
-var _eventHandlers = __webpack_require__(24);
+var _eventHandlers = __webpack_require__(7);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -1165,10 +1110,23 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 //https://developer.tizen.org/community/tip-tech/creating-isometric-world-phaser.js-using-isometric-plugin
 //https://gamedevelopment.tutsplus.com/tutorials/creating-isometric-worlds-primer-for-game-developers-updated--cms-28392
 // ^includes a really cool minimap
+//http://evilmousestudios.com/optimizing-javascript-games/
 
 //https://gamedevacademy.org/how-to-make-an-infinitely-scrolling-game-with-phaser/
 
 //http://perplexingtech.weebly.com/game-dev-blog/using-states-in-phaserjs-javascript-game-developement
+
+//performance upgradeses!
+// memory leak <- need to unsubscribe to prevent over calling.
+//Excessive logs seen per update cycle
+
+//implement enemy movements as a data stream!!!!
+//https://github.com/cujojs/most
+//https://survivejs.com/blog/most-interview/
+
+//https://github.com/primus/eventemitter3
+//https://netbasal.com/javascript-the-magic-behind-event-emitter-cce3abcbcef9
+//https://www.appneta.com/blog/3-common-node-js-design-patterns-that-are-misused/
 
 /* ----- Phaser Dependencies ----- */
 var map = void 0,
@@ -1195,7 +1153,7 @@ var numEnemies = 5;
 
 /* ----- Start Game Instance ----- */
 //formerly Phaser.AUTO for rendering; forcing Phaser.CANVAS to boost performacne
-var game = new Phaser.Game(gameWidth, gameHeight, Phaser.CANVAS, 'game-container', {
+var game = new Phaser.Game(gameWidth, gameHeight, Phaser.AUTO, 'game-container', {
   init: init,
   preload: preload,
   create: create,
@@ -1243,7 +1201,7 @@ function create() {
   (0, _eventHandlers.setEventHandlers)(); // Start listening for events
 
   addInputs(); // Add game controls
-  addScore(); // Score animations
+  //addScore() // Score animations
 
   checkForNewPlayers();
 
@@ -1251,7 +1209,7 @@ function create() {
 }
 
 function update() {
-  (0, _mainMenu.waitForInput)();
+  //waitForInput()
 
   if (localPlayer) checkPlayerInputs(localPlayer);
   if (localPlayer) checkCollisions();
@@ -1263,7 +1221,9 @@ function update() {
   if (localPlayer) moveRemoteEnemy();
   if (localPlayer) shootPlayer();
 
-  checkScore();
+  //retreiveGameTime()
+
+  //checkScore()
   checkRemovePlayer();
   removeInstructions();
 }
@@ -1272,6 +1232,11 @@ function render() {
   if (localPlayer) game.debug.text("Player Health: " + localPlayer.health + " / " + localPlayer.maxHealth, 32, 32);
   if (localPlayer) game.debug.text("Player Score:  " + game.score, 32, 64);
   if (localPlayer) game.debug.text("Enemies Remaining:  " + enemyMap.length, 32, 96);
+}
+
+//use this to sync with streams running external to the update loop
+function retreiveGameTime() {
+  return game.time;
 }
 
 /* =============== =============== ===============
@@ -1554,6 +1519,7 @@ function addPlayersToGame(player) {
   console.log('Playerd added');
   players.add(player);
   game.playerMap[player.id] = player;
+  //replace global localPlayer variable with an observable
   if (!localPlayer) {
     localPlayer = player;
     game.camera.follow(localPlayer);
@@ -1591,6 +1557,7 @@ function moveRemoteEnemy() {
 function moveEnemyOperation(moveEnemy) {
   console.log('moving enemy id', moveEnemy.data.id);
   var enemy = enemyById(moveEnemy.data.id);
+
   var xCord = moveEnemy.data.x;
   var yCord = moveEnemy.data.y;
 
@@ -1616,6 +1583,7 @@ function removeOperations(removePlayer) {
   delete game.playerMap[removePlayer.id];
 }
 
+//potentially utilize once?
 function addRemoteEnemies() {
   _eventHandlers.playerObs.on('addEnemies', addEnemyOperation);
 }
@@ -1635,7 +1603,249 @@ function addEnemyOperation(enemyData) {
 exports.default = game;
 
 /***/ }),
+/* 5 */
+/***/ (function(module, exports) {
+
+
+module.exports = function(a, b){
+  var fn = function(){};
+  fn.prototype = b.prototype;
+  a.prototype = new fn;
+  a.prototype.constructor = a;
+};
+
+/***/ }),
+/* 6 */
+/***/ (function(module, exports) {
+
+/**
+ * Compiles a querystring
+ * Returns string representation of the object
+ *
+ * @param {Object}
+ * @api private
+ */
+
+exports.encode = function (obj) {
+  var str = '';
+
+  for (var i in obj) {
+    if (obj.hasOwnProperty(i)) {
+      if (str.length) str += '&';
+      str += encodeURIComponent(i) + '=' + encodeURIComponent(obj[i]);
+    }
+  }
+
+  return str;
+};
+
+/**
+ * Parses a simple querystring into an object
+ *
+ * @param {String} qs
+ * @api private
+ */
+
+exports.decode = function(qs){
+  var qry = {};
+  var pairs = qs.split('&');
+  for (var i = 0, l = pairs.length; i < l; i++) {
+    var pair = pairs[i].split('=');
+    qry[decodeURIComponent(pair[0])] = decodeURIComponent(pair[1]);
+  }
+  return qry;
+};
+
+
+/***/ }),
 /* 7 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.playerObs = exports.setEventHandlers = exports.socket = undefined;
+
+var _socket = __webpack_require__(49);
+
+var _socket2 = _interopRequireDefault(_socket);
+
+var _eventEmitterEs = __webpack_require__(44);
+
+var _eventEmitterEs2 = _interopRequireDefault(_eventEmitterEs);
+
+var _player = __webpack_require__(8);
+
+var _player2 = _interopRequireDefault(_player);
+
+var _game = __webpack_require__(4);
+
+var _game2 = _interopRequireDefault(_game);
+
+var _playerHandlers = __webpack_require__(31);
+
+var _playerHandlers2 = _interopRequireDefault(_playerHandlers);
+
+var _enemyHandlers = __webpack_require__(30);
+
+var _enemyHandlers2 = _interopRequireDefault(_enemyHandlers);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+// let port = 'https://backend-service-ewbtarfvys.now.sh'
+// if(process.env.ENVIRONMENT === 'development') port = 'https://localhost:4000'
+
+//'http://localhost:4000'
+//http://www.dynetisgames.com/2017/03/06/how-to-make-a-multiplayer-online-game-with-phaser-socket-io-and-node-js/
+//https://github.com/Jerenaux/basic-mmo-phaser/blob/master/js/client.js
+//http://www.html5gamedevs.com/topic/29104-how-to-make-a-multiplayer-online-game-with-phaser-socketio-and-nodejs/
+
+//https://gamedev.stackexchange.com/questions/124434/phaser-io-with-socket-io-what-should-the-server-calculate-and-what-the-client
+
+//https://github.com/fbaiodias/phaser-multiplayer-game
+
+//https://github.com/Langerz82/phasertanksmultiplayer
+
+//https://github.com/crisu83/capthatflag/tree/feature/phaser-server
+
+//http://www.gabrielgambetta.com/client-side-prediction-server-reconciliation.html
+
+//https://socket.io/docs/using-multiple-nodes/
+
+
+var socket = (0, _socket2.default)('https://backend-service-lxzdxsoeyl.now.sh');
+
+var playerObs = new _eventEmitterEs2.default();
+
+var remotePlayers = [];
+var enemies = [];
+
+function setEventHandlers() {
+
+  // trigger game start
+  socket.emit('newPlayer', { x: _game2.default.startX, y: _game2.default.startY });
+
+  socket.on('connect', onSocketConnected);
+
+  // Socket disconnection
+  socket.on('disconnect', onSocketDisconnect);
+
+  // New player message received
+  socket.on('newPlayer', _playerHandlers2.default.onNewPlayer);
+
+  // Player move message received
+  socket.on('movePlayer', _playerHandlers2.default.onMovePlayer);
+
+  //shootPlayer(data.id,data.pid,data.x,data.y,data.v,data.r,data.tr);
+  socket.on('shoot', _playerHandlers2.default.onShoot);
+
+  // Player removed message received
+  socket.on('removePlayer', _playerHandlers2.default.onRemovePlayer);
+
+  // add enemies to the game
+  socket.on('newEnemies', _enemyHandlers2.default.onNewEnemies);
+
+  // Enemy move message received
+  socket.on('moveEnemy', _enemyHandlers2.default.onMoveEnemy);
+
+  //bulletHitPlayer(data);
+  socket.on('shot', _enemyHandlers2.default.onEnemyShot);
+
+  socket.on('test', function (data) {
+    return console.log('test', data);
+  });
+}
+
+function onSocketConnected() {
+  console.log('player has joined the game');
+  socket.emit('newPlayer', { x: _game2.default.startX, y: _game2.default.startY }); //start the game
+}
+
+function onSocketDisconnect() {
+  console.log('Disconnected from socket server');
+}
+
+exports.socket = socket;
+exports.setEventHandlers = setEventHandlers;
+exports.playerObs = playerObs;
+
+/***/ }),
+/* 8 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var Player = function (_Phaser$Sprite) {
+  _inherits(Player, _Phaser$Sprite);
+
+  function Player(game, x, y, avatar, health, speed, weapons, id) {
+    _classCallCheck(this, Player);
+
+    var _this = _possibleConstructorReturn(this, (Player.__proto__ || Object.getPrototypeOf(Player)).call(this, game, x, y, avatar));
+
+    _this.game = game;
+    _this.x = x;
+    _this.y = y;
+    _this.health = health || 50;
+    _this.maxHealth = health;
+    _this.speed = speed || 5;
+    _this.avatar = 'zombie';
+    _this.weapons = weapons;
+    _this.id = id;
+    _this.currentWeapon = 0;
+    // this.anchor.setTo(0.5, 0.5) // <- purpose?
+
+    game.physics.enable(_this);
+    _this.body.velocity.x = 10;
+    _this.body.velocity.y = 10;
+    // this.body.collideWorldBounds = true;
+    return _this;
+  }
+
+  _createClass(Player, [{
+    key: 'removePlayer',
+    value: function removePlayer(game, id) {
+      game.playerMap[id].destroy();
+      delete game.playerMap[id];
+    }
+  }, {
+    key: 'takeDamage',
+    value: function takeDamage(damage) {
+      this.health -= damage;
+
+      if (this.health <= 0) {
+        this.health = 0;
+        this.alive = false;
+        this.kill();
+        return true;
+      }
+      return false;
+    }
+  }]);
+
+  return Player;
+}(Phaser.Sprite);
+
+exports.default = Player;
+
+/***/ }),
+/* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -1798,12 +2008,12 @@ Transport.prototype.onClose = function () {
 
 
 /***/ }),
-/* 8 */
+/* 10 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global) {// browser shim for xmlhttprequest module
 
-var hasCORS = __webpack_require__(43);
+var hasCORS = __webpack_require__(45);
 
 module.exports = function (opts) {
   var xdomain = opts.xdomain;
@@ -1842,7 +2052,7 @@ module.exports = function (opts) {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 9 */
+/* 11 */
 /***/ (function(module, exports, __webpack_require__) {
 
 
@@ -1852,9 +2062,9 @@ module.exports = function (opts) {
 
 var debug = __webpack_require__(1)('socket.io-parser');
 var Emitter = __webpack_require__(2);
-var hasBin = __webpack_require__(15);
-var binary = __webpack_require__(49);
-var isBuf = __webpack_require__(22);
+var hasBin = __webpack_require__(16);
+var binary = __webpack_require__(51);
+var isBuf = __webpack_require__(23);
 
 /**
  * Protocol version.
@@ -2248,7 +2458,7 @@ function error() {
 
 
 /***/ }),
-/* 10 */
+/* 12 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2328,79 +2538,7 @@ var Bullet = function (_Phaser$Sprite) {
 exports.default = Bullet;
 
 /***/ }),
-/* 11 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-var Player = function (_Phaser$Sprite) {
-  _inherits(Player, _Phaser$Sprite);
-
-  function Player(game, x, y, avatar, health, speed, weapons, id) {
-    _classCallCheck(this, Player);
-
-    var _this = _possibleConstructorReturn(this, (Player.__proto__ || Object.getPrototypeOf(Player)).call(this, game, x, y, avatar));
-
-    _this.game = game;
-    _this.x = x;
-    _this.y = y;
-    _this.health = health || 50;
-    _this.maxHealth = health;
-    _this.speed = speed || 5;
-    _this.avatar = 'zombie';
-    _this.weapons = weapons;
-    _this.id = id;
-    _this.currentWeapon = 0;
-    // this.anchor.setTo(0.5, 0.5) // <- purpose?
-
-    game.physics.enable(_this);
-    _this.body.velocity.x = 10;
-    _this.body.velocity.y = 10;
-    // this.body.collideWorldBounds = true;
-    return _this;
-  }
-
-  _createClass(Player, [{
-    key: 'removePlayer',
-    value: function removePlayer(game, id) {
-      game.playerMap[id].destroy();
-      delete game.playerMap[id];
-    }
-  }, {
-    key: 'takeDamage',
-    value: function takeDamage(damage) {
-      this.health -= damage;
-
-      if (this.health <= 0) {
-        this.health = 0;
-        this.alive = false;
-        this.kill();
-        return true;
-      }
-      return false;
-    }
-  }]);
-
-  return Player;
-}(Phaser.Sprite);
-
-exports.default = Player;
-
-/***/ }),
-/* 12 */
+/* 13 */
 /***/ (function(module, exports) {
 
 /**
@@ -2429,17 +2567,17 @@ module.exports = function(obj, fn){
 
 
 /***/ }),
-/* 13 */
+/* 14 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global) {/**
  * Module dependencies
  */
 
-var XMLHttpRequest = __webpack_require__(8);
-var XHR = __webpack_require__(38);
-var JSONP = __webpack_require__(37);
-var websocket = __webpack_require__(39);
+var XMLHttpRequest = __webpack_require__(10);
+var XHR = __webpack_require__(40);
+var JSONP = __webpack_require__(39);
+var websocket = __webpack_require__(41);
 
 /**
  * Export transports.
@@ -2489,18 +2627,18 @@ function polling (opts) {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 14 */
+/* 15 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
  * Module dependencies.
  */
 
-var Transport = __webpack_require__(7);
-var parseqs = __webpack_require__(5);
+var Transport = __webpack_require__(9);
+var parseqs = __webpack_require__(6);
 var parser = __webpack_require__(3);
-var inherit = __webpack_require__(4);
-var yeast = __webpack_require__(23);
+var inherit = __webpack_require__(5);
+var yeast = __webpack_require__(24);
 var debug = __webpack_require__(1)('engine.io-client:polling');
 
 /**
@@ -2514,7 +2652,7 @@ module.exports = Polling;
  */
 
 var hasXHR2 = (function () {
-  var XMLHttpRequest = __webpack_require__(8);
+  var XMLHttpRequest = __webpack_require__(10);
   var xhr = new XMLHttpRequest({ xdomain: false });
   return null != xhr.responseType;
 })();
@@ -2740,7 +2878,7 @@ Polling.prototype.uri = function () {
 
 
 /***/ }),
-/* 15 */
+/* 16 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global) {/* global Blob File */
@@ -2749,7 +2887,7 @@ Polling.prototype.uri = function () {
  * Module requirements.
  */
 
-var isArray = __webpack_require__(17);
+var isArray = __webpack_require__(18);
 
 var toString = Object.prototype.toString;
 var withNativeBlob = typeof global.Blob === 'function' || toString.call(global.Blob) === '[object BlobConstructor]';
@@ -2809,7 +2947,7 @@ function hasBinary (obj) {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 16 */
+/* 17 */
 /***/ (function(module, exports) {
 
 
@@ -2824,7 +2962,7 @@ module.exports = function(arr, obj){
 };
 
 /***/ }),
-/* 17 */
+/* 18 */
 /***/ (function(module, exports) {
 
 var toString = {}.toString;
@@ -2835,7 +2973,7 @@ module.exports = Array.isArray || function (arr) {
 
 
 /***/ }),
-/* 18 */
+/* 19 */
 /***/ (function(module, exports) {
 
 /**
@@ -2880,7 +3018,7 @@ module.exports = function parseuri(str) {
 
 
 /***/ }),
-/* 19 */
+/* 20 */
 /***/ (function(module, exports, __webpack_require__) {
 
 
@@ -2888,15 +3026,15 @@ module.exports = function parseuri(str) {
  * Module dependencies.
  */
 
-var eio = __webpack_require__(34);
-var Socket = __webpack_require__(21);
+var eio = __webpack_require__(36);
+var Socket = __webpack_require__(22);
 var Emitter = __webpack_require__(2);
-var parser = __webpack_require__(9);
-var on = __webpack_require__(20);
-var bind = __webpack_require__(12);
+var parser = __webpack_require__(11);
+var on = __webpack_require__(21);
+var bind = __webpack_require__(13);
 var debug = __webpack_require__(1)('socket.io-client:manager');
-var indexOf = __webpack_require__(16);
-var Backoff = __webpack_require__(30);
+var indexOf = __webpack_require__(17);
+var Backoff = __webpack_require__(32);
 
 /**
  * IE6+ hasOwnProperty
@@ -3459,7 +3597,7 @@ Manager.prototype.onreconnect = function () {
 
 
 /***/ }),
-/* 20 */
+/* 21 */
 /***/ (function(module, exports) {
 
 
@@ -3489,7 +3627,7 @@ function on (obj, ev, fn) {
 
 
 /***/ }),
-/* 21 */
+/* 22 */
 /***/ (function(module, exports, __webpack_require__) {
 
 
@@ -3497,13 +3635,13 @@ function on (obj, ev, fn) {
  * Module dependencies.
  */
 
-var parser = __webpack_require__(9);
+var parser = __webpack_require__(11);
 var Emitter = __webpack_require__(2);
-var toArray = __webpack_require__(50);
-var on = __webpack_require__(20);
-var bind = __webpack_require__(12);
+var toArray = __webpack_require__(52);
+var on = __webpack_require__(21);
+var bind = __webpack_require__(13);
 var debug = __webpack_require__(1)('socket.io-client:socket');
-var parseqs = __webpack_require__(5);
+var parseqs = __webpack_require__(6);
 
 /**
  * Module exports.
@@ -3913,7 +4051,7 @@ Socket.prototype.compress = function (compress) {
 
 
 /***/ }),
-/* 22 */
+/* 23 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global) {
@@ -3933,7 +4071,7 @@ function isBuf(obj) {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 23 */
+/* 24 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4006,204 +4144,6 @@ yeast.encode = encode;
 yeast.decode = decode;
 module.exports = yeast;
 
-
-/***/ }),
-/* 24 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.playerObs = exports.setEventHandlers = exports.socket = undefined;
-
-var _socket = __webpack_require__(47);
-
-var _socket2 = _interopRequireDefault(_socket);
-
-var _eventEmitterEs = __webpack_require__(42);
-
-var _eventEmitterEs2 = _interopRequireDefault(_eventEmitterEs);
-
-var _player = __webpack_require__(11);
-
-var _player2 = _interopRequireDefault(_player);
-
-var _game = __webpack_require__(6);
-
-var _game2 = _interopRequireDefault(_game);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-// let port = 'https://backend-service-ewbtarfvys.now.sh'
-// if(process.env.ENVIRONMENT === 'development') port = 'https://localhost:4000'
-
-//'http://localhost:4000'
-//http://www.dynetisgames.com/2017/03/06/how-to-make-a-multiplayer-online-game-with-phaser-socket-io-and-node-js/
-//https://github.com/Jerenaux/basic-mmo-phaser/blob/master/js/client.js
-//http://www.html5gamedevs.com/topic/29104-how-to-make-a-multiplayer-online-game-with-phaser-socketio-and-nodejs/
-
-//https://gamedev.stackexchange.com/questions/124434/phaser-io-with-socket-io-what-should-the-server-calculate-and-what-the-client
-
-//https://github.com/fbaiodias/phaser-multiplayer-game
-
-//https://github.com/Langerz82/phasertanksmultiplayer
-
-//https://github.com/crisu83/capthatflag/tree/feature/phaser-server
-
-//http://www.gabrielgambetta.com/client-side-prediction-server-reconciliation.html
-
-//https://socket.io/docs/using-multiple-nodes/
-
-var socket = (0, _socket2.default)('http://localhost:4000');
-
-var playerObs = new _eventEmitterEs2.default();
-
-var remotePlayers = [];
-var enemies = [];
-
-function setEventHandlers() {
-
-  socket.emit('test', { balls: 'balls' });
-
-  // trigger game start
-  socket.emit('newPlayer', { x: _game2.default.startX, y: _game2.default.startY });
-
-  socket.on('connect', onSocketConnected);
-
-  // Socket disconnection
-  socket.on('disconnect', onSocketDisconnect);
-
-  // New player message received
-  socket.on('newPlayer', onNewPlayer);
-
-  // add enemies to the game
-  socket.on('newEnemies', onNewEnemies);
-
-  // Player move message received
-  socket.on('movePlayer', onMovePlayer);
-
-  // Enemy move message received
-  socket.on('moveEnemy', onMoveEnemy);
-
-  socket.on('shoot', onShoot); //shootPlayer(data.id,data.pid,data.x,data.y,data.v,data.r,data.tr);
-
-  socket.on('shot', onEnemyShot); //bulletHitPlayer(data);
-
-  // Player removed message received
-  socket.on('removePlayer', onRemovePlayer);
-
-  socket.on('test', function (data) {
-    return console.log('test', data);
-  });
-}
-
-function onSocketConnected() {
-  console.log('player has joined the game');
-  socket.emit('newPlayer', { x: _game2.default.startX, y: _game2.default.startY });
-}
-
-function onSocketDisconnect() {
-  console.log('Disconnected from socket server');
-}
-
-function onNewPlayer(data) {
-  console.log('New player connected:', data);
-
-  var duplicate = playerById(data.id);
-
-  if (duplicate) {
-    console.log('Duplicate player!');
-    return;
-  }
-
-  if (remotePlayers.length === 0) {
-    localPlayer(_game2.default, data);
-  } else if (remotePlayers.length > 0) {
-    var newPlayer = new _player2.default(_game2.default, data.x, data.y, 'zombie', 50, 5, _game2.default.weapons, data.id);
-    remotePlayers.push(newPlayer);
-    playerObs.emit('addPlayer', newPlayer);
-  }
-}
-
-function localPlayer(game, data) {
-  var newPlayer = new _player2.default(game, data.x, data.y, 'zombie', 50, 5, game.weapons, data.id);
-  playerObs.emit('addPlayer', newPlayer);
-  remotePlayers.push(newPlayer);
-}
-
-function onNewEnemies(data) {
-  console.log('new enemies to add!', data.enemyList);
-  // enemies.push(data) <- make it game.enemies?
-  playerObs.emit('addEnemies', data);
-  data.enemyList.forEach(function (enemy) {
-    return enemies.push(enemy);
-  });
-}
-
-function onMovePlayer(data) {
-  var movePlayer = playerById(data.id);
-  return movePlayer ? playerObs.emit('movingPlayer', { player: movePlayer, data: data }) : false;
-}
-
-//need to modify this to accept enemy collection
-function onMoveEnemy(data) {
-  var moveEnemy = enemyById(data.id);
-  // return moveEnemy ? playerObs.emit('movingEnemy', {enemy: moveEnemy, data: data}) : false
-
-  if (!moveEnemy) {
-    console.log("Enemy (move) not found: " + data.id);
-    return;
-  }
-
-  console.log('move enemy received', moveEnemy, data);
-
-  //need to reduce quantity of information being transported
-  // playerObs.emit('movingEnemy', {enemy: moveEnemy, data: data})
-  playerObs.emit('movingEnemy', { data: data });
-}
-
-function onShoot(data) {
-  playerObs.emit('shootPlayer', { id: data.id, pid: data.pid, x: data.x, y: data.y, v: data.v, r: data.r });
-}
-
-function onEnemyShot(data) {
-  console.log('enemy shot', data);
-}
-
-function onRemovePlayer(data) {
-  var removePlayer = playerById(data.id);
-
-  if (!removePlayer) {
-    console.log('Player (remove) not found: ', data.id);
-    return;
-  }
-
-  removePlayer.kill(); // unnecessary?
-  playerObs.emit('removePlayer', removePlayer);
-  remotePlayers.splice(remotePlayers.indexOf(removePlayer), 1);
-  this.emit("removePlayer", { id: data.id });
-}
-
-function playerById(id) {
-  var identifiedPlayer = remotePlayers.filter(function (player) {
-    return player.id === id;
-  });
-  return identifiedPlayer.length > 0 ? identifiedPlayer[0] : false;
-}
-
-function enemyById(id) {
-  var identifiedEnemy = enemies.filter(function (enemy) {
-    return enemy.id === id;
-  });
-  return identifiedEnemy.length > 0 ? identifiedEnemy[0] : false;
-}
-
-exports.socket = socket;
-exports.setEventHandlers = setEventHandlers;
-exports.playerObs = playerObs;
 
 /***/ }),
 /* 25 */
@@ -4312,7 +4252,7 @@ exports.LazerBeam = exports.SingleBullet = undefined;
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _bullet = __webpack_require__(10);
+var _bullet = __webpack_require__(12);
 
 var _bullet2 = _interopRequireDefault(_bullet);
 
@@ -4420,7 +4360,7 @@ Object.defineProperty(exports, "__esModule", {
 exports.mainMenu = mainMenu;
 exports.waitForInput = waitForInput;
 
-var _game = __webpack_require__(6);
+var _game = __webpack_require__(4);
 
 var _game2 = _interopRequireDefault(_game);
 
@@ -4523,6 +4463,144 @@ module.exports = function(arraybuffer, start, end) {
 
 /***/ }),
 /* 30 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _index = __webpack_require__(7);
+
+var enemies = [];
+
+function onNewEnemies(data) {
+  console.log('new enemies to add!', data.enemyList);
+  // enemies.push(data) <- make it game.enemies?
+  _index.playerObs.emit('addEnemies', data);
+  data.enemyList.forEach(function (enemy) {
+    return enemies.push(enemy);
+  });
+}
+
+//need to modify this to accept enemy collection
+function onMoveEnemy(data) {
+  var moveEnemy = enemyById(data.id);
+  // return moveEnemy ? playerObs.emit('movingEnemy', {enemy: moveEnemy, data: data}) : false
+
+  if (!moveEnemy) {
+    console.log("Enemy (move) not found: " + data.id);
+    return;
+  }
+
+  console.log('move enemy received', moveEnemy, data);
+
+  //need to reduce quantity of information being transported
+  // playerObs.emit('movingEnemy', {enemy: moveEnemy, data: data})
+  _index.playerObs.emit('movingEnemy', { data: data });
+}
+
+function onEnemyShot(data) {
+  console.log('enemy shot', data);
+}
+
+function enemyById(id) {
+  var identifiedEnemy = enemies.filter(function (enemy) {
+    return enemy.id === id;
+  });
+  return identifiedEnemy.length > 0 ? identifiedEnemy[0] : false;
+}
+
+var playerHandlers = { onNewEnemies: onNewEnemies, onMoveEnemy: onMoveEnemy, onEnemyShot: onEnemyShot };
+exports.default = playerHandlers;
+
+/***/ }),
+/* 31 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _index = __webpack_require__(7);
+
+var _player = __webpack_require__(8);
+
+var _player2 = _interopRequireDefault(_player);
+
+var _game = __webpack_require__(4);
+
+var _game2 = _interopRequireDefault(_game);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var remotePlayers = [];
+
+function onNewPlayer(data) {
+  console.log('New player connected:', data);
+
+  var duplicate = playerById(data.id);
+
+  if (duplicate) {
+    console.log('Duplicate player!');
+    return;
+  }
+
+  if (remotePlayers.length === 0) {
+    localPlayer(_game2.default, data);
+  } else if (remotePlayers.length > 0) {
+    var newPlayer = new _player2.default(_game2.default, data.x, data.y, 'zombie', 50, 5, _game2.default.weapons, data.id);
+    remotePlayers.push(newPlayer);
+    _index.playerObs.emit('addPlayer', newPlayer);
+  }
+}
+
+function localPlayer(game, data) {
+  var newPlayer = new _player2.default(game, data.x, data.y, 'zombie', 50, 5, game.weapons, data.id);
+  _index.playerObs.emit('addPlayer', newPlayer);
+  remotePlayers.push(newPlayer);
+}
+
+function onMovePlayer(data) {
+  var movePlayer = playerById(data.id);
+  return movePlayer ? _index.playerObs.emit('movingPlayer', { player: movePlayer, data: data }) : false;
+}
+
+function onShoot(data) {
+  _index.playerObs.emit('shootPlayer', { id: data.id, pid: data.pid, x: data.x, y: data.y, v: data.v, r: data.r });
+}
+
+function onRemovePlayer(data) {
+  var removePlayer = playerById(data.id);
+
+  if (!removePlayer) {
+    console.log('Player (remove) not found: ', data.id);
+    return;
+  }
+
+  removePlayer.kill(); // unnecessary?
+  _index.playerObs.emit('removePlayer', removePlayer);
+  remotePlayers.splice(remotePlayers.indexOf(removePlayer), 1);
+  this.emit("removePlayer", { id: data.id });
+}
+
+function playerById(id) {
+  var identifiedPlayer = remotePlayers.filter(function (player) {
+    return player.id === id;
+  });
+  return identifiedPlayer.length > 0 ? identifiedPlayer[0] : false;
+}
+
+var playerHandlers = { onNewPlayer: onNewPlayer, localPlayer: localPlayer, onMovePlayer: onMovePlayer, onShoot: onShoot, onRemovePlayer: onRemovePlayer, playerById: playerById };
+exports.default = playerHandlers;
+
+/***/ }),
+/* 32 */
 /***/ (function(module, exports) {
 
 
@@ -4613,7 +4691,7 @@ Backoff.prototype.setJitter = function(jitter){
 
 
 /***/ }),
-/* 31 */
+/* 33 */
 /***/ (function(module, exports) {
 
 /*
@@ -4686,7 +4764,7 @@ Backoff.prototype.setJitter = function(jitter){
 
 
 /***/ }),
-/* 32 */
+/* 34 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global) {/**
@@ -4789,7 +4867,7 @@ module.exports = (function() {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 33 */
+/* 35 */
 /***/ (function(module, exports, __webpack_require__) {
 
 
@@ -4805,7 +4883,7 @@ exports.coerce = coerce;
 exports.disable = disable;
 exports.enable = enable;
 exports.enabled = enabled;
-exports.humanize = __webpack_require__(44);
+exports.humanize = __webpack_require__(46);
 
 /**
  * The currently active debug mode names, and names to skip.
@@ -4997,19 +5075,19 @@ function coerce(val) {
 
 
 /***/ }),
-/* 34 */
+/* 36 */
 /***/ (function(module, exports, __webpack_require__) {
 
 
-module.exports = __webpack_require__(35);
+module.exports = __webpack_require__(37);
 
 
 /***/ }),
-/* 35 */
+/* 37 */
 /***/ (function(module, exports, __webpack_require__) {
 
 
-module.exports = __webpack_require__(36);
+module.exports = __webpack_require__(38);
 
 /**
  * Exports parser
@@ -5021,21 +5099,21 @@ module.exports.parser = __webpack_require__(3);
 
 
 /***/ }),
-/* 36 */
+/* 38 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global) {/**
  * Module dependencies.
  */
 
-var transports = __webpack_require__(13);
+var transports = __webpack_require__(14);
 var Emitter = __webpack_require__(2);
 var debug = __webpack_require__(1)('engine.io-client:socket');
-var index = __webpack_require__(16);
+var index = __webpack_require__(17);
 var parser = __webpack_require__(3);
-var parseuri = __webpack_require__(18);
-var parsejson = __webpack_require__(45);
-var parseqs = __webpack_require__(5);
+var parseuri = __webpack_require__(19);
+var parsejson = __webpack_require__(47);
+var parseqs = __webpack_require__(6);
 
 /**
  * Module exports.
@@ -5168,8 +5246,8 @@ Socket.protocol = parser.protocol; // this is an int
  */
 
 Socket.Socket = Socket;
-Socket.Transport = __webpack_require__(7);
-Socket.transports = __webpack_require__(13);
+Socket.Transport = __webpack_require__(9);
+Socket.transports = __webpack_require__(14);
 Socket.parser = __webpack_require__(3);
 
 /**
@@ -5772,7 +5850,7 @@ Socket.prototype.filterUpgrades = function (upgrades) {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 37 */
+/* 39 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global) {
@@ -5780,8 +5858,8 @@ Socket.prototype.filterUpgrades = function (upgrades) {
  * Module requirements.
  */
 
-var Polling = __webpack_require__(14);
-var inherit = __webpack_require__(4);
+var Polling = __webpack_require__(15);
+var inherit = __webpack_require__(5);
 
 /**
  * Module exports.
@@ -6010,17 +6088,17 @@ JSONPPolling.prototype.doWrite = function (data, fn) {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 38 */
+/* 40 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global) {/**
  * Module requirements.
  */
 
-var XMLHttpRequest = __webpack_require__(8);
-var Polling = __webpack_require__(14);
+var XMLHttpRequest = __webpack_require__(10);
+var Polling = __webpack_require__(15);
 var Emitter = __webpack_require__(2);
-var inherit = __webpack_require__(4);
+var inherit = __webpack_require__(5);
 var debug = __webpack_require__(1)('engine.io-client:polling-xhr');
 
 /**
@@ -6430,24 +6508,24 @@ function unloadHandler () {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 39 */
+/* 41 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global) {/**
  * Module dependencies.
  */
 
-var Transport = __webpack_require__(7);
+var Transport = __webpack_require__(9);
 var parser = __webpack_require__(3);
-var parseqs = __webpack_require__(5);
-var inherit = __webpack_require__(4);
-var yeast = __webpack_require__(23);
+var parseqs = __webpack_require__(6);
+var inherit = __webpack_require__(5);
+var yeast = __webpack_require__(24);
 var debug = __webpack_require__(1)('engine.io-client:websocket');
 var BrowserWebSocket = global.WebSocket || global.MozWebSocket;
 var NodeWebSocket;
 if (typeof window === 'undefined') {
   try {
-    NodeWebSocket = __webpack_require__(52);
+    NodeWebSocket = __webpack_require__(54);
   } catch (e) { }
 }
 
@@ -6723,7 +6801,7 @@ WS.prototype.check = function () {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 40 */
+/* 42 */
 /***/ (function(module, exports) {
 
 
@@ -6748,7 +6826,7 @@ module.exports = Object.keys || function keys (obj){
 
 
 /***/ }),
-/* 41 */
+/* 43 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(module, global) {var __WEBPACK_AMD_DEFINE_RESULT__;/*! https://mths.be/utf8js v2.1.2 by @mathias */
@@ -7006,10 +7084,10 @@ module.exports = Object.keys || function keys (obj){
 
 }(this));
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(51)(module), __webpack_require__(0)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(53)(module), __webpack_require__(0)))
 
 /***/ }),
-/* 42 */
+/* 44 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -7265,7 +7343,7 @@ module.exports = EventEmitter;
 
 
 /***/ }),
-/* 43 */
+/* 45 */
 /***/ (function(module, exports) {
 
 
@@ -7288,7 +7366,7 @@ try {
 
 
 /***/ }),
-/* 44 */
+/* 46 */
 /***/ (function(module, exports) {
 
 /**
@@ -7446,7 +7524,7 @@ function plural(ms, n, name) {
 
 
 /***/ }),
-/* 45 */
+/* 47 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global) {/**
@@ -7484,7 +7562,7 @@ module.exports = function parsejson(data) {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 46 */
+/* 48 */
 /***/ (function(module, exports) {
 
 // shim for using process in browser
@@ -7674,7 +7752,7 @@ process.umask = function() { return 0; };
 
 
 /***/ }),
-/* 47 */
+/* 49 */
 /***/ (function(module, exports, __webpack_require__) {
 
 
@@ -7682,9 +7760,9 @@ process.umask = function() { return 0; };
  * Module dependencies.
  */
 
-var url = __webpack_require__(48);
-var parser = __webpack_require__(9);
-var Manager = __webpack_require__(19);
+var url = __webpack_require__(50);
+var parser = __webpack_require__(11);
+var Manager = __webpack_require__(20);
 var debug = __webpack_require__(1)('socket.io-client');
 
 /**
@@ -7769,12 +7847,12 @@ exports.connect = lookup;
  * @api public
  */
 
-exports.Manager = __webpack_require__(19);
-exports.Socket = __webpack_require__(21);
+exports.Manager = __webpack_require__(20);
+exports.Socket = __webpack_require__(22);
 
 
 /***/ }),
-/* 48 */
+/* 50 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global) {
@@ -7782,7 +7860,7 @@ exports.Socket = __webpack_require__(21);
  * Module dependencies.
  */
 
-var parseuri = __webpack_require__(18);
+var parseuri = __webpack_require__(19);
 var debug = __webpack_require__(1)('socket.io-client:url');
 
 /**
@@ -7856,7 +7934,7 @@ function url (uri, loc) {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 49 */
+/* 51 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global) {/*global Blob,File*/
@@ -7865,8 +7943,8 @@ function url (uri, loc) {
  * Module requirements
  */
 
-var isArray = __webpack_require__(17);
-var isBuf = __webpack_require__(22);
+var isArray = __webpack_require__(18);
+var isBuf = __webpack_require__(23);
 var toString = Object.prototype.toString;
 var withNativeBlob = typeof global.Blob === 'function' || toString.call(global.Blob) === '[object BlobConstructor]';
 var withNativeFile = typeof global.File === 'function' || toString.call(global.File) === '[object FileConstructor]';
@@ -8004,7 +8082,7 @@ exports.removeBlobs = function(data, callback) {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 50 */
+/* 52 */
 /***/ (function(module, exports) {
 
 module.exports = toArray
@@ -8023,7 +8101,7 @@ function toArray(list, index) {
 
 
 /***/ }),
-/* 51 */
+/* 53 */
 /***/ (function(module, exports) {
 
 module.exports = function(module) {
@@ -8051,7 +8129,7 @@ module.exports = function(module) {
 
 
 /***/ }),
-/* 52 */
+/* 54 */
 /***/ (function(module, exports) {
 
 /* (ignored) */

@@ -6,10 +6,23 @@
 //https://developer.tizen.org/community/tip-tech/creating-isometric-world-phaser.js-using-isometric-plugin
 //https://gamedevelopment.tutsplus.com/tutorials/creating-isometric-worlds-primer-for-game-developers-updated--cms-28392
   // ^includes a really cool minimap
+//http://evilmousestudios.com/optimizing-javascript-games/
 
 //https://gamedevacademy.org/how-to-make-an-infinitely-scrolling-game-with-phaser/
 
 //http://perplexingtech.weebly.com/game-dev-blog/using-states-in-phaserjs-javascript-game-developement
+
+//performance upgradeses!
+  // memory leak <- need to unsubscribe to prevent over calling.
+    //Excessive logs seen per update cycle
+
+  //implement enemy movements as a data stream!!!!
+  //https://github.com/cujojs/most
+  //https://survivejs.com/blog/most-interview/
+
+//https://github.com/primus/eventemitter3
+//https://netbasal.com/javascript-the-magic-behind-event-emitter-cce3abcbcef9
+//https://www.appneta.com/blog/3-common-node-js-design-patterns-that-are-misused/
 
 /* ----- Phaser Dependencies ----- */
 import Bullet from './models/bullet'
@@ -49,7 +62,7 @@ import {socket, setEventHandlers, playerObs} from './eventHandlers'
 
   /* ----- Start Game Instance ----- */
     //formerly Phaser.AUTO for rendering; forcing Phaser.CANVAS to boost performacne
-  const game = new Phaser.Game(gameWidth, gameHeight, Phaser.CANVAS, 'game-container', {
+  const game = new Phaser.Game(gameWidth, gameHeight, Phaser.AUTO, 'game-container', {
       init: init,
       preload: preload,
       create: create,
@@ -98,7 +111,7 @@ import {socket, setEventHandlers, playerObs} from './eventHandlers'
     setEventHandlers() // Start listening for events
 
     addInputs() // Add game controls
-    addScore() // Score animations
+    //addScore() // Score animations
 
     checkForNewPlayers()
 
@@ -106,7 +119,7 @@ import {socket, setEventHandlers, playerObs} from './eventHandlers'
   }
 
   function update(){
-    waitForInput()
+    //waitForInput()
 
     if (localPlayer) checkPlayerInputs(localPlayer)
     if (localPlayer) checkCollisions()
@@ -118,7 +131,9 @@ import {socket, setEventHandlers, playerObs} from './eventHandlers'
     if (localPlayer) moveRemoteEnemy()
     if (localPlayer) shootPlayer()
 
-    checkScore()
+    //retreiveGameTime()
+
+    //checkScore()
     checkRemovePlayer()
     removeInstructions()
   }
@@ -130,6 +145,10 @@ import {socket, setEventHandlers, playerObs} from './eventHandlers'
   }
 
 
+  //use this to sync with streams running external to the update loop
+  function retreiveGameTime(){
+    return game.time
+  }
 
 
 
@@ -435,6 +454,7 @@ import {socket, setEventHandlers, playerObs} from './eventHandlers'
     console.log('Playerd added')
     players.add(player)
     game.playerMap[player.id] = player
+    //replace global localPlayer variable with an observable
     if(!localPlayer) {
       localPlayer = player
       game.camera.follow(localPlayer)
@@ -474,6 +494,7 @@ import {socket, setEventHandlers, playerObs} from './eventHandlers'
   function moveEnemyOperation(moveEnemy){
     console.log('moving enemy id',moveEnemy.data.id)
     const enemy = enemyById(moveEnemy.data.id)
+
     const xCord = moveEnemy.data.x
     const yCord = moveEnemy.data.y
 
@@ -498,7 +519,7 @@ import {socket, setEventHandlers, playerObs} from './eventHandlers'
     delete game.playerMap[removePlayer.id]
   }
 
-
+  //potentially utilize once?
   function addRemoteEnemies(){
     playerObs.on('addEnemies', addEnemyOperation)
   }
