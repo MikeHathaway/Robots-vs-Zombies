@@ -27,7 +27,10 @@ class Enemy extends Phaser.Sprite{
   }
 
   isAlive(){
-    if(this.health <= 0) this.kill()
+    if(this.health <= 0) {
+      return false
+    }
+    return true
   }
 
   takeDamage(damage){

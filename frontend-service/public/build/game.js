@@ -1796,6 +1796,7 @@ function update() {
   if (enemies) _enemyHandlers2.default.moveEnemy();
 
   checkScore();
+
   checkRemovePlayer();
   removeInstructions();
 }
@@ -1803,7 +1804,7 @@ function update() {
 function render() {
   if (localPlayer) game.debug.text("Player Health: " + localPlayer.health + " / " + localPlayer.maxHealth, 32, 32);
   if (localPlayer) game.debug.text("Player Score:  " + game.score, 32, 64);
-  if (localPlayer) game.debug.text("Enemies Remaining:  " + enemyMap.length, 32, 96);
+  if (localPlayer) game.debug.text("Enemies Remaining:  " + enemies.children.length, 32, 96);
 }
 
 //use this to sync with streams running external to the update loop
@@ -2020,13 +2021,15 @@ function aimRotation() {
 }
 
 function checkEnemyActions() {
-  if (enemies) enemies.children.forEach(enemyOperations);
+  if (enemies) enemies.children.map(enemyOperations);
 }
 
 function enemyOperations(enemy) {
-  enemy.isAlive();
-  // enemy.move(game,enemy,localPlayer)
-  _enemyHandlers2.default.sendEnemyMovement(enemy);
+  if (enemy.isAlive()) {
+    _enemyHandlers2.default.sendEnemyMovement(enemy);
+    return enemy;
+  }
+  return enemy.destroy();
 }
 
 function removeInstructions() {
@@ -2125,6 +2128,7 @@ function removeOperations(removePlayer) {
 
 function addEnemiesToGroup() {
   _eventHandlers.playerObs.on('enemyGroup', function (data) {
+    console.log('enemy data!!', data);
     return enemies.add(data);
   });
 }
@@ -2349,7 +2353,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 
 var socket = (0, _socket2.default)('http://localhost:4000');
-// const socket = io('https://backend-service-ahdzlpuvnw.now.sh')
+// const socket = io('https://backend-service-zlosvqtygd.now.sh')
 
 var playerObs = new _eventEmitterEs2.default();
 
@@ -3657,7 +3661,10 @@ var Enemy = function (_Phaser$Sprite) {
   }, {
     key: 'isAlive',
     value: function isAlive() {
-      if (this.health <= 0) this.kill();
+      if (this.health <= 0) {
+        return false;
+      }
+      return true;
     }
   }, {
     key: 'takeDamage',

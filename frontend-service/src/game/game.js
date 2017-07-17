@@ -112,6 +112,7 @@ import enemyHandlers from './eventHandlers/enemyHandlers'
     if (enemies) enemyHandlers.moveEnemy()
 
     checkScore()
+
     checkRemovePlayer()
     removeInstructions()
   }
@@ -119,7 +120,7 @@ import enemyHandlers from './eventHandlers/enemyHandlers'
   function render(){
 	   if (localPlayer) game.debug.text("Player Health: " + localPlayer.health + " / " + localPlayer.maxHealth, 32, 32);
 	   if (localPlayer) game.debug.text("Player Score:  " + game.score, 32, 64);
-     if (localPlayer) game.debug.text("Enemies Remaining:  " + enemyMap.length, 32, 96);
+     if (localPlayer) game.debug.text("Enemies Remaining:  " + enemies.children.length, 32, 96);
   }
 
 
@@ -354,13 +355,15 @@ import enemyHandlers from './eventHandlers/enemyHandlers'
 
 
   function checkEnemyActions(){
-    if(enemies) enemies.children.forEach(enemyOperations)
+    if(enemies) enemies.children.map(enemyOperations)
   }
 
   function enemyOperations(enemy){
-    enemy.isAlive()
-    // enemy.move(game,enemy,localPlayer)
-    enemyHandlers.sendEnemyMovement(enemy)
+    if(enemy.isAlive()){
+      enemyHandlers.sendEnemyMovement(enemy)
+      return enemy
+    }
+    return enemy.destroy()
   }
 
 
@@ -474,6 +477,7 @@ import enemyHandlers from './eventHandlers/enemyHandlers'
 
   function addEnemiesToGroup(){
     playerObs.on('enemyGroup',(data) => {
+      console.log('enemy data!!',data)
       return enemies.add(data)
     })
   }

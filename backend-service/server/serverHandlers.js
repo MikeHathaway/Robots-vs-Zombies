@@ -37,10 +37,9 @@ module.exports = function(io){
 
     console.log('new played added: ', this.id)
 
-    console.log('emitting!!')
-
     //formely this.broadcast.emit
     if(players.length === 0){
+      console.log('emitting through new player')
       io.sockets.emit('newPlayer', {id: newPlayer.id, x: newPlayer.getX(), y: newPlayer.getY()})
 
       players.forEach(player => {
@@ -66,9 +65,13 @@ module.exports = function(io){
 
   function onNewEnemies(data){
     //ensure that enemies are only added once
+    console.log('on new enemies called', enemies.length,data.number)
     if(enemies.length === 0){
       console.log('first player enemies!')
       addEnemies(data)
+      io.sockets.emit('newEnemies', {enemyList: enemies})
+    }
+    else if(enemies.length === data.number){
       io.sockets.emit('newEnemies', {enemyList: enemies})
     }
   }

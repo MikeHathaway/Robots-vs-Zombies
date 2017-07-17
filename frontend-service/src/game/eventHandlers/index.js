@@ -29,7 +29,7 @@ import enemyHandlers from './enemyHandlers'
 
 
 const socket = io('http://localhost:4000')
-// const socket = io('https://backend-service-ahdzlpuvnw.now.sh')
+// const socket = io('https://backend-service-zlosvqtygd.now.sh')
 
 const playerObs = new EventEmitter()
 
