@@ -16,7 +16,6 @@
 
 
 import io from 'socket.io-client'
-import * as most from 'most'
 
 import EventEmitter from 'event-emitter-es6'
 

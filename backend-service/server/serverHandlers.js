@@ -39,13 +39,26 @@ module.exports = function(io){
     console.log('emitting!!')
 
     //formely this.broadcast.emit
-    io.sockets.emit('newPlayer', {id: newPlayer.id, x: newPlayer.getX(), y: newPlayer.getY()})
+    if(players.length === 0){
+      io.sockets.emit('newPlayer', {id: newPlayer.id, x: newPlayer.getX(), y: newPlayer.getY()})
 
-    players.forEach(player => {
-      this.emit('newPlayer', {id: player.id, x: player.getX(), y: player.getY()})
-    })
+      players.forEach(player => {
+        this.emit('newPlayer', {id: player.id, x: player.getX(), y: player.getY()})
+      })
 
-    players.push(newPlayer);
+      players.push(newPlayer);
+    }
+    else {
+      io.sockets.emit('newPlayer', {id: newPlayer.id, x: newPlayer.getX(), y: newPlayer.getY()})
+      io.sockets.emit('newEnemies', {enemyList: enemies})
+
+
+      players.forEach(player => {
+        this.emit('newPlayer', {id: player.id, x: player.getX(), y: player.getY()})
+      })
+
+      players.push(newPlayer);
+    }
   }
 
 
@@ -53,19 +66,20 @@ module.exports = function(io){
     console.log(enemies.length)
     //ensure that enemies are only added once
     if(enemies.length === 0){
-      let currentNum = 0
-      console.log(data, game.lastEnemyId)
-      while(currentNum++ < data.number){
-        const newEnemy = new Enemy(game.lastEnemyId, data.x, data.y)
-        game.lastEnemyId++
-        enemies.push(newEnemy)
-      }
-
+      addEnemies(data)
+      io.sockets.emit('newEnemies', {enemyList: enemies})
     }
-    // io.sockets.emit('newEnemy', {id: newEnemy.id, x: newEnemy.x, y: newEnemy.y})
-    io.sockets.emit('newEnemies', {enemyList: enemies})
   }
 
+  function addEnemies(data){
+    let currentNum = 0
+    console.log(data, game.lastEnemyId)
+    while(currentNum++ < data.number){
+      const newEnemy = new Enemy(game.lastEnemyId, randomInt(0,data.x), randomInt(0,data.y))
+      game.lastEnemyId++
+      enemies.push(newEnemy)
+    }
+  }
 
   function onMovePlayer(data) {
     const movePlayer = playerById(data.id);
@@ -91,35 +105,62 @@ module.exports = function(io){
         return
     }
 
+    console.log('speed!',moveEnemy.speed, moveEnemy)
     const enemyRange = moveEnemy.speed * 10
 
-    if(decideToMove(moveEnemy,enemyRange)){
-      console.log('moving!')
-      identifyNextPosition(moveEnemy)
-      io.volatile.sockets.emit('moveEnemy', {id: moveEnemy.id, x: moveEnemy.x, y: moveEnemy.y}) // this.broadcast.emit("moveEnemy", {id: moveEnemy.id, x: moveEnemy.x, y: moveEnemy.y})
+    const target = decideToMove(moveEnemy,enemyRange)
+
+    if(target !== -1){
+      identifyNextPosition(moveEnemy,enemyRange,players[target])
+
+      io.volatile.sockets.emit('moveEnemy', {id: moveEnemy.id, x: moveEnemy.x, y: moveEnemy.y})
     }
   }
 
-  //Identify best means of moving enemies
-  function identifyNextPosition(enemy, enemyRange){
+  // && check that they are also within y range
+  function identifyNextPosition(enemy, enemyRange,player){
     if(Math.floor(Math.random() * 2) === 1){
-      if((Math.floor(enemy.x) - Math.floor(player.x)) < enemyRange) return enemy.x += enemy.speed
-      if((Math.floor(enemy.x) + Math.floor(player.x)) > enemyRange) return enemy.x -= enemy.speed
+      if((Math.floor(enemy.x) - Math.floor(player.getX())) < enemyRange) return enemy.x += enemy.speed
+      if((Math.floor(enemy.x) + Math.floor(player.getX())) > enemyRange) return enemy.x -= enemy.speed
     }
     else {
-      if((Math.floor(enemy.y) - Math.floor(player.y)) < enemyRange) return enemy.y += enemy.speed
-      if((Math.floor(enemy.y) + Math.floor(player.y)) > enemyRange) return enemy.y -= enemy.speed
+      if((Math.floor(enemy.y) - Math.floor(player.getY())) < enemyRange) return enemy.y += enemy.speed
+      if((Math.floor(enemy.y) + Math.floor(player.getY())) > enemyRange) return enemy.y -= enemy.speed
     }
   }
 
+  // function identifyNextPosition(enemy, enemyRange,player){
+  //   if(Math.floor(Math.random() * 2) === 1){
+  //     if((Math.floor(enemy.x) - Math.floor(player.getX())) < enemyRange && Math.floor(enemy.y) - Math.floor(player.getY()) < enemyRange return enemy.x += enemy.speed
+  //     if((Math.floor(enemy.x) + Math.floor(player.getX())) > enemyRange) return enemy.x -= enemy.speed
+  //   }
+  //   else {
+  //     if((Math.floor(enemy.y) - Math.floor(player.getY())) < enemyRange) return enemy.y += enemy.speed
+  //     if((Math.floor(enemy.y) + Math.floor(player.getY())) > enemyRange) return enemy.y -= enemy.speed
+  //   }
+  // }
+  //
+  // function incrPos(enemy,direction){
+  //   return enemy.direction += enemy.speed
+  // }
+  //
+  // function decrPos(enemy,direction){
+  //   return enemy.direction += enemy.speed
+  // }
+
+
   function decideToMove(enemy, enemyRange){
-    for(const player in players){
-      if(((Math.floor(enemy.x) - Math.floor(player.x)) < enemyRange) ||
-         ((Math.floor(enemy.y) - Math.floor(player.y)) < enemyRange)
-       ){
-         return true
+    for(let i = 0; i < players.length; i++){
+
+      if(
+          Math.floor(enemy.x) - Math.floor(players[i].getX()) < enemyRange ||
+        Math.floor(enemy.y) - Math.floor(players[i].getY()) < enemyRange
+        ){
+          console.log('true')
+         return i
        }
-        return false
+       console.log('false')
+        return -1
     }
   }
 

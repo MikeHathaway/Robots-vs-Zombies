@@ -1780,6 +1780,9 @@ function create() {
   addScore(); // Score animations
 
   checkForNewPlayers();
+
+  addEnemiesToGroup();
+  _enemyHandlers2.default.addRemoteEnemies();
 }
 
 function update() {
@@ -1790,13 +1793,8 @@ function update() {
   if (localPlayer) moveRemotePlayer();
   if (localPlayer) shootPlayer();
 
-  if (localPlayer) checkEnemyActions();
-  if (localPlayer) _enemyHandlers2.default.moveRemoteEnemy();
-  addEnemiesToGroup();
-  _enemyHandlers2.default.addRemoteEnemies();
-
-  //retreiveGameTime() <- use to sync external streams with game update loop
-
+  if (enemies) checkEnemyActions();
+  if (enemies) _enemyHandlers2.default.moveEnemy();
 
   checkScore();
   checkRemovePlayer();
@@ -2307,10 +2305,6 @@ var _socket = __webpack_require__(119);
 
 var _socket2 = _interopRequireDefault(_socket);
 
-var _most = __webpack_require__(96);
-
-var most = _interopRequireWildcard(_most);
-
 var _eventEmitterEs = __webpack_require__(68);
 
 var _eventEmitterEs2 = _interopRequireDefault(_eventEmitterEs);
@@ -2331,15 +2325,13 @@ var _enemyHandlers = __webpack_require__(27);
 
 var _enemyHandlers2 = _interopRequireDefault(_enemyHandlers);
 
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
-
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 // if(process.env.ENVIRONMENT === 'development') port = 'https://localhost:4000'
 
 
 //'https://backend-service-lxzdxsoeyl.now.sh'
-var socket = (0, _socket2.default)('http://localhost:4000'); //http://www.dynetisgames.com/2017/03/06/how-to-make-a-multiplayer-online-game-with-phaser-socket-io-and-node-js/
+//http://www.dynetisgames.com/2017/03/06/how-to-make-a-multiplayer-online-game-with-phaser-socket-io-and-node-js/
 //https://github.com/Jerenaux/basic-mmo-phaser/blob/master/js/client.js
 //http://www.html5gamedevs.com/topic/29104-how-to-make-a-multiplayer-online-game-with-phaser-socketio-and-nodejs/
 
@@ -2355,6 +2347,8 @@ var socket = (0, _socket2.default)('http://localhost:4000'); //http://www.dyneti
 
 //https://socket.io/docs/using-multiple-nodes/
 
+
+var socket = (0, _socket2.default)('http://localhost:4000');
 
 var playerObs = new _eventEmitterEs2.default();
 
@@ -3445,6 +3439,12 @@ var _game = __webpack_require__(10);
 
 var _game2 = _interopRequireDefault(_game);
 
+var _most = __webpack_require__(96);
+
+var most = _interopRequireWildcard(_most);
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var enemyMap = [];
@@ -3453,9 +3453,7 @@ var enemyMap = [];
 /** ADD ENEMIES */
 function onNewEnemies(data) {
   console.log('new enemies to add!', data.enemyList);
-  // enemies.push(data) <- make it game.enemies?
   _index.playerObs.emit('addEnemies', data);
-  // data.enemyList.forEach(enemy => enemies.push(enemy))
 }
 
 //potentially utilize once?
@@ -3467,11 +3465,7 @@ function addEnemyOperation(enemyData) {
   if (enemyMap.length < 5) {
     enemyData.enemyList.forEach(function (enemy) {
       var newEnemy = new _enemy2.default(_game2.default, enemy.x, enemy.y, enemy.type, enemy.id);
-
       _index.playerObs.emit('enemyGroup', newEnemy);
-      /* REGAIN ACCESS TO ENEMIES GROUP */
-      //enemies.add(newEnemy)
-
       return enemyMap.push(newEnemy);
     });
   }
@@ -3490,35 +3484,31 @@ function sendEnemyMovement(enemy) {
 
 function onMoveEnemy(data) {
   var moveEnemy = enemyById(data.id);
-  // return moveEnemy ? playerObs.emit('movingEnemy', {enemy: moveEnemy, data: data}) : false
 
   if (!moveEnemy) {
     console.log("Enemy (move) not found: " + data.id);
     return;
   }
-
-  console.log('move enemy received', moveEnemy, data);
-
-  //need to reduce quantity of information being transported
-  // playerObs.emit('movingEnemy', {enemy: moveEnemy, data: data})
-  _index.playerObs.emit('movingEnemy', { data: data });
+  // playerObs.emit('movingEnemy', {id: moveEnemy.id, x: moveEnemy.body.x, y: moveEnemy.body.y})
+  _index.playerObs.emit('movingEnemy', { id: moveEnemy.id, x: data.x, y: data.y });
 }
 
-function moveRemoteEnemy() {
+function moveEnemy() {
   _index.playerObs.on('movingEnemy', moveEnemyOperation);
 }
 
 function moveEnemyOperation(moveEnemy) {
-  console.log('moving enemy id', moveEnemy.data.id);
-  var enemy = enemyById(moveEnemy.data.id);
+  var enemy = enemyById(moveEnemy.id);
+  console.log('ENEMY COORDINATEs', enemy.body.x, moveEnemy.x);
 
-  var xCord = moveEnemy.data.x;
-  var yCord = moveEnemy.data.y;
+  var xCord = moveEnemy.x;
+  var yCord = moveEnemy.y;
 
   var distance = Phaser.Math.distance(enemy.body.x, enemy.body.y, xCord, yCord);
   var tween = _game2.default.add.tween(enemy);
   tween.to({ x: xCord, y: yCord }, 0);
   tween.start();
+  tween.remove(enemy);
 }
 
 function enemyById(id) {
@@ -3528,7 +3518,7 @@ function enemyById(id) {
   return identifiedEnemy.length > 0 ? identifiedEnemy[0] : false;
 }
 
-var enemyHandlers = { onNewEnemies: onNewEnemies, onMoveEnemy: onMoveEnemy, onEnemyShot: onEnemyShot, addRemoteEnemies: addRemoteEnemies, sendEnemyMovement: sendEnemyMovement, moveRemoteEnemy: moveRemoteEnemy };
+var enemyHandlers = { onNewEnemies: onNewEnemies, onMoveEnemy: onMoveEnemy, onEnemyShot: onEnemyShot, addRemoteEnemies: addRemoteEnemies, sendEnemyMovement: sendEnemyMovement, moveEnemy: moveEnemy };
 exports.default = enemyHandlers;
 
 /***/ }),

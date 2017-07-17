@@ -2,6 +2,9 @@ import {socket, playerObs} from './index'
 import Enemy from '../models/enemy'
 import game from '../game'
 
+import * as most from 'most'
+
+
 
 const enemyMap = []
 //const enemies = game.add.group()
@@ -9,9 +12,8 @@ const enemyMap = []
 /** ADD ENEMIES */
 function onNewEnemies(data){
   console.log('new enemies to add!', data.enemyList)
-  // enemies.push(data) <- make it game.enemies?
   playerObs.emit('addEnemies', data)
-  // data.enemyList.forEach(enemy => enemies.push(enemy))
+
 }
 
 //potentially utilize once?
@@ -23,11 +25,7 @@ function addEnemyOperation(enemyData){
   if(enemyMap.length < 5){
     enemyData.enemyList.forEach(enemy => {
       const newEnemy = new Enemy(game,enemy.x,enemy.y,enemy.type,enemy.id)
-
       playerObs.emit('enemyGroup',newEnemy)
-      /* REGAIN ACCESS TO ENEMIES GROUP */
-      //enemies.add(newEnemy)
-
       return enemyMap.push(newEnemy)
     })
   }
@@ -49,37 +47,33 @@ function sendEnemyMovement(enemy){
 
 function onMoveEnemy(data){
   const moveEnemy = enemyById(data.id);
-  // return moveEnemy ? playerObs.emit('movingEnemy', {enemy: moveEnemy, data: data}) : false
 
   if (!moveEnemy) {
       console.log("Enemy (move) not found: " + data.id);
       return;
   }
+  // playerObs.emit('movingEnemy', {id: moveEnemy.id, x: moveEnemy.body.x, y: moveEnemy.body.y})
+  playerObs.emit('movingEnemy', {id: moveEnemy.id, x: data.x, y: data.y})
 
-  console.log('move enemy received', moveEnemy, data)
-
-  //need to reduce quantity of information being transported
-  // playerObs.emit('movingEnemy', {enemy: moveEnemy, data: data})
-  playerObs.emit('movingEnemy', {data: data})
 }
 
-function moveRemoteEnemy(){
+function moveEnemy(){
   playerObs.on('movingEnemy', moveEnemyOperation)
 }
 
 function moveEnemyOperation(moveEnemy){
-  console.log('moving enemy id',moveEnemy.data.id)
-  const enemy = enemyById(moveEnemy.data.id)
+  const enemy = enemyById(moveEnemy.id)
+  console.log('ENEMY COORDINATEs',enemy.body.x, moveEnemy.x)
 
-  const xCord = moveEnemy.data.x
-  const yCord = moveEnemy.data.y
+  const xCord = moveEnemy.x
+  const yCord = moveEnemy.y
 
   const distance = Phaser.Math.distance(enemy.body.x,enemy.body.y,xCord,yCord)
   const tween = game.add.tween(enemy)
   tween.to({x:xCord,y:yCord}, 0)
   tween.start()
+  tween.remove(enemy)
 }
-
 
 
 function enemyById (id) {
@@ -89,5 +83,5 @@ function enemyById (id) {
 
 
 
-const enemyHandlers = {onNewEnemies,onMoveEnemy,onEnemyShot, addRemoteEnemies, sendEnemyMovement, moveRemoteEnemy}
+const enemyHandlers = {onNewEnemies,onMoveEnemy,onEnemyShot, addRemoteEnemies, sendEnemyMovement, moveEnemy}
 export default enemyHandlers

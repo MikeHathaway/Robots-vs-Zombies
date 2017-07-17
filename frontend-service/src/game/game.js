@@ -96,6 +96,9 @@ import enemyHandlers from './eventHandlers/enemyHandlers'
     addScore() // Score animations
 
     checkForNewPlayers()
+
+    addEnemiesToGroup()
+    enemyHandlers.addRemoteEnemies()
   }
 
   function update(){
@@ -106,13 +109,8 @@ import enemyHandlers from './eventHandlers/enemyHandlers'
     if (localPlayer) moveRemotePlayer()
     if (localPlayer) shootPlayer()
 
-    if (localPlayer) checkEnemyActions()
-    if (localPlayer) enemyHandlers.moveRemoteEnemy()
-    addEnemiesToGroup()
-    enemyHandlers.addRemoteEnemies()
-
-    //retreiveGameTime() <- use to sync external streams with game update loop
-
+    if (enemies) checkEnemyActions()
+    if (enemies) enemyHandlers.moveEnemy()
 
     checkScore()
     checkRemovePlayer()
