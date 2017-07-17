@@ -60,7 +60,6 @@ function moveEnemy(){
 
 function moveEnemyOperation(moveEnemy){
   const enemy = enemyById(moveEnemy.id)
-  console.log('ENEMY COORDINATEs',enemy.body.x, moveEnemy.x)
 
   const xCord = moveEnemy.x
   const yCord = moveEnemy.y
@@ -69,7 +68,8 @@ function moveEnemyOperation(moveEnemy){
   const tween = game.add.tween(enemy)
   tween.to({x:xCord,y:yCord}, 0)
   tween.start()
-  tween.remove(enemy)
+
+  //tween.remove(enemy) <-potential solution for memory consumption issue
 }
 
 
@@ -83,11 +83,16 @@ function enemyById (id) {
 
 
 /** SHOOT ENEMIES */
-function onEnemyShot(data){
-  console.log('enemy shot',data)
+function onEnemyHit(data){
+  const enemy = enemyById(data.id)
+  console.log('enemy hit',data)
+  if(data.alive){
+    enemy.health = data.health
+  }
+  //else kill that enemy
 }
 
 
 
-const enemyHandlers = {onNewEnemies,onMoveEnemy,onEnemyShot, addRemoteEnemies, sendEnemyMovement, moveEnemy}
+const enemyHandlers = {onNewEnemies,onMoveEnemy, onEnemyHit, addRemoteEnemies, sendEnemyMovement, moveEnemy}
 export default enemyHandlers

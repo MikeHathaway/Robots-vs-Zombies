@@ -1,4 +1,4 @@
-import {playerObs} from './index'
+import {socket,playerObs} from './index'
 
 import Player from '../models/player'
 import game from '../game'

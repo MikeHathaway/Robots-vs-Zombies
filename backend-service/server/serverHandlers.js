@@ -26,6 +26,7 @@ module.exports = function(io){
     client.on('movePlayer', onMovePlayer)
     client.on('moveEnemy', onMoveEnemy)
     client.on('shoot', onShoot)
+    client.on('enemyHit', onEnemyHit)
     client.on('disconnect', onSocketDisconnect)
     client.on('test', (data) => { console.log(data)})
   }
@@ -102,12 +103,11 @@ module.exports = function(io){
     const moveEnemy = enemyById(data.id)
 
     if (!moveEnemy) {
-        console.log("Enemy not found: " + data.id)
+        console.log("Enemy (move) not found: " + data.id)
         return
     }
 
-    console.log('speed!',moveEnemy.speed, moveEnemy)
-    const enemyRange = moveEnemy.speed * 10
+    const enemyRange = moveEnemy.speed * 15
 
     const target = decideToMove(moveEnemy,enemyRange)
 
@@ -154,13 +154,12 @@ module.exports = function(io){
     for(let i = 0; i < players.length; i++){
 
       if(
-          Math.floor(enemy.x) - Math.floor(players[i].getX()) < enemyRange ||
+        Math.floor(enemy.x) - Math.floor(players[i].getX()) < enemyRange ||
         Math.floor(enemy.y) - Math.floor(players[i].getY()) < enemyRange
         ){
-          console.log('true')
+          //console.log('true')
          return i
        }
-       console.log('false')
         return -1
     }
   }
@@ -175,6 +174,24 @@ module.exports = function(io){
     // this.volatile.emit('shoot', bullet);
     this.broadcast.emit('shoot', bullet);
     this.emit('shoot', bullet);
+  }
+
+  function onEnemyHit(data){
+    const hitEnemy = enemyById(data.id)
+
+    if (!hitEnemy) {
+        console.log("Enemy (move) not found: " + data.id)
+        return
+    }
+
+    console.log('ENEMY HIT!!!!!!',hitEnemy.health, data.damage)
+
+    hitEnemy.health -= data.damage
+
+    if(hitEnemy.health <= 0){
+      return io.sockets.emit('enemyHit', {id: hitEnemy.id, health: 0, alive: false})
+    }
+    return io.sockets.emit('enemyHit', {id: hitEnemy.id, health: hitEnemy.health, alive: true})
   }
 
 
@@ -216,9 +233,9 @@ module.exports = function(io){
   			let theta = bullet.r
   			const x = Math.round(bullet.x+(Math.cos(theta) * bullet.v) * elapsedTime);
   			const y = Math.round(bullet.y+(Math.sin(theta) * bullet.v) * elapsedTime);
-  			console.log("x:"+x+",y:"+y);
+  			//console.log("x:"+x+",y:"+y);
   			if (x < -1000 || x > 1000 || y < -1000 || y > 1000){
-  				console.log("x:"+x+",y:"+y+",bullet.r:"+bullet.r+",bullet.v:"+bullet.v);
+  				//console.log("x:"+x+",y:"+y+",bullet.r:"+bullet.r+",bullet.v:"+bullet.v);
   				bullets.splice(bullet,1);
   				delete bullet;
   				continue;
@@ -235,7 +252,7 @@ module.exports = function(io){
 
           /*  Bullet is passing the intersection check */
   				bullet.hid = enemy.id;
-  				console.log("Enemy HIT!!!!!!!");
+  				//console.log("Enemy HIT!!!!!!!");
   				const packet = {bullet: bullet, enemy: enemy, targetHealth: --enemy.health} //, srcScore: ++player.score};
   				gSocket.volatile.broadcast.emit('shot',packet);
   				gSocket.volatile.emit('shot',packet);
@@ -258,8 +275,8 @@ function rotatePoint(px,py,ox,oy,theta){
 }
 
 function pointRectangleIntersection(p, r) {
-  console.log("p.x:"+p.x+",p.y:"+p.y);
-  console.log("x1:"+r.x1+",y1:"+r.y1+",x2:"+r.x2+",y2:"+r.y2);
+  //console.log("p.x:"+p.x+",p.y:"+p.y);
+  //console.log("x1:"+r.x1+",y1:"+r.y1+",x2:"+r.x2+",y2:"+r.y2);
   return p.x >= r.x1 && p.x <= r.x2 && p.y >= r.y1 && p.y <= r.y2;
 }
 

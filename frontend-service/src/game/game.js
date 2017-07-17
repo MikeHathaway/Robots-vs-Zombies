@@ -77,8 +77,7 @@ import enemyHandlers from './eventHandlers/enemyHandlers'
   }
 
   function create(){
-    console.log('main menu', mainMenu)
-    mainMenu()
+    //mainMenu()
 
     configureGame()
 
@@ -328,11 +327,13 @@ import enemyHandlers from './eventHandlers/enemyHandlers'
   }
 
   function hitEnemy(bullet, enemy){
-    enemy.takeDamage(bullet.parent.damage)
+    const damage = bullet.parent.damage
+    enemy.takeDamage(damage)
     bullet.kill()
     console.log("Hit Zombie")
+    socket.emit('enemyHit',{id: enemy.id, damage: damage})
 
-    const score = bullet.parent.damage
+    const score = damage
     // game.score += 5
     createScoreAnimation(enemy.x,enemy.y,`${score}`,5)
   }

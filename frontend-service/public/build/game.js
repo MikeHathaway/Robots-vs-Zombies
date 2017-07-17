@@ -1761,8 +1761,7 @@ function preload() {
 }
 
 function create() {
-  console.log('main menu', _mainMenu.mainMenu);
-  (0, _mainMenu.mainMenu)();
+  //mainMenu()
 
   configureGame();
 
@@ -1996,11 +1995,13 @@ function checkCollisions() {
 }
 
 function hitEnemy(bullet, enemy) {
-  enemy.takeDamage(bullet.parent.damage);
+  var damage = bullet.parent.damage;
+  enemy.takeDamage(damage);
   bullet.kill();
   console.log("Hit Zombie");
+  _eventHandlers.socket.emit('enemyHit', { id: enemy.id, damage: damage });
 
-  var score = bullet.parent.damage;
+  var score = damage;
   // game.score += 5
   createScoreAnimation(enemy.x, enemy.y, '' + score, 5);
 }
@@ -2330,8 +2331,6 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 // if(process.env.ENVIRONMENT === 'development') port = 'https://localhost:4000'
 
 
-//'http://localhost:4000'
-// const socket = io('https://backend-service-thtwkztjkn.now.sh')
 //http://www.dynetisgames.com/2017/03/06/how-to-make-a-multiplayer-online-game-with-phaser-socket-io-and-node-js/
 //https://github.com/Jerenaux/basic-mmo-phaser/blob/master/js/client.js
 //http://www.html5gamedevs.com/topic/29104-how-to-make-a-multiplayer-online-game-with-phaser-socketio-and-nodejs/
@@ -2350,6 +2349,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 
 var socket = (0, _socket2.default)('http://localhost:4000');
+// const socket = io('https://backend-service-ahdzlpuvnw.now.sh')
 
 var playerObs = new _eventEmitterEs2.default();
 
@@ -2387,15 +2387,11 @@ function setEventHandlers() {
   socket.on('moveEnemy', _enemyHandlers2.default.onMoveEnemy);
 
   //bulletHitPlayer(data);
-  socket.on('shot', _enemyHandlers2.default.onEnemyShot);
+  socket.on('enemyHit', _enemyHandlers2.default.onEnemyHit);
 
   socket.on('test', function (data) {
     return console.log('test', data);
   });
-}
-
-function onSocketDisconnect() {
-  console.log('Disconnected from socket server');
 }
 
 exports.socket = socket;
@@ -3488,7 +3484,6 @@ function moveEnemy() {
 
 function moveEnemyOperation(moveEnemy) {
   var enemy = enemyById(moveEnemy.id);
-  console.log('ENEMY COORDINATEs', enemy.body.x, moveEnemy.x);
 
   var xCord = moveEnemy.x;
   var yCord = moveEnemy.y;
@@ -3497,7 +3492,8 @@ function moveEnemyOperation(moveEnemy) {
   var tween = _game2.default.add.tween(enemy);
   tween.to({ x: xCord, y: yCord }, 0);
   tween.start();
-  tween.remove(enemy);
+
+  //tween.remove(enemy) <-potential solution for memory consumption issue
 }
 
 function enemyById(id) {
@@ -3508,11 +3504,11 @@ function enemyById(id) {
 }
 
 /** SHOOT ENEMIES */
-function onEnemyShot(data) {
-  console.log('enemy shot', data);
+function onEnemyHit(data) {
+  console.log('enemy hit', data);
 }
 
-var enemyHandlers = { onNewEnemies: onNewEnemies, onMoveEnemy: onMoveEnemy, onEnemyShot: onEnemyShot, addRemoteEnemies: addRemoteEnemies, sendEnemyMovement: sendEnemyMovement, moveEnemy: moveEnemy };
+var enemyHandlers = { onNewEnemies: onNewEnemies, onMoveEnemy: onMoveEnemy, onEnemyHit: onEnemyHit, addRemoteEnemies: addRemoteEnemies, sendEnemyMovement: sendEnemyMovement, moveEnemy: moveEnemy };
 exports.default = enemyHandlers;
 
 /***/ }),
@@ -6114,8 +6110,8 @@ function localPlayer(game, data) {
   _index.playerObs.emit('addPlayer', newPlayer);
   remotePlayers.push(newPlayer);
 
-  /** Add enemies if local player is only player in the game*/
-  socket.emit('newEnemies', { number: 5, x: game.startX, y: game.startY });
+  /** Add enemies if local player is only player in the game */
+  _index.socket.emit('newEnemies', { number: 5, x: game.startX, y: game.startY });
 }
 
 function onMovePlayer(data) {

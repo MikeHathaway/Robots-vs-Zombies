@@ -28,9 +28,8 @@ import enemyHandlers from './enemyHandlers'
 // if(process.env.ENVIRONMENT === 'development') port = 'https://localhost:4000'
 
 
-//'http://localhost:4000'
-// const socket = io('https://backend-service-thtwkztjkn.now.sh')
 const socket = io('http://localhost:4000')
+// const socket = io('https://backend-service-ahdzlpuvnw.now.sh')
 
 const playerObs = new EventEmitter()
 
@@ -71,15 +70,13 @@ function setEventHandlers(){
   socket.on('moveEnemy', enemyHandlers.onMoveEnemy)
 
   //bulletHitPlayer(data);
-  socket.on('shot', enemyHandlers.onEnemyShot)
+  socket.on('enemyHit', enemyHandlers.onEnemyHit)
 
   socket.on('test', (data) => console.log('test', data))
 }
 
 
-function onSocketDisconnect(){
-  console.log('Disconnected from socket server')
-}
+
 
 
 
