@@ -91,28 +91,35 @@ module.exports = function(io){
         return
     }
 
-    // moveEnemy.setX(data.x)
-    // moveEnemy.setY(data.y)
-    identifyNextPosition(moveEnemy)
+    const enemyRange = moveEnemy.speed * 10
 
-    // this.broadcast.emit("moveEnemy", {id: moveEnemy.id, x: moveEnemy.x, y: moveEnemy.y})
-    io.volatile.sockets.emit('moveEnemy', {id: moveEnemy.id, x: moveEnemy.x, y: moveEnemy.y})
-
+    if(decideToMove(moveEnemy,enemyRange)){
+      console.log('moving!')
+      identifyNextPosition(moveEnemy)
+      io.volatile.sockets.emit('moveEnemy', {id: moveEnemy.id, x: moveEnemy.x, y: moveEnemy.y}) // this.broadcast.emit("moveEnemy", {id: moveEnemy.id, x: moveEnemy.x, y: moveEnemy.y})
+    }
   }
 
   //Identify best means of moving enemies
-  function identifyNextPosition(enemy){
-    const enemyRange = enemy.speed * 10
+  function identifyNextPosition(enemy, enemyRange){
+    if(Math.floor(Math.random() * 2) === 1){
+      if((Math.floor(enemy.x) - Math.floor(player.x)) < enemyRange) return enemy.x += enemy.speed
+      if((Math.floor(enemy.x) + Math.floor(player.x)) > enemyRange) return enemy.x -= enemy.speed
+    }
+    else {
+      if((Math.floor(enemy.y) - Math.floor(player.y)) < enemyRange) return enemy.y += enemy.speed
+      if((Math.floor(enemy.y) + Math.floor(player.y)) > enemyRange) return enemy.y -= enemy.speed
+    }
+  }
 
+  function decideToMove(enemy, enemyRange){
     for(const player in players){
-      if(Math.floor(Math.random() * 2) === 1){
-        if((Math.floor(enemy.x) - Math.floor(player.x)) < enemyRange) return enemy.x += enemy.speed
-        if((Math.floor(enemy.x) + Math.floor(player.x)) > enemyRange) return enemy.x -= enemy.speed
-      }
-      else {
-        if((Math.floor(enemy.y) - Math.floor(player.y)) < enemyRange) return enemy.y += enemy.speed
-        if((Math.floor(enemy.y) + Math.floor(player.y)) > enemyRange) return enemy.y -= enemy.speed
-      }
+      if(((Math.floor(enemy.x) - Math.floor(player.x)) < enemyRange) ||
+         ((Math.floor(enemy.y) - Math.floor(player.y)) < enemyRange)
+       ){
+         return true
+       }
+        return false
     }
   }
 

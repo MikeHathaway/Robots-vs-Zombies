@@ -16,6 +16,8 @@
 
 
 import io from 'socket.io-client'
+import * as most from 'most'
+
 import EventEmitter from 'event-emitter-es6'
 
 import Player from '../models/player'
@@ -24,17 +26,17 @@ import game from '../game'
 import playerHandlers from './playerHandlers'
 import enemyHandlers from './enemyHandlers'
 
-
-// let port = 'https://backend-service-ewbtarfvys.now.sh'
 // if(process.env.ENVIRONMENT === 'development') port = 'https://localhost:4000'
 
-//'http://localhost:4000'
-const socket = io('https://backend-service-lxzdxsoeyl.now.sh')
+
+//'https://backend-service-lxzdxsoeyl.now.sh'
+const socket = io('http://localhost:4000')
 
 const playerObs = new EventEmitter()
 
 const remotePlayers = []
 const enemies = []
+
 
 function setEventHandlers(){
 
@@ -45,6 +47,9 @@ function setEventHandlers(){
 
   // Socket disconnection
   socket.on('disconnect', onSocketDisconnect)
+
+
+  /** PLAYER EVENTS */
 
   // New player message received
   socket.on('newPlayer', playerHandlers.onNewPlayer)
@@ -57,6 +62,10 @@ function setEventHandlers(){
 
   // Player removed message received
   socket.on('removePlayer', playerHandlers.onRemovePlayer)
+
+
+
+  /** ENEMY EVENTS */
 
   // add enemies to the game
   socket.on('newEnemies', enemyHandlers.onNewEnemies)

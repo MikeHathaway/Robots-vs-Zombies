@@ -1,28 +1,3 @@
-// minimap guide
-  //http://www.html5gamedevs.com/topic/14182-creating-a-mini-map-in-phaser/
-
-//http://www.html5gamedevs.com/topic/18553-performance-issues-are-making-project-unplayable/
-
-//https://developer.tizen.org/community/tip-tech/creating-isometric-world-phaser.js-using-isometric-plugin
-//https://gamedevelopment.tutsplus.com/tutorials/creating-isometric-worlds-primer-for-game-developers-updated--cms-28392
-  // ^includes a really cool minimap
-//http://evilmousestudios.com/optimizing-javascript-games/
-
-//https://gamedevacademy.org/how-to-make-an-infinitely-scrolling-game-with-phaser/
-
-//http://perplexingtech.weebly.com/game-dev-blog/using-states-in-phaserjs-javascript-game-developement
-
-//performance upgradeses!
-  // memory leak <- need to unsubscribe to prevent over calling.
-    //Excessive logs seen per update cycle
-
-  //implement enemy movements as a data stream!!!!
-  //https://github.com/cujojs/most
-  //https://survivejs.com/blog/most-interview/
-
-//https://github.com/primus/eventemitter3
-//https://netbasal.com/javascript-the-magic-behind-event-emitter-cce3abcbcef9
-//https://www.appneta.com/blog/3-common-node-js-design-patterns-that-are-misused/
 
 /* ----- Phaser Dependencies ----- */
 import Bullet from './models/bullet'
@@ -36,6 +11,8 @@ import {mainMenu, waitForInput} from './states/mainMenu'
 
 /* ----- Server Dependencies ----- */
 import {socket, setEventHandlers, playerObs} from './eventHandlers'
+import enemyHandlers from './eventHandlers/enemyHandlers'
+
 
 
   /* ----- Declares global variables ----- */
@@ -58,6 +35,12 @@ import {socket, setEventHandlers, playerObs} from './eventHandlers'
 
   const enemyMap = []
   const numEnemies = 5
+
+  //let game
+
+  // window.onLoad = function(){
+  //
+  // }
 
 
   /* ----- Start Game Instance ----- */
@@ -101,7 +84,6 @@ import {socket, setEventHandlers, playerObs} from './eventHandlers'
 
     addMap('desert') // specify map can be: ['desert', 'forest']
 
-    // need to figure out a way to check whether or not to add new enemies
     addEnemies(numEnemies) //specify number of enemies to be added
 
     addWeapons()
@@ -111,29 +93,28 @@ import {socket, setEventHandlers, playerObs} from './eventHandlers'
     setEventHandlers() // Start listening for events
 
     addInputs() // Add game controls
-    //addScore() // Score animations
+    addScore() // Score animations
 
     checkForNewPlayers()
-
-    addRemoteEnemies() // render enemies received from server
   }
 
   function update(){
-    //waitForInput()
-
     if (localPlayer) checkPlayerInputs(localPlayer)
     if (localPlayer) checkCollisions()
 
     /* Multiplayer Functions */
     if (localPlayer) moveRemotePlayer()
-
-    if (localPlayer) checkEnemyActions()
-    if (localPlayer) moveRemoteEnemy()
     if (localPlayer) shootPlayer()
 
-    //retreiveGameTime()
+    if (localPlayer) checkEnemyActions()
+    if (localPlayer) enemyHandlers.moveRemoteEnemy()
+    addEnemiesToGroup()
+    enemyHandlers.addRemoteEnemies()
 
-    //checkScore()
+    //retreiveGameTime() <- use to sync external streams with game update loop
+
+
+    checkScore()
     checkRemovePlayer()
     removeInstructions()
   }
@@ -200,11 +181,6 @@ import {socket, setEventHandlers, playerObs} from './eventHandlers'
     enemies = game.add.group()
     socket.emit('newEnemies',{number: number, x: gameWidth, y: gameHeight})
   }
-
-  // function triggerEnemySpawn(){
-  //   const source = Rx.Observable.interval(1000 /* ms */).timeInterval().take(5)
-  //   const subscription = source.subscribe(addZombie,handleError)
-  // }
 
 
   function createScoreAnimation(x,y,message,score){
@@ -370,6 +346,14 @@ import {socket, setEventHandlers, playerObs} from './eventHandlers'
     console.log("Hit Player")
   }
 
+
+  function aimRotation(){
+    const myPoint = new Phaser.Point( sprite.width / 2 + 30,  -sprite.height / 2)
+    myPoint.rotate(sprite.rotation)
+    this.getFirstExists(false).fire(sprite.x+myPoint.x, sprite.y+myPoint.y, sprite.rotation, BulletPool.BULLET_SPEED)
+  }
+
+
   function checkEnemyActions(){
     if(enemies) enemies.children.forEach(enemyOperations)
   }
@@ -377,13 +361,7 @@ import {socket, setEventHandlers, playerObs} from './eventHandlers'
   function enemyOperations(enemy){
     enemy.isAlive()
     // enemy.move(game,enemy,localPlayer)
-    sendEnemyMovement(enemy)
-  }
-
-  function aimRotation(){
-    const myPoint = new Phaser.Point( sprite.width / 2 + 30,  -sprite.height / 2)
-    myPoint.rotate(sprite.rotation)
-    this.getFirstExists(false).fire(sprite.x+myPoint.x, sprite.y+myPoint.y, sprite.rotation, BulletPool.BULLET_SPEED)
+    enemyHandlers.sendEnemyMovement(enemy)
   }
 
 
@@ -483,33 +461,6 @@ import {socket, setEventHandlers, playerObs} from './eventHandlers'
   }
 
 
-  function sendEnemyMovement(enemy){
-    socket.emit('moveEnemy',{id: enemy.id, x: enemy.body.x, y: enemy.body.y})
-  }
-
-  function moveRemoteEnemy(){
-    playerObs.on('movingEnemy', moveEnemyOperation)
-  }
-
-  function moveEnemyOperation(moveEnemy){
-    console.log('moving enemy id',moveEnemy.data.id)
-    const enemy = enemyById(moveEnemy.data.id)
-
-    const xCord = moveEnemy.data.x
-    const yCord = moveEnemy.data.y
-
-    const distance = Phaser.Math.distance(enemy.body.x,enemy.body.y,xCord,yCord)
-    const tween = game.add.tween(enemy)
-    tween.to({x:xCord,y:yCord}, 0)
-    tween.start()
-  }
-
-  function enemyById (id) {
-    const identifiedEnemy = enemyMap.filter(enemy => enemy.id === id)
-    return identifiedEnemy.length > 0 ? identifiedEnemy[0] : false
-  }
-
-
   function checkRemovePlayer(){
     playerObs.on('removePlayer', removeOperations)
   }
@@ -519,22 +470,13 @@ import {socket, setEventHandlers, playerObs} from './eventHandlers'
     delete game.playerMap[removePlayer.id]
   }
 
-  //potentially utilize once?
-  function addRemoteEnemies(){
-    playerObs.on('addEnemies', addEnemyOperation)
-  }
 
-  //Need to restrict message flow once expected number of enemies generated
-  function addEnemyOperation(enemyData){
-    if(enemyMap.length < 5){
-      enemyData.enemyList.forEach(enemy => {
-        const newEnemy = new Enemy(game,enemy.x,enemy.y,enemy.type,enemy.id)
-        enemies.add(newEnemy)
-        return enemyMap.push(newEnemy)
-      })
-    }
-    // console.log('additional enemy data',enemyData)
 
+
+  function addEnemiesToGroup(){
+    playerObs.on('enemyGroup',(data) => {
+      return enemies.add(data)
+    })
   }
 
 
