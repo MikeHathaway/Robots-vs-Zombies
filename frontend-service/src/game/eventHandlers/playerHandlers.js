@@ -18,7 +18,7 @@ function onNewPlayer(data){
   }
 
   if(remotePlayers.length === 0){
-    localPlayer(game,data)
+    return localPlayer(game,data)
   }
   else if(remotePlayers.length > 0){
     const newPlayer = new Player(game,data.x,data.y,'zombie',50,5,game.weapons,data.id)
@@ -31,9 +31,11 @@ function localPlayer(game,data){
   const newPlayer = new Player(game,data.x,data.y,'zombie',50,5,game.weapons,data.id)
   playerObs.emit('addPlayer', newPlayer)
   remotePlayers.push(newPlayer)
+  console.log('first player!')
+
 
   /** Add enemies if local player is only player in the game */
-  socket.emit('newEnemies',{number: 5,x: game.startX, y: game.startY})
+  socket.emit('newEnemies', {number: 5,x: game.startX, y: game.startY})
 }
 
 

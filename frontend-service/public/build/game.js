@@ -3505,7 +3505,15 @@ function enemyById(id) {
 
 /** SHOOT ENEMIES */
 function onEnemyHit(data) {
+  var enemy = enemyById(data.id);
   console.log('enemy hit', data);
+
+  if (data.alive) {
+    enemy.health = data.health;
+  } else {
+    enemy.health = 0;
+    enemy.kill();
+  }
 }
 
 var enemyHandlers = { onNewEnemies: onNewEnemies, onMoveEnemy: onMoveEnemy, onEnemyHit: onEnemyHit, addRemoteEnemies: addRemoteEnemies, sendEnemyMovement: sendEnemyMovement, moveEnemy: moveEnemy };
@@ -6097,7 +6105,7 @@ function onNewPlayer(data) {
   }
 
   if (remotePlayers.length === 0) {
-    localPlayer(_game2.default, data);
+    return localPlayer(_game2.default, data);
   } else if (remotePlayers.length > 0) {
     var newPlayer = new _player2.default(_game2.default, data.x, data.y, 'zombie', 50, 5, _game2.default.weapons, data.id);
     remotePlayers.push(newPlayer);
@@ -6109,6 +6117,7 @@ function localPlayer(game, data) {
   var newPlayer = new _player2.default(game, data.x, data.y, 'zombie', 50, 5, game.weapons, data.id);
   _index.playerObs.emit('addPlayer', newPlayer);
   remotePlayers.push(newPlayer);
+  console.log('first player!');
 
   /** Add enemies if local player is only player in the game */
   _index.socket.emit('newEnemies', { number: 5, x: game.startX, y: game.startY });

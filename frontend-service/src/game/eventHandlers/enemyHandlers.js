@@ -86,10 +86,14 @@ function enemyById (id) {
 function onEnemyHit(data){
   const enemy = enemyById(data.id)
   console.log('enemy hit',data)
+
   if(data.alive){
     enemy.health = data.health
   }
-  //else kill that enemy
+  else{
+    enemy.health = 0
+    enemy.kill()
+  }
 }
 
 

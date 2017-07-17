@@ -65,9 +65,9 @@ module.exports = function(io){
 
 
   function onNewEnemies(data){
-    console.log(enemies.length)
     //ensure that enemies are only added once
     if(enemies.length === 0){
+      console.log('first player enemies!')
       addEnemies(data)
       io.sockets.emit('newEnemies', {enemyList: enemies})
     }
@@ -189,7 +189,8 @@ module.exports = function(io){
     hitEnemy.health -= data.damage
 
     if(hitEnemy.health <= 0){
-      return io.sockets.emit('enemyHit', {id: hitEnemy.id, health: 0, alive: false})
+      io.sockets.emit('enemyHit', {id: hitEnemy.id, health: 0, alive: false})
+      return enemies.splice(enemies.indexOf(hitEnemy),1)
     }
     return io.sockets.emit('enemyHit', {id: hitEnemy.id, health: hitEnemy.health, alive: true})
   }
