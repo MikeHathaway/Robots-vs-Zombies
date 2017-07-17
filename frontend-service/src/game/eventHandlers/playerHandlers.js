@@ -31,6 +31,9 @@ function localPlayer(game,data){
   const newPlayer = new Player(game,data.x,data.y,'zombie',50,5,game.weapons,data.id)
   playerObs.emit('addPlayer', newPlayer)
   remotePlayers.push(newPlayer)
+
+  /** Add enemies if local player is only player in the game */
+  socket.emit('newEnemies',{number: 5,x: game.startX, y: game.startY})
 }
 
 
@@ -55,10 +58,13 @@ function onRemovePlayer(data){
     return
   }
 
-  removePlayer.kill() // unnecessary?
+  // removePlayer.kill() // unnecessary?
   playerObs.emit('removePlayer', removePlayer)
   remotePlayers.splice(remotePlayers.indexOf(removePlayer), 1)
-  this.emit("removePlayer", {id: data.id})
+}
+
+function onSocketDisconnect(){
+  console.log('Disconnected from socket server')
 }
 
 
@@ -67,5 +73,5 @@ function playerById (id) {
   return identifiedPlayer.length > 0 ? identifiedPlayer[0] : false
 }
 
-const playerHandlers = {onNewPlayer,localPlayer,onMovePlayer,onShoot,onRemovePlayer,playerById}
+const playerHandlers = {onNewPlayer,localPlayer,onMovePlayer,onShoot,onRemovePlayer,onSocketDisconnect}
 export default playerHandlers

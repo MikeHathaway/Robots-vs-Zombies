@@ -28,7 +28,8 @@ import enemyHandlers from './enemyHandlers'
 // if(process.env.ENVIRONMENT === 'development') port = 'https://localhost:4000'
 
 
-//'https://backend-service-lxzdxsoeyl.now.sh'
+//'http://localhost:4000'
+// const socket = io('https://backend-service-thtwkztjkn.now.sh')
 const socket = io('http://localhost:4000')
 
 const playerObs = new EventEmitter()
@@ -41,11 +42,6 @@ function setEventHandlers(){
 
   // trigger game start
   socket.emit('newPlayer', {x: game.startX, y: game.startY})
-
-  socket.on('connect', onSocketConnected)
-
-  // Socket disconnection
-  socket.on('disconnect', onSocketDisconnect)
 
 
   /** PLAYER EVENTS */
@@ -62,6 +58,8 @@ function setEventHandlers(){
   // Player removed message received
   socket.on('removePlayer', playerHandlers.onRemovePlayer)
 
+  // Socket disconnection
+  socket.on('disconnect', playerHandlers.onSocketDisconnect)
 
 
   /** ENEMY EVENTS */
@@ -76,11 +74,6 @@ function setEventHandlers(){
   socket.on('shot', enemyHandlers.onEnemyShot)
 
   socket.on('test', (data) => console.log('test', data))
-}
-
-function onSocketConnected(){
-  console.log('player has joined the game')
-  socket.emit('newPlayer', {x: game.startX, y: game.startY}) //start the game
 }
 
 

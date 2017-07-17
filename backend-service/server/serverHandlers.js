@@ -50,8 +50,9 @@ module.exports = function(io){
     }
     else {
       io.sockets.emit('newPlayer', {id: newPlayer.id, x: newPlayer.getX(), y: newPlayer.getY()})
-      io.sockets.emit('newEnemies', {enemyList: enemies})
 
+      // send enemies if joining existing game
+      io.sockets.emit('newEnemies', {enemyList: enemies})
 
       players.forEach(player => {
         this.emit('newPlayer', {id: player.id, x: player.getX(), y: player.getY()})
@@ -185,10 +186,13 @@ module.exports = function(io){
         console.log("Player not found: " + this.id)
         return
     }
+
+    this.broadcast.emit('removePlayer', {id: removePlayer.id})
     players.splice(players.indexOf(removePlayer), 1)
-    this.broadcast.emit('removePlayer', {id: this.id})
-    io.emit('removePlayer', "A user disconnected");
+    // io.sockets.emit('removePlayer', {id: this.id})
+    // io.emit('removePlayer', "A user disconnected");
   }
+
 
 
 

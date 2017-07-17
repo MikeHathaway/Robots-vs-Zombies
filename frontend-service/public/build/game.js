@@ -2330,7 +2330,8 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 // if(process.env.ENVIRONMENT === 'development') port = 'https://localhost:4000'
 
 
-//'https://backend-service-lxzdxsoeyl.now.sh'
+//'http://localhost:4000'
+// const socket = io('https://backend-service-thtwkztjkn.now.sh')
 //http://www.dynetisgames.com/2017/03/06/how-to-make-a-multiplayer-online-game-with-phaser-socket-io-and-node-js/
 //https://github.com/Jerenaux/basic-mmo-phaser/blob/master/js/client.js
 //http://www.html5gamedevs.com/topic/29104-how-to-make-a-multiplayer-online-game-with-phaser-socketio-and-nodejs/
@@ -2360,11 +2361,6 @@ function setEventHandlers() {
   // trigger game start
   socket.emit('newPlayer', { x: _game2.default.startX, y: _game2.default.startY });
 
-  socket.on('connect', onSocketConnected);
-
-  // Socket disconnection
-  socket.on('disconnect', onSocketDisconnect);
-
   /** PLAYER EVENTS */
 
   // New player message received
@@ -2378,6 +2374,9 @@ function setEventHandlers() {
 
   // Player removed message received
   socket.on('removePlayer', _playerHandlers2.default.onRemovePlayer);
+
+  // Socket disconnection
+  socket.on('disconnect', _playerHandlers2.default.onSocketDisconnect);
 
   /** ENEMY EVENTS */
 
@@ -2393,11 +2392,6 @@ function setEventHandlers() {
   socket.on('test', function (data) {
     return console.log('test', data);
   });
-}
-
-function onSocketConnected() {
-  console.log('player has joined the game');
-  socket.emit('newPlayer', { x: _game2.default.startX, y: _game2.default.startY }); //start the game
 }
 
 function onSocketDisconnect() {
@@ -3471,11 +3465,6 @@ function addEnemyOperation(enemyData) {
   }
 }
 
-/** SHOOT ENEMIES */
-function onEnemyShot(data) {
-  console.log('enemy shot', data);
-}
-
 /** MOVE ENEMIES */
 //need to modify this to accept enemy collection
 function sendEnemyMovement(enemy) {
@@ -3516,6 +3505,11 @@ function enemyById(id) {
     return enemy.id === id;
   });
   return identifiedEnemy.length > 0 ? identifiedEnemy[0] : false;
+}
+
+/** SHOOT ENEMIES */
+function onEnemyShot(data) {
+  console.log('enemy shot', data);
 }
 
 var enemyHandlers = { onNewEnemies: onNewEnemies, onMoveEnemy: onMoveEnemy, onEnemyShot: onEnemyShot, addRemoteEnemies: addRemoteEnemies, sendEnemyMovement: sendEnemyMovement, moveEnemy: moveEnemy };
@@ -6119,6 +6113,9 @@ function localPlayer(game, data) {
   var newPlayer = new _player2.default(game, data.x, data.y, 'zombie', 50, 5, game.weapons, data.id);
   _index.playerObs.emit('addPlayer', newPlayer);
   remotePlayers.push(newPlayer);
+
+  /** Add enemies if local player is only player in the game*/
+  socket.emit('newEnemies', { number: 5, x: game.startX, y: game.startY });
 }
 
 function onMovePlayer(data) {
@@ -6138,10 +6135,13 @@ function onRemovePlayer(data) {
     return;
   }
 
-  removePlayer.kill(); // unnecessary?
+  // removePlayer.kill() // unnecessary?
   _index.playerObs.emit('removePlayer', removePlayer);
   remotePlayers.splice(remotePlayers.indexOf(removePlayer), 1);
-  this.emit("removePlayer", { id: data.id });
+}
+
+function onSocketDisconnect() {
+  console.log('Disconnected from socket server');
 }
 
 function playerById(id) {
@@ -6151,7 +6151,7 @@ function playerById(id) {
   return identifiedPlayer.length > 0 ? identifiedPlayer[0] : false;
 }
 
-var playerHandlers = { onNewPlayer: onNewPlayer, localPlayer: localPlayer, onMovePlayer: onMovePlayer, onShoot: onShoot, onRemovePlayer: onRemovePlayer, playerById: playerById };
+var playerHandlers = { onNewPlayer: onNewPlayer, localPlayer: localPlayer, onMovePlayer: onMovePlayer, onShoot: onShoot, onRemovePlayer: onRemovePlayer, onSocketDisconnect: onSocketDisconnect };
 exports.default = playerHandlers;
 
 /***/ }),

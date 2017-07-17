@@ -32,10 +32,7 @@ function addEnemyOperation(enemyData){
 }
 
 
-/** SHOOT ENEMIES */
-function onEnemyShot(data){
-  console.log('enemy shot',data)
-}
+
 
 
 
@@ -79,6 +76,15 @@ function moveEnemyOperation(moveEnemy){
 function enemyById (id) {
   const identifiedEnemy = enemyMap.filter(enemy => enemy.id === id)
   return identifiedEnemy.length > 0 ? identifiedEnemy[0] : false
+}
+
+
+
+
+
+/** SHOOT ENEMIES */
+function onEnemyShot(data){
+  console.log('enemy shot',data)
 }
 
 
