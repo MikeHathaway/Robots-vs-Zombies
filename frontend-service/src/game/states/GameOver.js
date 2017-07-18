@@ -1,11 +1,8 @@
 import CivZombie from '../main'
 
-const GameMenu = function() {}
+const GameOver = function () {};
 
-GameMenu.prototype = {
-  preload: function () {
-    CivZombie.game.load.image('preloadbar', 'assets/preloader-bar.png')
-  },
+GameOver.prototype = {
 
   create: function () {
     this.game.background = this.game.add.tileSprite(0, 0, this.game.width, this.game.height, 'space')
@@ -14,27 +11,25 @@ GameMenu.prototype = {
     this.game.background.autoScroll(-20, 0)
 
     //start game text
-    let text = "Tap to begin"
+    let text = "WRONG"
     let style = { font: "30px Arial", fill: "#fff", align: "center" }
     const t = this.game.add.text(this.game.width/2, this.game.height/2, text, style)
     t.anchor.set(0.5)
 
-    //highest score
-    //text = "Highest score: " + this.game.score
-    text = 'Use Arrow Keys to Move, Press Space to Fire, \n Press Enter to change weapon'
+    text = 'Restart'
     style = { font: "15px Arial", fill: "#fff", align: "center" }
 
     const h = this.game.add.text(this.game.width/2, this.game.height/2 + 50, text, style)
     h.anchor.set(0.5)
 
-    t.inputEnabled = true
-    t.events.onInputDown.addOnce(this.startGame, this)
+    h.inputEnabled = true
+    h.events.onInputDown.addOnce(this.startOver, this)
   },
 
-  startGame: function () {
-    CivZombie.game.state.start('Game')
+  startOver: function () {
+    CivZombie.game.state.start('MainMenu')
   }
+
 }
 
-
-export default GameMenu
+export default GameOver

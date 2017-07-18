@@ -109,8 +109,8 @@ import enemyHandlers from '../eventHandlers/enemyHandlers'
     if (enemies) enemyHandlers.moveEnemy()
 
     checkScore()
-
     checkRemovePlayer()
+    checkGameOver()
   }
 
   function render(){
@@ -354,7 +354,11 @@ import enemyHandlers from '../eventHandlers/enemyHandlers'
     return enemy.destroy()
   }
 
-
+function checkGameOver(){
+  if(game.score >= 50){
+    CivZombie.game.state.start('GameOver')
+  }
+}
 
 
 
