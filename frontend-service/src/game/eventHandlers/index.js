@@ -14,6 +14,7 @@
 
 //https://socket.io/docs/using-multiple-nodes/
 
+//https://github.com/cujojs/most-w3msg
 
 import io from 'socket.io-client'
 
@@ -25,11 +26,8 @@ import game from '../states/game'
 import playerHandlers from './playerHandlers'
 import enemyHandlers from './enemyHandlers'
 
-// if(process.env.ENVIRONMENT === 'development') port = 'https://localhost:4000'
-
-
-const socket = io('http://localhost:4000')
-// const socket = io('https://backend-service-tpiavmylcx.now.sh')
+// const socket = io('http://localhost:4000')
+const socket = io('https://backend-service-hnhzyecwxb.now.sh')
 
 const playerObs = new EventEmitter()
 

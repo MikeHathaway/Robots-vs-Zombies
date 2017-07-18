@@ -1,5 +1,8 @@
 
-/* ----- Phaser Dependencies ----- */
+//http://codeperfectionist.com/articles/learning-to-think-in-frp-my-experience-coding-a-game-with-kefir-js/
+
+
+/* ----- Model Dependencies ----- */
 import Bullet from '../models/bullet'
 import {SingleBullet, LazerBeam} from '../models/weapon'
 import Enemy from '../models/enemy'
@@ -36,18 +39,9 @@ import enemyHandlers from '../eventHandlers/enemyHandlers'
   const enemyMap = []
   const numEnemies = 5
 
-  const divName =  'game-container'
 
   /* ----- Start Game Instance ----- */
-    //formerly Phaser.AUTO for rendering; forcing Phaser.CANVAS to boost performacne
-  // const game = new Phaser.Game(gameWidth, gameHeight, Phaser.AUTO, '', {
-  //     init: init,
-  //     preload: preload,
-  //     create: create,
-  //     update: update,
-  //     render: render
-  // })
-
+  //should prototype this?
   const game = {
     init: init,
     preload: preload,
@@ -69,7 +63,8 @@ import enemyHandlers from '../eventHandlers/enemyHandlers'
     game.load.image('forestTiles', './assets/tilemaps/trees-and-bushes.png')
     game.load.image('tiles', './assets/tilemaps/tmw_desert_spacing.png')
 
-    game.load.image('zombie', './assets/Zombie_Sprite.png')
+    game.load.image('zombie', './assets/CZombieMini.png') //Zombie_Sprite CZombie
+    game.load.image('giantZombie', './assets/CZombie.png') //Zombie_Sprite CZombie
     game.load.image('human', './assets/dude.png')
     game.load.image('bullet', './assets/singleBullet.png')
     game.load.image('lazer', './assets/lazer.png')
@@ -84,7 +79,7 @@ import enemyHandlers from '../eventHandlers/enemyHandlers'
     addEnemies(numEnemies) //specify number of enemies to be added
 
     addWeapons()
-    addPlayer() // currently incomplete, need to finish tie up
+    addPlayerGroup() // currently incomplete, need to finish tie up
 
     setEventHandlers() // Start listening for events
 
@@ -104,12 +99,13 @@ import enemyHandlers from '../eventHandlers/enemyHandlers'
     /* Multiplayer Functions */
     if (localPlayer) moveRemotePlayer()
     if (localPlayer) shootPlayer()
+    if (localPlayer) checkRemovePlayer()
 
     if (enemies) checkEnemyActions()
     if (enemies) enemyHandlers.moveEnemy()
 
+    /* Global Functions */
     checkScore()
-    checkRemovePlayer()
     checkGameOver()
   }
 
@@ -140,13 +136,13 @@ import enemyHandlers from '../eventHandlers/enemyHandlers'
     game.playerMap = {}
     game.scale.pageAlignHorizontally = true;
     game.scale.pageAlignVertically = true;
+
+    //bounds for enemy positioning
+    game.startX = 32
+    game.startY = game.world.height / 2
   }
 
-  function addInputs(){
-    cursors = game.input.keyboard.createCursorKeys()
-    fireButton = game.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR)
-    changeKey = game.input.keyboard.addKey(Phaser.Keyboard.ENTER)
-  }
+
 
   function addMap(type){
     if(type === 'desert') desertMap()
@@ -225,27 +221,19 @@ import enemyHandlers from '../eventHandlers/enemyHandlers'
   }
 
 
-  function addPlayer(){
+  function addPlayerGroup(){
     players = game.add.group()
-
-    // game.localPlayer = new Player(game,100,game.world.height / 2,'zombie',50,5,game.weapons,socketId)
-    // players.add(game.localPlayer)
-
-    game.startX = 32
-    game.startY = game.world.height / 2
-
-    console.log(players)
-    // game.camera.follow(game.localPlayer)
+    return players
   }
 
   function addWeapons(){
     weapons = game.add.group()
     weapons.add(new SingleBullet(game,'bullet'))
     weapons.add(new LazerBeam(game,'lazer'))
-
     game.weapons = weapons
-  }
 
+    return weapons
+  }
 
 
 
@@ -259,6 +247,12 @@ import enemyHandlers from '../eventHandlers/enemyHandlers'
 
    =============== =============== =============== */
 
+   function addInputs(){
+     cursors = game.input.keyboard.createCursorKeys()
+     fireButton = game.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR)
+     changeKey = game.input.keyboard.addKey(Phaser.Keyboard.ENTER)
+   }
+
 
   function checkPlayerInputs(player){
     if (cursors.left.isDown){
@@ -269,22 +263,18 @@ import enemyHandlers from '../eventHandlers/enemyHandlers'
       player.body.x += player.body.velocity.x
       sendPlayerMovement(player)
     }
-
     if (cursors.up.isDown){
       player.body.y -= player.body.velocity.y
       sendPlayerMovement(player)
     }
-
     if (cursors.down.isDown){
       player.body.y += player.body.velocity.y
       sendPlayerMovement(player)
     }
-
     if (fireButton.isDown){
       // player.weapons.children[player.currentWeapon].fire(player)
       sendShot(player)
     }
-
     if(changeKey.isDown){
       changeWeapon(player)
     }
@@ -457,7 +447,6 @@ function checkGameOver(){
     removePlayer.kill()
     delete game.playerMap[removePlayer.id]
   }
-
 
 
 

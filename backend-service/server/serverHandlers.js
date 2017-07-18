@@ -8,6 +8,7 @@ const bullets = []
 const enemies = []
 
 //https://www.npmjs.com/package/node-pathfinding
+// ^node pathfinder
 
 const game = {} // <- will be a reference to the server side headless phaser
 game.lastEnemyId = 0

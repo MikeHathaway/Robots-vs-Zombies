@@ -1692,6 +1692,7 @@ var CivZombie = {};
 var gameWidth = window.innerWidth;
 var gameHeight = window.innerHeight;
 
+//Phaser.AUTO for rendering; force Phaser.CANVAS to boost performacne
 CivZombie.game = new Phaser.Game(1000, 800, Phaser.AUTO, 'game-container');
 
 CivZombie.game.state.add('Boot', _boot2.default);
@@ -1758,7 +1759,10 @@ var map = void 0,
 
 /* ----- State Dependencies ----- */
 
-/* ----- Phaser Dependencies ----- */
+//http://codeperfectionist.com/articles/learning-to-think-in-frp-my-experience-coding-a-game-with-kefir-js/
+
+
+/* ----- Model Dependencies ----- */
 
 
 var gameWidth = 1000;
@@ -1768,19 +1772,11 @@ var score = 0;
 var enemyMap = [];
 var numEnemies = 5;
 
-var divName = 'game-container';
-
 /* ----- Start Game Instance ----- */
-//formerly Phaser.AUTO for rendering; forcing Phaser.CANVAS to boost performacne
-// const game = new Phaser.Game(gameWidth, gameHeight, Phaser.AUTO, '', {
-//     init: init,
-//     preload: preload,
-//     create: create,
-//     update: update,
-//     render: render
-// })
+//should prototype this
+var game = {};
 
-var game = {
+game.prototype.game = {
   init: init,
   preload: preload,
   create: create,
@@ -1800,7 +1796,8 @@ function preload() {
   game.load.image('forestTiles', './assets/tilemaps/trees-and-bushes.png');
   game.load.image('tiles', './assets/tilemaps/tmw_desert_spacing.png');
 
-  game.load.image('zombie', './assets/Zombie_Sprite.png');
+  game.load.image('zombie', './assets/CZombieMini.png'); //Zombie_Sprite CZombie
+  game.load.image('giantZombie', './assets/CZombie.png'); //Zombie_Sprite CZombie
   game.load.image('human', './assets/dude.png');
   game.load.image('bullet', './assets/singleBullet.png');
   game.load.image('lazer', './assets/lazer.png');
@@ -1815,7 +1812,7 @@ function create() {
   addEnemies(numEnemies); //specify number of enemies to be added
 
   addWeapons();
-  addPlayer(); // currently incomplete, need to finish tie up
+  addPlayerGroup(); // currently incomplete, need to finish tie up
 
   (0, _eventHandlers.setEventHandlers)(); // Start listening for events
 
@@ -1835,12 +1832,13 @@ function update() {
   /* Multiplayer Functions */
   if (localPlayer) moveRemotePlayer();
   if (localPlayer) shootPlayer();
+  if (localPlayer) checkRemovePlayer();
 
   if (enemies) checkEnemyActions();
   if (enemies) _enemyHandlers2.default.moveEnemy();
 
+  /* Global Functions */
   checkScore();
-  checkRemovePlayer();
   checkGameOver();
 }
 
@@ -1866,12 +1864,10 @@ function configureGame() {
   game.playerMap = {};
   game.scale.pageAlignHorizontally = true;
   game.scale.pageAlignVertically = true;
-}
 
-function addInputs() {
-  cursors = game.input.keyboard.createCursorKeys();
-  fireButton = game.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR);
-  changeKey = game.input.keyboard.addKey(Phaser.Keyboard.ENTER);
+  //bounds for enemy positioning
+  game.startX = 32;
+  game.startY = game.world.height / 2;
 }
 
 function addMap(type) {
@@ -1951,30 +1947,29 @@ function incrementScore() {
   game.scoreLabel.text = game.score;
 }
 
-function addPlayer() {
+function addPlayerGroup() {
   players = game.add.group();
-
-  // game.localPlayer = new Player(game,100,game.world.height / 2,'zombie',50,5,game.weapons,socketId)
-  // players.add(game.localPlayer)
-
-  game.startX = 32;
-  game.startY = game.world.height / 2;
-
-  console.log(players);
-  // game.camera.follow(game.localPlayer)
+  return players;
 }
 
 function addWeapons() {
   weapons = game.add.group();
   weapons.add(new _weapon.SingleBullet(game, 'bullet'));
   weapons.add(new _weapon.LazerBeam(game, 'lazer'));
-
   game.weapons = weapons;
+
+  return weapons;
 }
 
 /* =============== =============== ===============
   =============== UPDATE FUNCTIONS ===============
   =============== =============== =============== */
+
+function addInputs() {
+  cursors = game.input.keyboard.createCursorKeys();
+  fireButton = game.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR);
+  changeKey = game.input.keyboard.addKey(Phaser.Keyboard.ENTER);
+}
 
 function checkPlayerInputs(player) {
   if (cursors.left.isDown) {
@@ -1985,22 +1980,18 @@ function checkPlayerInputs(player) {
     player.body.x += player.body.velocity.x;
     sendPlayerMovement(player);
   }
-
   if (cursors.up.isDown) {
     player.body.y -= player.body.velocity.y;
     sendPlayerMovement(player);
   }
-
   if (cursors.down.isDown) {
     player.body.y += player.body.velocity.y;
     sendPlayerMovement(player);
   }
-
   if (fireButton.isDown) {
     // player.weapons.children[player.currentWeapon].fire(player)
     sendShot(player);
   }
-
   if (changeKey.isDown) {
     changeWeapon(player);
   }
@@ -2367,9 +2358,7 @@ var _enemyHandlers2 = _interopRequireDefault(_enemyHandlers);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-// if(process.env.ENVIRONMENT === 'development') port = 'https://localhost:4000'
-
-
+// const socket = io('http://localhost:4000')
 //http://www.dynetisgames.com/2017/03/06/how-to-make-a-multiplayer-online-game-with-phaser-socket-io-and-node-js/
 //https://github.com/Jerenaux/basic-mmo-phaser/blob/master/js/client.js
 //http://www.html5gamedevs.com/topic/29104-how-to-make-a-multiplayer-online-game-with-phaser-socketio-and-nodejs/
@@ -2386,9 +2375,9 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 //https://socket.io/docs/using-multiple-nodes/
 
+//https://github.com/cujojs/most-w3msg
 
-var socket = (0, _socket2.default)('http://localhost:4000');
-// const socket = io('https://backend-service-tpiavmylcx.now.sh')
+var socket = (0, _socket2.default)('https://backend-service-hnhzyecwxb.now.sh');
 
 var playerObs = new _eventEmitterEs2.default();
 
@@ -6136,14 +6125,14 @@ function onNewPlayer(data) {
   if (remotePlayers.length === 0) {
     return localPlayer(_game2.default, data);
   } else if (remotePlayers.length > 0) {
-    var newPlayer = new _player2.default(_game2.default, data.x, data.y, 'zombie', 50, 5, _game2.default.weapons, data.id);
+    var newPlayer = new _player2.default(_game2.default, data.x, data.y, 'giantZombie', 50, 5, _game2.default.weapons, data.id);
     remotePlayers.push(newPlayer);
     _index.playerObs.emit('addPlayer', newPlayer);
   }
 }
 
 function localPlayer(game, data) {
-  var newPlayer = new _player2.default(game, data.x, data.y, 'zombie', 50, 5, game.weapons, data.id);
+  var newPlayer = new _player2.default(game, data.x, data.y, 'giantZombie', 50, 5, game.weapons, data.id);
   _index.playerObs.emit('addPlayer', newPlayer);
   remotePlayers.push(newPlayer);
   console.log('first player!');
