@@ -1,6 +1,6 @@
 import {socket, playerObs} from './index'
 import Enemy from '../models/enemy'
-import game from '../game'
+import game from '../states/game'
 
 import * as most from 'most'
 
@@ -11,9 +11,10 @@ const enemyMap = []
 
 /** ADD ENEMIES */
 function onNewEnemies(data){
-  console.log('new enemies to add!', data.enemyList)
-  playerObs.emit('addEnemies', data)
-
+  console.log('new enemies to add!', data.enemyList, enemyMap.length)
+  if(enemyMap.length < data.enemyList.length) {
+    playerObs.emit('addEnemies', data)
+  }
 }
 
 //potentially utilize once?
@@ -26,7 +27,7 @@ function addEnemyOperation(enemyData){
     enemyData.enemyList.forEach(enemy => {
       const newEnemy = new Enemy(game,enemy.x,enemy.y,enemy.type,enemy.id)
       playerObs.emit('enemyGroup',newEnemy)
-      return enemyMap.push(newEnemy)
+      enemyMap.push(newEnemy)
     })
   }
 }

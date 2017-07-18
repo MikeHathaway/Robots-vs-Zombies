@@ -1,17 +1,17 @@
 
 /* ----- Phaser Dependencies ----- */
-import Bullet from './models/bullet'
-import {SingleBullet, LazerBeam} from './models/weapon'
-import Enemy from './models/enemy'
-import Player from './models/player'
+import Bullet from '../models/bullet'
+import {SingleBullet, LazerBeam} from '../models/weapon'
+import Enemy from '../models/enemy'
+import Player from '../models/player'
 
 
 /* ----- State Dependencies ----- */
-import {mainMenu, waitForInput} from './states/mainMenu'
+import CivZombie from '../main'
 
 /* ----- Server Dependencies ----- */
-import {socket, setEventHandlers, playerObs} from './eventHandlers'
-import enemyHandlers from './eventHandlers/enemyHandlers'
+import {socket, setEventHandlers, playerObs} from '../eventHandlers'
+import enemyHandlers from '../eventHandlers/enemyHandlers'
 
 
 
@@ -36,22 +36,25 @@ import enemyHandlers from './eventHandlers/enemyHandlers'
   const enemyMap = []
   const numEnemies = 5
 
-  //let game
-
-  // window.onLoad = function(){
-  //
-  // }
-
+  const divName =  'game-container'
 
   /* ----- Start Game Instance ----- */
     //formerly Phaser.AUTO for rendering; forcing Phaser.CANVAS to boost performacne
-  const game = new Phaser.Game(gameWidth, gameHeight, Phaser.AUTO, 'game-container', {
-      init: init,
-      preload: preload,
-      create: create,
-      update: update,
-      render: render
-  })
+  // const game = new Phaser.Game(gameWidth, gameHeight, Phaser.AUTO, '', {
+  //     init: init,
+  //     preload: preload,
+  //     create: create,
+  //     update: update,
+  //     render: render
+  // })
+
+  const game = {
+    init: init,
+    preload: preload,
+    create: create,
+    update: update,
+    render: render
+  }
 
 
   function init(){
@@ -60,9 +63,6 @@ import enemyHandlers from './eventHandlers/enemyHandlers'
 
   function preload(){
     game.load.crossOrigin = 'anonymous'
-
-    game.load.image('preloadbar', 'assets/preloader-bar.png');
-    game.load.image('space', 'assets/space.png');
 
     game.load.tilemap('desert', './assets/tilemaps/desert.json', null, Phaser.Tilemap.TILED_JSON)
     game.load.tilemap('forest', './assets/tilemaps/forest.json', null, Phaser.Tilemap.TILED_JSON)
@@ -77,8 +77,6 @@ import enemyHandlers from './eventHandlers/enemyHandlers'
   }
 
   function create(){
-    //mainMenu()
-
     configureGame()
 
     addMap('desert') // specify map can be: ['desert', 'forest']
@@ -86,8 +84,7 @@ import enemyHandlers from './eventHandlers/enemyHandlers'
     addEnemies(numEnemies) //specify number of enemies to be added
 
     addWeapons()
-    addPlayer() // <- currently incomplete, need to finish tie up
-    addInstructions()
+    addPlayer() // currently incomplete, need to finish tie up
 
     setEventHandlers() // Start listening for events
 
@@ -114,13 +111,12 @@ import enemyHandlers from './eventHandlers/enemyHandlers'
     checkScore()
 
     checkRemovePlayer()
-    removeInstructions()
   }
 
   function render(){
-	   if (localPlayer) game.debug.text("Player Health: " + localPlayer.health + " / " + localPlayer.maxHealth, 32, 32);
-	   if (localPlayer) game.debug.text("Player Score:  " + game.score, 32, 64);
-     if (localPlayer) game.debug.text("Enemies Remaining:  " + enemies.children.length, 32, 96);
+	  //  if (localPlayer) game.debug.text("Player Health: " + localPlayer.health + " / " + localPlayer.maxHealth, 32, 32);
+	  //  if (localPlayer) game.debug.text("Player Score:  " + game.score, 32, 64);
+    //  if (localPlayer) game.debug.text("Enemies Remaining:  " + enemies.children.length, 32, 96);
   }
 
 
@@ -226,14 +222,6 @@ import enemyHandlers from './eventHandlers/enemyHandlers'
   function incrementScore(){
     game.score += 1
     game.scoreLabel.text = game.score
-  }
-
-  function addInstructions(){
-    const message = 'Use Arrow Keys to Move, Press Space to Fire, \n Press Enter to change weapon'
-    const messageStyle = { font: '20px monospace', fill: '#fff', align: 'center' }
-    game.instructions = game.add.text(400, 500, message, messageStyle)
-    game.instructions.anchor.setTo(0.5, 0.5)
-    game.instExpire = game.time.now + 10000
   }
 
 
@@ -366,12 +354,6 @@ import enemyHandlers from './eventHandlers/enemyHandlers'
     return enemy.destroy()
   }
 
-
-  function removeInstructions(){
-    if(game.instructions.exists && game.time.now > game.instExpire){
-      game.instructions.destroy()
-    }
-  }
 
 
 

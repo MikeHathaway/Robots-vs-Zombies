@@ -4,7 +4,7 @@ const webpack = require('webpack');
 module.exports = {
   context: path.resolve(__dirname, 'src'),
   entry: {
-    game: './game/game.js'
+    game: './game/main' ///states/game.js'
   },
   output: {
     filename: '[name].js',

@@ -7,6 +7,8 @@ const players = []
 const bullets = []
 const enemies = []
 
+//https://www.npmjs.com/package/node-pathfinding
+
 const game = {} // <- will be a reference to the server side headless phaser
 game.lastEnemyId = 0
 
@@ -46,9 +48,9 @@ module.exports = function(io){
         this.emit('newPlayer', {id: player.id, x: player.getX(), y: player.getY()})
       })
 
-      players.push(newPlayer);
+      return players.push(newPlayer);
     }
-    else {
+    else if(players.length !== 0 && enemies.length === 0){
       io.sockets.emit('newPlayer', {id: newPlayer.id, x: newPlayer.getX(), y: newPlayer.getY()})
 
       // send enemies if joining existing game
@@ -58,7 +60,7 @@ module.exports = function(io){
         this.emit('newPlayer', {id: player.id, x: player.getX(), y: player.getY()})
       })
 
-      players.push(newPlayer);
+      return players.push(newPlayer);
     }
   }
 
@@ -69,10 +71,10 @@ module.exports = function(io){
     if(enemies.length === 0){
       console.log('first player enemies!')
       addEnemies(data)
-      io.sockets.emit('newEnemies', {enemyList: enemies})
+      return io.sockets.emit('newEnemies', {enemyList: enemies})
     }
-    else if(enemies.length === data.number){
-      io.sockets.emit('newEnemies', {enemyList: enemies})
+    else if(enemies.length <= data.number){
+      return io.sockets.emit('newEnemies', {enemyList: enemies})
     }
   }
 
