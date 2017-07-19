@@ -136,26 +136,6 @@ module.exports = function(io){
     }
   }
 
-  // function identifyNextPosition(enemy, enemyRange,player){
-  //   if(Math.floor(Math.random() * 2) === 1){
-  //     if((Math.floor(enemy.x) - Math.floor(player.getX())) < enemyRange && Math.floor(enemy.y) - Math.floor(player.getY()) < enemyRange return enemy.x += enemy.speed
-  //     if((Math.floor(enemy.x) + Math.floor(player.getX())) > enemyRange) return enemy.x -= enemy.speed
-  //   }
-  //   else {
-  //     if((Math.floor(enemy.y) - Math.floor(player.getY())) < enemyRange) return enemy.y += enemy.speed
-  //     if((Math.floor(enemy.y) + Math.floor(player.getY())) > enemyRange) return enemy.y -= enemy.speed
-  //   }
-  // }
-  //
-  // function incrPos(enemy,direction){
-  //   return enemy.direction += enemy.speed
-  // }
-  //
-  // function decrPos(enemy,direction){
-  //   return enemy.direction += enemy.speed
-  // }
-
-
   function decideToMove(enemy, enemyRange){
     for(let i = 0; i < players.length; i++){
 
@@ -213,65 +193,10 @@ module.exports = function(io){
 
     this.broadcast.emit('removePlayer', {id: removePlayer.id})
     players.splice(players.indexOf(removePlayer), 1)
-    // io.sockets.emit('removePlayer', {id: this.id})
-    // io.emit('removePlayer', "A user disconnected");
   }
-
-
-
-
-
-
-  //const checkCollisions =
-  setInterval (function () {
-      // For each Players go through the bullets if any contact report.
-  	for (let i=0; i < bullets.length; ++i){
-  		const bullet = bullets[i];
-  		if (!bullet) continue;
-  		for (let id2 in enemies) {
-  			const enemy = enemies[id2];
-        console.log(enemy)
-  			if (!enemy || enemy.id == bullet.pid) continue;
-  			let elapsedTime = (Date.now() - bullet.dt) / 1000;
-  			//console.log("elapsedTime: " + elapsedTime);
-
-
-  			//console.log("radians:"+bullet.r/Math.PI);
-  			let theta = bullet.r
-  			const x = Math.round(bullet.x+(Math.cos(theta) * bullet.v) * elapsedTime);
-  			const y = Math.round(bullet.y+(Math.sin(theta) * bullet.v) * elapsedTime);
-  			//console.log("x:"+x+",y:"+y);
-  			if (x < -1000 || x > 1000 || y < -1000 || y > 1000){
-  				//console.log("x:"+x+",y:"+y+",bullet.r:"+bullet.r+",bullet.v:"+bullet.v);
-  				bullets.splice(bullet,1);
-  				delete bullet;
-  				continue;
-  			}
-  			//console.log("radians2:"+player.r);
-
-        theta = enemy.r;
-  			const p1 = rotatePoint(30,30, enemy.x,enemy.y,theta);
-  			const p2 = rotatePoint(-30,-30, enemy.x,enemy.y,theta);
-  			if (pointRectangleIntersection({x:x,y:y},
-  			    {x1:Math.min(p1.x,p2.x),x2:Math.max(p1.x,p2.x),
-             y1:Math.min(p1.y,p2.y), y2:Math.max(p1.y, p2.y)}))
-  			{
-
-          /*  Bullet is passing the intersection check */
-  				bullet.hid = enemy.id;
-  				//console.log("Enemy HIT!!!!!!!");
-  				const packet = {bullet: bullet, enemy: enemy, targetHealth: --enemy.health} //, srcScore: ++player.score};
-  				gSocket.volatile.broadcast.emit('shot',packet);
-  				gSocket.volatile.emit('shot',packet);
-  				bullets.splice(bullet,1);
-  				delete bullet;
-  				continue;
-  			}
-
-  		}
-  	}
-  }, 32); // 30 FPS
 }
+
+
 
 
 

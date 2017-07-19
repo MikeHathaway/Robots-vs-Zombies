@@ -5,9 +5,7 @@ import game from '../states/game'
 import * as most from 'most'
 
 
-
 const enemyMap = []
-//const enemies = game.add.group()
 
 /** ADD ENEMIES */
 function onNewEnemies(data){

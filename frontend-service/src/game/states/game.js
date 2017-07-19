@@ -136,7 +136,10 @@ import enemyHandlers from '../eventHandlers/enemyHandlers'
     game.scale.pageAlignHorizontally = true;
     game.scale.pageAlignVertically = true;
 
-    //
+    // configure FPS
+    game.time.advancedTiming = true;
+    game.time.desiredFps = 50;
+
 
     //bounds for enemy positioning
     game.startX = 32
