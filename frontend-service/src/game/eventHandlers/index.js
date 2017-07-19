@@ -18,7 +18,6 @@
 
 import io from 'socket.io-client'
 
-// import EventEmitter from 'event-emitter-es6'
 import EventEmitter from 'eventemitter3'
 
 import Player from '../models/player'

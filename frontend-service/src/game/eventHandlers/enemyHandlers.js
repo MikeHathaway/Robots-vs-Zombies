@@ -53,9 +53,9 @@ function onMoveEnemy(data){
 
 }
 
-function moveEnemy(){
-  playerObs.on('movingEnemy', moveEnemyOperation)
-}
+// function moveEnemy(){
+//   playerObs.on('movingEnemy', moveEnemyOperation)
+// }
 
 function moveEnemyOperation(moveEnemy){
   const enemy = enemyById(moveEnemy.id)
@@ -86,5 +86,5 @@ function onEnemyHit(data){
 
 
 
-const enemyHandlers = {onNewEnemies,onMoveEnemy, onEnemyHit, addRemoteEnemies, sendEnemyMovement, moveEnemy}
+const enemyHandlers = {onNewEnemies,onMoveEnemy, onEnemyHit, addRemoteEnemies, sendEnemyMovement, moveEnemyOperation}
 export default enemyHandlers

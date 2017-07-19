@@ -127,22 +127,24 @@ module.exports = function(io){
   // && check that they are also within y range
   function identifyNextPosition(enemy, enemyRange,player){
     if(Math.floor(Math.random() * 2) === 1){
+      // enemy.isMoving = true
       if((Math.floor(enemy.x) - Math.floor(player.getX())) < enemyRange) return enemy.x += enemy.speed
       if((Math.floor(enemy.x) + Math.floor(player.getX())) > enemyRange) return enemy.x -= enemy.speed
     }
     else {
+      // enemy.isMoving = true
       if((Math.floor(enemy.y) - Math.floor(player.getY())) < enemyRange) return enemy.y += enemy.speed
       if((Math.floor(enemy.y) + Math.floor(player.getY())) > enemyRange) return enemy.y -= enemy.speed
     }
   }
 
+  // && enemy.isMoving === false <- check that enemy isn't already moving
   function decideToMove(enemy, enemyRange){
     for(let i = 0; i < players.length; i++){
-
       if(
         Math.floor(enemy.x) - Math.floor(players[i].getX()) < enemyRange ||
         Math.floor(enemy.y) - Math.floor(players[i].getY()) < enemyRange
-        ){
+         ){
           //console.log('true')
          return i
        }
@@ -194,22 +196,6 @@ module.exports = function(io){
     this.broadcast.emit('removePlayer', {id: removePlayer.id})
     players.splice(players.indexOf(removePlayer), 1)
   }
-}
-
-
-
-
-
-function rotatePoint(px,py,ox,oy,theta){
-	const rx = Math.round(px*Math.cos(theta) - py*Math.sin(theta));
-	const ry = Math.round(px*Math.sin(theta) + py*Math.cos(theta));
-	return {x:ox + rx, y:oy + ry};
-}
-
-function pointRectangleIntersection(p, r) {
-  //console.log("p.x:"+p.x+",p.y:"+p.y);
-  //console.log("x1:"+r.x1+",y1:"+r.y1+",x2:"+r.x2+",y2:"+r.y2);
-  return p.x >= r.x1 && p.x <= r.x2 && p.y >= r.y1 && p.y <= r.y2;
 }
 
 function randomInt (low, high) {

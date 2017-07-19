@@ -96,12 +96,12 @@ import enemyHandlers from '../eventHandlers/enemyHandlers'
     if (localPlayer) checkCollisions()
 
     /* Multiplayer Functions */
-    if (localPlayer) moveRemotePlayer()
-    if (localPlayer) shootPlayer()
-    if (localPlayer) checkRemovePlayer()
+    // if (localPlayer) moveRemotePlayer()
+    // if (localPlayer) shootPlayer()
+    // if (localPlayer) checkRemovePlayer()
 
     if (enemies) checkEnemyActions()
-    if (enemies) enemyHandlers.moveEnemy()
+    // if (enemies) enemyHandlers.moveEnemy()
 
     /* Global Functions */
     // checkScore()
@@ -382,11 +382,12 @@ function checkGameOver(){
      }
   }
 
-  function shootPlayer(){
-    playerObs.on('shootPlayer', shootOperation)
-  }
+  // function shootPlayer(){
+  //   playerObs.on('shootPlayer', shootOperation)
+  // }
 
   function shootOperation(data){
+    console.log(this)
     const player = game.playerMap[data.pid];
     const weapon = player.weapons.children[player.currentWeapon]
     const bullet = weapon.children[data.id]
@@ -426,10 +427,9 @@ function checkGameOver(){
      socket.emit('movePlayer',{id: player.id, x: player.body.x, y: player.body.y})
   }
 
-  function moveRemotePlayer(){
-
-    playerObs.on('movingPlayer', movePlayerOperation)
-  }
+  // function moveRemotePlayer(){
+  //   playerObs.on('movingPlayer', movePlayerOperation)
+  // }
 
 
   function movePlayerOperation(movePlayer){
@@ -440,9 +440,9 @@ function checkGameOver(){
   }
 
 
-  function checkRemovePlayer(){
-    playerObs.on('removePlayer', removeOperations)
-  }
+  // function checkRemovePlayer(){
+  //   playerObs.on('removePlayer', removeOperations)
+  // }
 
   function removeOperations(removePlayer){
     removePlayer.kill()
@@ -458,6 +458,12 @@ function checkGameOver(){
     })
   }
 
+
+  /** Event Listeners outside of update loop*/
+  playerObs.on('removePlayer', removeOperations)
+  playerObs.on('movingPlayer', movePlayerOperation)
+  playerObs.on('shootPlayer', shootOperation)
+  playerObs.on('movingEnemy', enemyHandlers.moveEnemyOperation)
 
 
 
