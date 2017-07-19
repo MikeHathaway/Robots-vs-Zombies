@@ -7,22 +7,31 @@ const players = []
 const bullets = []
 const enemies = []
 
-//https://www.npmjs.com/package/node-pathfinding
-// ^node pathfinder
+const gameSessions = {}
+
+  /*
+    {
+      lobbyID1: [player1, player2],
+      lobbyID2: [player1, player2],
+    }
+  */
 
 const game = {} // <- will be a reference to the server side headless phaser
 game.lastEnemyId = 0
+game.lastPlayerId = 0
+game.lastRoomID = 0
 
-let gSocket = null
+//https://www.npmjs.com/package/node-pathfinding
+// ^node pathfinder
 
 module.exports = function(io){
 
   //formerly io.sockets.on('connection', setEventHandlers)
   //define a single namespace through which to connect (enabling multiplexing)
-  io.of('/').on('connection', setEventHandlers)
+  // io.of('/').on('connection', setEventHandlers)
+  io.sockets.on('connection', setEventHandlers)
 
   function setEventHandlers(client){
-    gSocket = client
     console.log('connected!')
     client.on('newPlayer', onNewPlayer)
     client.on('newEnemies', onNewEnemies)
@@ -31,7 +40,15 @@ module.exports = function(io){
     client.on('shoot', onShoot)
     client.on('enemyHit', onEnemyHit)
     client.on('disconnect', onSocketDisconnect)
+    client.on('newGame', onNewGame)
     client.on('test', (data) => { console.log(data)})
+  }
+
+  function onNewGame(){
+    console.log('starting new game')
+    players.length = 0
+    enemies.length = 0
+    console.log(players,enemies)
   }
 
   function onNewPlayer(data) {
@@ -40,7 +57,7 @@ module.exports = function(io){
 
     console.log('new played added: ', this.id)
 
-    //formely this.broadcast.emit
+    //first player in new game
     if(players.length === 0){
       console.log('emitting through new player')
       io.sockets.emit('newPlayer', {id: newPlayer.id, x: newPlayer.getX(), y: newPlayer.getY()})
@@ -51,7 +68,9 @@ module.exports = function(io){
 
       return players.push(newPlayer);
     }
-    else if(players.length !== 0 && enemies.length === 0){
+    //existing game
+    else if(players.length !== 0){// && enemies.length === 0){
+      console.log('second condition!')
       io.sockets.emit('newPlayer', {id: newPlayer.id, x: newPlayer.getX(), y: newPlayer.getY()})
 
       // send enemies if joining existing game
@@ -63,6 +82,14 @@ module.exports = function(io){
 
       return players.push(newPlayer);
     }
+
+    // //restarting game
+    // else {
+    //   console.log('else case',this)
+    //   io.sockets.emit('newPlayer', {id: newPlayer.id, x: newPlayer.getX(), y: newPlayer.getY()})
+    //   // this.broadcast.to(this.id).emit('newEnemies', {enemyList: enemies})
+    //   io.sockets.emit('newEnemies', {enemyList: enemies})
+    // }
   }
 
 

@@ -8,7 +8,7 @@ const remotePlayers = []
 
 
 function onNewPlayer(data){
-  console.log('New player connected:', data)
+  console.log('New player connected:', data, remotePlayers)
 
   const duplicate = playerById(data.id)
 
@@ -50,6 +50,11 @@ function onShoot(data){
 }
 
 
+//clear player data
+// playerObs.on('newGame', () => {
+//   console.log('starting new game')
+//   remotePlayers.length = 0
+// })
 
 
 function onRemovePlayer(data){
@@ -75,5 +80,5 @@ function playerById (id) {
   return identifiedPlayer.length > 0 ? identifiedPlayer[0] : false
 }
 
-const playerHandlers = {onNewPlayer,localPlayer,onMovePlayer,onShoot,onRemovePlayer,onSocketDisconnect}
+const playerHandlers = {onNewPlayer,localPlayer,onMovePlayer,onShoot,onRemovePlayer,onSocketDisconnect, remotePlayers}
 export default playerHandlers

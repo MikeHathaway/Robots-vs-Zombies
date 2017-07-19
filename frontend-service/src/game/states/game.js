@@ -15,6 +15,7 @@ import CivZombie from '../main'
 /* ----- Server Dependencies ----- */
 import {socket, setEventHandlers, playerObs} from '../eventHandlers'
 import enemyHandlers from '../eventHandlers/enemyHandlers'
+import playerHandlers from '../eventHandlers/playerHandlers'
 
 
 
@@ -94,17 +95,9 @@ import enemyHandlers from '../eventHandlers/enemyHandlers'
   function update(){
     if (localPlayer) checkPlayerInputs(localPlayer)
     if (localPlayer) checkCollisions()
-
-    /* Multiplayer Functions */
-    // if (localPlayer) moveRemotePlayer()
-    // if (localPlayer) shootPlayer()
-    // if (localPlayer) checkRemovePlayer()
-
     if (enemies) checkEnemyActions()
-    // if (enemies) enemyHandlers.moveEnemy()
 
-    /* Global Functions */
-    // checkScore()
+    checkScore()
     checkGameOver()
   }
 
@@ -138,7 +131,7 @@ import enemyHandlers from '../eventHandlers/enemyHandlers'
 
     // configure FPS
     game.time.advancedTiming = true;
-    game.time.desiredFps = 50;
+    game.time.desiredFps = 60;
 
 
     //bounds for enemy positioning
@@ -349,7 +342,12 @@ import enemyHandlers from '../eventHandlers/enemyHandlers'
   }
 
 function checkGameOver(){
-  if(game.score >= 50){
+  if(game.score >= 150){
+
+    // refresh socket after game over: socket.emit('disconnect')
+    socket.emit('newGame')
+    playerObs.emit('newGame', 'game over!')
+
     CivZombie.game.state.start('GameOver')
   }
 }
@@ -367,6 +365,8 @@ function checkGameOver(){
   function sendShot(player){
      const weapon = player.weapons.children[player.currentWeapon]
 
+     console.log(player.body.rotation)
+     
      if(checkTimeToFire(player,weapon)){
        socket.emit('shoot', {id: player.id, x: player.body.x, y: player.body.y, v: weapon.bulletSpeed, r: player.body.rotation})
      }
@@ -382,15 +382,12 @@ function checkGameOver(){
      }
   }
 
-  // function shootPlayer(){
-  //   playerObs.on('shootPlayer', shootOperation)
-  // }
 
   function shootOperation(data){
-    console.log(this)
     const player = game.playerMap[data.pid];
     const weapon = player.weapons.children[player.currentWeapon]
     const bullet = weapon.children[data.id]
+    console.log(bullet)
     bullet.reset(data.x,data.y)
     bullet.rotation = data.r
     // bullet.body.velocity = game.physics.arcade.velocityFromRotation(bullet.rotation, bullet.body.velocity)
@@ -427,10 +424,6 @@ function checkGameOver(){
      socket.emit('movePlayer',{id: player.id, x: player.body.x, y: player.body.y})
   }
 
-  // function moveRemotePlayer(){
-  //   playerObs.on('movingPlayer', movePlayerOperation)
-  // }
-
 
   function movePlayerOperation(movePlayer){
     const player = movePlayer.player
@@ -439,10 +432,6 @@ function checkGameOver(){
     tween.start()
   }
 
-
-  // function checkRemovePlayer(){
-  //   playerObs.on('removePlayer', removeOperations)
-  // }
 
   function removeOperations(removePlayer){
     removePlayer.kill()

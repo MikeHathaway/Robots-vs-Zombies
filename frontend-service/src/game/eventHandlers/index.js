@@ -26,8 +26,8 @@ import game from '../states/game'
 import playerHandlers from './playerHandlers'
 import enemyHandlers from './enemyHandlers'
 
-const socket = io('http://localhost:4000')
-// const socket = io('https://backend-service-hnhzyecwxb.now.sh')
+// const socket = io('http://localhost:4000')
+const socket = io('https://backend-service-wxtkngvfew.now.sh')
 
 const playerObs = new EventEmitter()
 
@@ -39,7 +39,7 @@ function setEventHandlers(){
 
   // trigger game start
   socket.emit('newPlayer', {x: game.startX, y: game.startY})
-
+  console.log('sent new player')
 
   /** PLAYER EVENTS */
 

@@ -1,4 +1,5 @@
 import CivZombie from '../main'
+import {socket} from '../eventHandlers'
 
 const GameMenu = function() {}
 

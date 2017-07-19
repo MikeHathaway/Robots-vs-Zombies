@@ -1,0 +1,9 @@
+Lobby System
+  dynamically add and join games
+  restart game
+
+
+
+rotate player aiming
+add enemy waves system
+modify backend pathfinding system
