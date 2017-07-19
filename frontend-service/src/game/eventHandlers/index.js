@@ -18,7 +18,8 @@
 
 import io from 'socket.io-client'
 
-import EventEmitter from 'event-emitter-es6'
+// import EventEmitter from 'event-emitter-es6'
+import EventEmitter from 'eventemitter3'
 
 import Player from '../models/player'
 import game from '../states/game'
@@ -26,8 +27,8 @@ import game from '../states/game'
 import playerHandlers from './playerHandlers'
 import enemyHandlers from './enemyHandlers'
 
-// const socket = io('http://localhost:4000')
-const socket = io('https://backend-service-hnhzyecwxb.now.sh')
+const socket = io('http://localhost:4000')
+// const socket = io('https://backend-service-hnhzyecwxb.now.sh')
 
 const playerObs = new EventEmitter()
 

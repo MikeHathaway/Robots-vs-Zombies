@@ -61,16 +61,7 @@ function moveEnemy(){
 
 function moveEnemyOperation(moveEnemy){
   const enemy = enemyById(moveEnemy.id)
-
-  const xCord = moveEnemy.x
-  const yCord = moveEnemy.y
-
-  const distance = Phaser.Math.distance(enemy.body.x,enemy.body.y,xCord,yCord)
-  const tween = game.add.tween(enemy)
-  tween.to({x:xCord,y:yCord}, 0)
-  tween.start()
-
-  //tween.remove(enemy) <-potential solution for memory consumption issue
+  game.add.tween(enemy).to({x:moveEnemy.x,y:moveEnemy.y}, 0).start()
 }
 
 
@@ -78,8 +69,6 @@ function enemyById (id) {
   const identifiedEnemy = enemyMap.filter(enemy => enemy.id === id)
   return identifiedEnemy.length > 0 ? identifiedEnemy[0] : false
 }
-
-
 
 
 

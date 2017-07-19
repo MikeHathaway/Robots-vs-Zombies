@@ -33,16 +33,7 @@ class Bullet extends Phaser.Sprite{
     this.angle = angle
     this.body.gravity.set(gx, gy)
   }
-
-  update(){
-    if (this.tracking){
-      this.rotation = Math.atan2(this.body.velocity.y, this.body.velocity.x)
-    }
-    if (this.scaleSpeed > 0){
-      this.scale.x += this.scaleSpeed
-      this.scale.y += this.scaleSpeed
-    }
-  }
+  
 }
 
 export default Bullet

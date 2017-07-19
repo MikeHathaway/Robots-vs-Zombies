@@ -65,7 +65,6 @@ import enemyHandlers from '../eventHandlers/enemyHandlers'
 
     game.load.image('zombie', './assets/CZombieMini.png') //Zombie_Sprite CZombie
     game.load.image('giantZombie', './assets/CZombie.png') //Zombie_Sprite CZombie
-    game.load.image('human', './assets/dude.png')
     game.load.image('bullet', './assets/singleBullet.png')
     game.load.image('lazer', './assets/lazer.png')
     game.load.spritesheet('zombies', './assets/zombie_sheet.png', 32, 48)
@@ -105,7 +104,7 @@ import enemyHandlers from '../eventHandlers/enemyHandlers'
     if (enemies) enemyHandlers.moveEnemy()
 
     /* Global Functions */
-    checkScore()
+    // checkScore()
     checkGameOver()
   }
 
@@ -136,6 +135,8 @@ import enemyHandlers from '../eventHandlers/enemyHandlers'
     game.playerMap = {}
     game.scale.pageAlignHorizontally = true;
     game.scale.pageAlignVertically = true;
+
+    //
 
     //bounds for enemy positioning
     game.startX = 32
@@ -423,18 +424,15 @@ function checkGameOver(){
   }
 
   function moveRemotePlayer(){
+
     playerObs.on('movingPlayer', movePlayerOperation)
   }
 
+
   function movePlayerOperation(movePlayer){
     const player = movePlayer.player
-    const xCord = movePlayer.data.x
-    const yCord = movePlayer.data.y
-
-    const distance = Phaser.Math.distance(player.x,player.y,xCord,yCord)
     const tween = game.add.tween(player)
-    // const duration = distance*10
-    tween.to({x:xCord,y:yCord}, 5) //formerly duration
+    tween.to({x: movePlayer.data.x,y:movePlayer.data.y}, 0) //formerly duration
     tween.start()
   }
 
@@ -456,6 +454,7 @@ function checkGameOver(){
       return enemies.add(data)
     })
   }
+
 
 
 

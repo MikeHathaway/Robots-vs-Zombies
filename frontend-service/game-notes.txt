@@ -10,6 +10,7 @@ Questions:
   Using Tweens for animation
   How to go about using interpolation
 
+  "build": "webpack --config webpack.config.js",
 
 
    minimap guide
