@@ -12,8 +12,10 @@ const enemyMap = []
 /** ADD ENEMIES */
 function onNewEnemies(data){
   console.log('new enemies to add!', data.enemyList, enemyMap.length)
-  if(enemyMap.length < data.enemyList.length) {
-    playerObs.emit('addEnemies', data)
+  if(data.enemyList){
+    if(enemyMap.length < data.enemyList.length) {
+      playerObs.emit('addEnemies', data)
+    }
   }
 }
 
@@ -40,7 +42,7 @@ function addEnemyOperation(enemyData){
 /** MOVE ENEMIES */
 //need to modify this to accept enemy collection
 function sendEnemyMovement(enemy){
-  client.event.emit('moveEnemy',{id: enemy.id, x: enemy.body.x, y: enemy.body.y})
+  return client.event.emit('moveEnemy',{id: enemy.id, x: enemy.body.x, y: enemy.body.y})
 }
 
 function onMoveEnemy(data){
@@ -59,18 +61,10 @@ function moveEnemy(){
   playerObs.on('movingEnemy', moveEnemyOperation)
 }
 
+//source of my troubles
 function moveEnemyOperation(moveEnemy){
   const enemy = enemyById(moveEnemy.id)
-
-  const xCord = moveEnemy.x
-  const yCord = moveEnemy.y
-
-  const distance = Phaser.Math.distance(enemy.body.x,enemy.body.y,xCord,yCord)
-  const tween = game.add.tween(enemy)
-  tween.to({x:xCord,y:yCord}, 0)
-  tween.start()
-
-  //tween.remove(enemy) <-potential solution for memory consumption issue
+  return game.add.tween(enemy).to({x:moveEnemy.x, y:moveEnemy.y}, 0).start()
 }
 
 

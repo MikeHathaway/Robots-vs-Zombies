@@ -21,7 +21,6 @@ import {client, setEventHandlers, playerObs} from '../eventHandlers'
 import enemyHandlers from '../eventHandlers/enemyHandlers'
 
 
-
   /* ----- Declares global variables ----- */
   let map
     , layer
@@ -71,10 +70,8 @@ import enemyHandlers from '../eventHandlers/enemyHandlers'
 
     game.load.image('zombie', './assets/CZombieMini.png') //Zombie_Sprite CZombie
     game.load.image('giantZombie', './assets/CZombie.png') //Zombie_Sprite CZombie
-    game.load.image('human', './assets/dude.png')
     game.load.image('bullet', './assets/singleBullet.png')
     game.load.image('lazer', './assets/lazer.png')
-    game.load.spritesheet('zombies', './assets/zombie_sheet.png', 32, 48)
   }
 
   function create(){
@@ -92,9 +89,8 @@ import enemyHandlers from '../eventHandlers/enemyHandlers'
     addInputs() // Add game controls
     addScore() // Score animations
 
-    checkForNewPlayers()
+    checkForNewPlayers() //adds local player to the game
 
-    addEnemiesToGroup()
     enemyHandlers.addRemoteEnemies()
   }
 
@@ -103,15 +99,17 @@ import enemyHandlers from '../eventHandlers/enemyHandlers'
     if (localPlayer) checkCollisions()
 
     /* Multiplayer Functions */
-    if (localPlayer) moveRemotePlayer()
+    // if (localPlayer) moveRemotePlayer()
     // if (localPlayer) shootPlayer()
-    if (localPlayer) checkRemovePlayer()
+    // if (localPlayer) checkRemovePlayer()
+    if (localPlayer) checkSubscriptions(game)
 
     if (enemies) checkEnemyActions()
     if (enemies) enemyHandlers.moveEnemy()
 
     /* Global Functions */
-    checkScore()
+    // if(game.time) introduce buffers to reduce memory usage
+    //checkScore()
     checkGameOver()
   }
 
@@ -143,7 +141,11 @@ import enemyHandlers from '../eventHandlers/enemyHandlers'
     game.scale.pageAlignHorizontally = true;
     game.scale.pageAlignVertically = true;
 
-    //bounds for enemy positioning
+    // configure FPS
+    game.time.advancedTiming = true;
+    game.time.desiredFps = 30;
+
+    // bounds for enemy positioning
     game.startX = 32
     game.startY = game.world.height / 2
   }
@@ -266,7 +268,9 @@ import enemyHandlers from '../eventHandlers/enemyHandlers'
       sendPlayerMovement(player)
     }
     if (cursors.right.isDown){
+      console.log('before',player.body.x)
       player.body.x += player.body.velocity.x
+      console.log('after',player.body.x)
       sendPlayerMovement(player)
     }
     if (cursors.up.isDown){
@@ -339,7 +343,7 @@ import enemyHandlers from '../eventHandlers/enemyHandlers'
 
 
   function checkEnemyActions(){
-    if(enemies) enemies.children.map(enemyOperations)
+    if(enemies) return enemies.children.map(enemyOperations)
   }
 
   function enemyOperations(enemy){
@@ -370,6 +374,7 @@ function checkGameOver(){
      const weapon = player.weapons.children[player.currentWeapon]
 
      if(checkTimeToFire(player,weapon)){
+       console.log('sending shot')
        client.event.emit('shoot', {id: player.id, x: player.body.x, y: player.body.y, v: weapon.bulletSpeed, r: player.body.rotation})
      }
   }
@@ -384,8 +389,53 @@ function checkGameOver(){
      }
   }
 
-  function shootPlayer(){
+  //called in create function to initialize local player
+  function checkForNewPlayers(){
+    playerObs.on('addPlayer', addPlayersToGame)
+  }
+
+  function addPlayersToGame(player){
+    console.log('Player added')
+    players.add(player)
+    game.playerMap[player.id] = player
+    if(!localPlayer) {
+      localPlayer = player
+      game.camera.follow(localPlayer)
+    }
+  }
+
+
+  function sendPlayerMovement(player){
+    //  client.event.emit('movePlayer',{id: player.id, x: player.body.x, y: player.body.y})
+     console.log('setting movement', player.body.x, player.body.y)
+     return userRecord.set('user/movePlayer', {id: player.id, x: player.body.x, y: player.body.y})
+  }
+
+
+  //have this function be called once in update to check the various emissions
+  function checkSubscriptions(game){
     playerObs.on('shootPlayer', shootOperation)
+    playerObs.on('enemyGroup', addEnemiesToGroup)
+    playerObs.on('removePlayer', removeOperations)
+
+    userRecord.subscribe('user/movePlayer', moveRemotePlayer)
+  }
+
+  function removeOperations(removePlayer){
+    removePlayer.kill()
+    delete game.playerMap[removePlayer.id]
+  }
+
+
+  function addEnemiesToGroup(data){
+    console.log('enemy data!!',data)
+    return enemies.add(data)
+  }
+
+  //tween undefined?
+  function moveRemotePlayer(data){
+    console.log(this)
+    return game.add.tween(game.playerMap[data.id]).to({x:data.x,y:data.y}, 0).start()
   }
 
   function shootOperation(data){
@@ -407,70 +457,6 @@ function checkGameOver(){
     bullet.reset(data.x,data.y)
     bullet.rotation = data.r
   }
-
-
-  function checkForNewPlayers(){
-    playerObs.on('addPlayer', addPlayersToGame)
-  }
-
-  function addPlayersToGame(player){
-    console.log('Player added')
-    players.add(player)
-    game.playerMap[player.id] = player
-    //replace global localPlayer variable with an observable
-    if(!localPlayer) {
-      localPlayer = player
-      game.camera.follow(localPlayer)
-    }
-  }
-
-
-  function sendPlayerMovement(player){
-    //  client.event.emit('movePlayer',{id: player.id, x: player.body.x, y: player.body.y})
-     console.log('setting movement')
-     userRecord.set('user/movePlayer', {id: player.id, x: player.body.x, y: player.body.y})
-  }
-
-  //get every player with a record
-  function checkPlayerPosition(){
-    // userRecord.get('user/movePlayer/0')
-    // 
-  }
-
-  function moveRemotePlayer(){
-    playerObs.on('movingPlayer', movePlayerOperation)
-  }
-
-  function movePlayerOperation(data){
-    const player = game.playerMap[data.data.id]
-    const xCord = data.data.x
-    const yCord = data.data.y
-
-    const distance = Phaser.Math.distance(player.x,player.y,xCord,yCord)
-    const tween = game.add.tween(player)
-    tween.to({x:xCord,y:yCord}, 0)
-    tween.start()
-  }
-
-
-  function checkRemovePlayer(){
-    playerObs.on('removePlayer', removeOperations)
-  }
-
-  function removeOperations(removePlayer){
-    removePlayer.kill()
-    delete game.playerMap[removePlayer.id]
-  }
-
-
-
-  function addEnemiesToGroup(){
-    playerObs.on('enemyGroup',(data) => {
-      console.log('enemy data!!',data)
-      return enemies.add(data)
-    })
-  }
-
 
 
 export default game
