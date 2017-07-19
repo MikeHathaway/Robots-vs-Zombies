@@ -1,4 +1,4 @@
-import {socket, playerObs} from './index'
+import {client, playerObs} from './index'
 import Enemy from '../models/enemy'
 import game from '../states/game'
 
@@ -40,7 +40,7 @@ function addEnemyOperation(enemyData){
 /** MOVE ENEMIES */
 //need to modify this to accept enemy collection
 function sendEnemyMovement(enemy){
-  socket.emit('moveEnemy',{id: enemy.id, x: enemy.body.x, y: enemy.body.y})
+  client.event.emit('moveEnemy',{id: enemy.id, x: enemy.body.x, y: enemy.body.y})
 }
 
 function onMoveEnemy(data){

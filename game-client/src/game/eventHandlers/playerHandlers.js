@@ -1,4 +1,4 @@
-import {socket,playerObs} from './index'
+import {client,playerObs} from './index'
 
 import Player from '../models/player'
 import game from '../states/game'
@@ -35,13 +35,13 @@ function localPlayer(game,data){
 
 
   /** Add enemies if local player is only player in the game */
-  socket.emit('newEnemies', {number: 5,x: game.startX, y: game.startY})
+  client.event.emit('newEnemies', {number: 5,x: game.startX, y: game.startY})
 }
 
 
 function onMovePlayer(data){
   const movePlayer = playerById(data.id);
-  return movePlayer ? playerObs.emit('movingPlayer', {player: movePlayer, data: data}) : false
+  return movePlayer ? playerObs.emit('movingPlayer', {data: data}) : false
 }
 
 
@@ -66,7 +66,7 @@ function onRemovePlayer(data){
 }
 
 function onSocketDisconnect(){
-  console.log('Disconnected from socket server')
+  console.log('Disconnected from client server')
 }
 
 

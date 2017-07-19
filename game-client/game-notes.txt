@@ -10,6 +10,25 @@ Questions:
   Using Tweens for animation
   How to go about using interpolation
 
+  //http://www.dynetisgames.com/2017/03/06/how-to-make-a-multiplayer-online-game-with-phaser-socket-io-and-node-js/
+  //https://github.com/Jerenaux/basic-mmo-phaser/blob/master/js/client.js
+  //http://www.html5gamedevs.com/topic/29104-how-to-make-a-multiplayer-online-game-with-phaser-socketio-and-nodejs/
+
+  //https://gamedev.stackexchange.com/questions/124434/phaser-io-with-socket-io-what-should-the-server-calculate-and-what-the-client
+
+  //https://github.com/fbaiodias/phaser-multiplayer-game
+
+  //https://github.com/Langerz82/phasertanksmultiplayer
+
+  //https://github.com/crisu83/capthatflag/tree/feature/phaser-server
+
+  //http://www.gabrielgambetta.com/client-side-prediction-server-reconciliation.html
+
+  //https://socket.io/docs/using-multiple-nodes/
+
+  //https://unpkg.com/eventemitter3@latest/umd/eventemitter3.min.js
+
+  //http://www.html5gamedevs.com/topic/24950-deepstreamio-as-multiplayer-realtime-server/
 
 
    minimap guide

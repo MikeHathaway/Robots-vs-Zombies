@@ -18,11 +18,11 @@ const Player = function(startX, startY) {
     }
 
     const setX = function(newX) {
-        x = newX
+        this.x = newX
     }
 
     const setY = function(newY) {
-        y = newY
+        this.y = newY
     }
 
     return {

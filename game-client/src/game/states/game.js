@@ -1,6 +1,10 @@
 
 //http://codeperfectionist.com/articles/learning-to-think-in-frp-my-experience-coding-a-game-with-kefir-js/
 
+//https://github.com/uNetworking/uWebSockets
+
+//https://github.com/cujojs/most-w3msg
+
 
 /* ----- Model Dependencies ----- */
 import Bullet from '../models/bullet'
@@ -13,7 +17,7 @@ import Player from '../models/player'
 import CivZombie from '../main'
 
 /* ----- Server Dependencies ----- */
-import {socket, setEventHandlers, playerObs} from '../eventHandlers'
+import {client, setEventHandlers, playerObs} from '../eventHandlers'
 import enemyHandlers from '../eventHandlers/enemyHandlers'
 
 
@@ -39,6 +43,8 @@ import enemyHandlers from '../eventHandlers/enemyHandlers'
   const enemyMap = []
   const numEnemies = 5
 
+
+  const userRecord = client.record.getRecord('user')
 
   /* ----- Start Game Instance ----- */
   //should prototype this?
@@ -98,7 +104,7 @@ import enemyHandlers from '../eventHandlers/enemyHandlers'
 
     /* Multiplayer Functions */
     if (localPlayer) moveRemotePlayer()
-    if (localPlayer) shootPlayer()
+    // if (localPlayer) shootPlayer()
     if (localPlayer) checkRemovePlayer()
 
     if (enemies) checkEnemyActions()
@@ -169,7 +175,7 @@ import enemyHandlers from '../eventHandlers/enemyHandlers'
   //https://leanpub.com/html5shootemupinanafternoon/read <- info on randomizing enemy spawn
   function addEnemies(number = 100){
     enemies = game.add.group()
-    socket.emit('newEnemies',{number: number, x: gameWidth, y: gameHeight})
+    client.event.emit('newEnemies',{number: number, x: gameWidth, y: gameHeight})
   }
 
 
@@ -310,7 +316,7 @@ import enemyHandlers from '../eventHandlers/enemyHandlers'
     enemy.takeDamage(damage)
     bullet.kill()
     console.log("Hit Zombie")
-    socket.emit('enemyHit',{id: enemy.id, damage: damage})
+    client.event.emit('enemyHit',{id: enemy.id, damage: damage})
 
     const score = damage
     // game.score += 5
@@ -364,7 +370,7 @@ function checkGameOver(){
      const weapon = player.weapons.children[player.currentWeapon]
 
      if(checkTimeToFire(player,weapon)){
-       socket.emit('shoot', {id: player.id, x: player.body.x, y: player.body.y, v: weapon.bulletSpeed, r: player.body.rotation})
+       client.event.emit('shoot', {id: player.id, x: player.body.x, y: player.body.y, v: weapon.bulletSpeed, r: player.body.rotation})
      }
   }
 
@@ -383,6 +389,7 @@ function checkGameOver(){
   }
 
   function shootOperation(data){
+    console.log(data)
     const player = game.playerMap[data.pid];
     const weapon = player.weapons.children[player.currentWeapon]
     const bullet = weapon.children[data.id]
@@ -407,7 +414,7 @@ function checkGameOver(){
   }
 
   function addPlayersToGame(player){
-    console.log('Playerd added')
+    console.log('Player added')
     players.add(player)
     game.playerMap[player.id] = player
     //replace global localPlayer variable with an observable
@@ -419,22 +426,29 @@ function checkGameOver(){
 
 
   function sendPlayerMovement(player){
-     socket.emit('movePlayer',{id: player.id, x: player.body.x, y: player.body.y})
+    //  client.event.emit('movePlayer',{id: player.id, x: player.body.x, y: player.body.y})
+     console.log('setting movement')
+     userRecord.set('user/movePlayer', {id: player.id, x: player.body.x, y: player.body.y})
+  }
+
+  //get every player with a record
+  function checkPlayerPosition(){
+    // userRecord.get('user/movePlayer/0')
+    // 
   }
 
   function moveRemotePlayer(){
     playerObs.on('movingPlayer', movePlayerOperation)
   }
 
-  function movePlayerOperation(movePlayer){
-    const player = movePlayer.player
-    const xCord = movePlayer.data.x
-    const yCord = movePlayer.data.y
+  function movePlayerOperation(data){
+    const player = game.playerMap[data.data.id]
+    const xCord = data.data.x
+    const yCord = data.data.y
 
     const distance = Phaser.Math.distance(player.x,player.y,xCord,yCord)
     const tween = game.add.tween(player)
-    // const duration = distance*10
-    tween.to({x:xCord,y:yCord}, 5) //formerly duration
+    tween.to({x:xCord,y:yCord}, 0)
     tween.start()
   }
 

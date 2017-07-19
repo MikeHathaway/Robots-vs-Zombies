@@ -16,6 +16,7 @@ class Enemy extends Phaser.Sprite{
     this.health = 30
     this.id = id
     game.physics.enable(this)
+    game.add.tween(this)
   }
 
   spawnEnemy(game,x,y){

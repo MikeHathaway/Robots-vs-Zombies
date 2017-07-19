@@ -15,11 +15,13 @@ game.lastEnemyId = 0
 
 let gSocket = null
 
+//formerly wss
 module.exports = function(io){
-
+  
   //formerly io.sockets.on('connection', setEventHandlers)
   //define a single namespace through which to connect (enabling multiplexing)
-  io.of('/').on('connection', setEventHandlers)
+  // io.of('/').on('connection', setEventHandlers)
+  io.on('connection',setEventHandlers)
 
   function setEventHandlers(client){
     gSocket = client
@@ -135,26 +137,6 @@ module.exports = function(io){
       if((Math.floor(enemy.y) + Math.floor(player.getY())) > enemyRange) return enemy.y -= enemy.speed
     }
   }
-
-  // function identifyNextPosition(enemy, enemyRange,player){
-  //   if(Math.floor(Math.random() * 2) === 1){
-  //     if((Math.floor(enemy.x) - Math.floor(player.getX())) < enemyRange && Math.floor(enemy.y) - Math.floor(player.getY()) < enemyRange return enemy.x += enemy.speed
-  //     if((Math.floor(enemy.x) + Math.floor(player.getX())) > enemyRange) return enemy.x -= enemy.speed
-  //   }
-  //   else {
-  //     if((Math.floor(enemy.y) - Math.floor(player.getY())) < enemyRange) return enemy.y += enemy.speed
-  //     if((Math.floor(enemy.y) + Math.floor(player.getY())) > enemyRange) return enemy.y -= enemy.speed
-  //   }
-  // }
-  //
-  // function incrPos(enemy,direction){
-  //   return enemy.direction += enemy.speed
-  // }
-  //
-  // function decrPos(enemy,direction){
-  //   return enemy.direction += enemy.speed
-  // }
-
 
   function decideToMove(enemy, enemyRange){
     for(let i = 0; i < players.length; i++){
