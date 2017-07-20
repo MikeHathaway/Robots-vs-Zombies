@@ -59,7 +59,7 @@ function setEventHandlers(){
 
 
 function sendNewPlayer(data,game){
-  return socket.emit('newPlayer', {x: game.startX, y: game.startY, id: data.id})
+  return socket.emit('newPlayer', {x: game.startX, y: game.startY, id: data.id, gameID: data.gameID})
 }
 
 function onNewGame(data){

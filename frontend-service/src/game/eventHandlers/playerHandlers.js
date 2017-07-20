@@ -1,22 +1,8 @@
 import {socket,playerObs} from './index'
-
 import Player from '../models/player'
 import game from '../states/game'
 
-
 const remotePlayers = []
-
-
-
-
-function onNewGame(){
-  console.log('new game data', data, game.startX, game.startY)
-  sendNewPlayer(data,game)
-}
-
-function sendNewPlayer(data,game){
-  return socket.emit('newPlayer', {x: game.startX, y: game.startY, id: data.id})
-}
 
 
 function onNewPlayer(data){

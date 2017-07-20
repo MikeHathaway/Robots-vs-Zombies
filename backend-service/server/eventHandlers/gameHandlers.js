@@ -9,6 +9,8 @@ const players = []
 const bullets = []
 const enemies = []
 
+const gameSessions = {}
+
 const game = {} // <- will be a reference to the server side headless phaser
 game.lastEnemyId = 0
 game.lastPlayerId = 0
@@ -32,24 +34,23 @@ module.exports = {
 function onNewPlayer(data) {
   const newPlayer = new Player(data.x, data.y)
   newPlayer.id = data.id
-  // // newPlayer.id = this.id
-  // const newPlayer = new Player(data.x, data.y, data.id)
-  console.log('new played added: ', newPlayer)
+  newPlayer.gameID = data.gameID
+
+  //first player in new game
+  if(!Object.keys(gameSessions).includes(data.gameID)){
+    gameSessions[data.gameID] = []
+    // io.sockets.emit('newPlayer', {id: newPlayer.id, x: newPlayer.getX(), y: newPlayer.getY()})
+    // return gameSessions[data.gameID].push(newPlayer);
+  }
 
   //first player in new game
   if(players.length === 0){
-    console.log('emitting through new player')
     io.sockets.emit('newPlayer', {id: newPlayer.id, x: newPlayer.getX(), y: newPlayer.getY()})
-
-    players.forEach(player => {
-      this.emit('newPlayer', {id: player.id, x: player.getX(), y: player.getY()})
-    })
-
     return players.push(newPlayer);
   }
+
   //existing game
   else if(players.length !== 0){// && enemies.length === 0){
-    console.log('second condition!')
     io.sockets.emit('newPlayer', {id: newPlayer.id, x: newPlayer.getX(), y: newPlayer.getY()})
 
     // send enemies if joining existing game
@@ -102,7 +103,6 @@ function onMovePlayer(data) {
       console.log("Player not found: " + data.id)
       return
   }
-  console.log('moving player: ', data.id, data.x)
 
   movePlayer.setX(data.x)
   movePlayer.setY(data.y)

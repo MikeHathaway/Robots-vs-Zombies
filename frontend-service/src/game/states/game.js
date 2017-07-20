@@ -372,11 +372,12 @@ import playerHandlers from '../eventHandlers/playerHandlers'
   }
 
 function checkGameOver(){
-  if(game.score >= 150){
+  if(game.score >= 100){
 
     // refresh socket after game over: socket.emit('disconnect')
     socket.emit('gameOver', {gameID: gameID})
     CivZombie.game.state.start('GameOver')
+    //
   }
 }
 
