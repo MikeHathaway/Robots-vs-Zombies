@@ -31,13 +31,15 @@ import playerHandlers from '../eventHandlers/playerHandlers'
     , weapons
     , localPlayer
 
+    let gameID = 0
+
 
   const gameWidth = 1000
   const gameHeight = 800
   const score = 0
 
   const enemyMap = []
-  const numEnemies = 5
+  const numEnemies = 15
 
 
   /* ----- Start Game Instance ----- */
@@ -164,7 +166,7 @@ import playerHandlers from '../eventHandlers/playerHandlers'
   //https://leanpub.com/html5shootemupinanafternoon/read <- info on randomizing enemy spawn
   function addEnemies(number = 100){
     enemies = game.add.group()
-    socket.emit('newEnemies',{number: number, x: gameWidth, y: gameHeight})
+    //socket.emit('newEnemies',{number: number, x: gameWidth, y: gameHeight})
   }
 
 
@@ -373,9 +375,7 @@ function checkGameOver(){
   if(game.score >= 150){
 
     // refresh socket after game over: socket.emit('disconnect')
-    socket.emit('newGame')
-    playerObs.emit('newGame', 'game over!')
-
+    socket.emit('gameOver', {gameID: gameID})
     CivZombie.game.state.start('GameOver')
   }
 }
@@ -394,7 +394,6 @@ function checkGameOver(){
     const player = game.playerMap[data.pid];
     const weapon = player.weapons.children[player.currentWeapon]
     const bullet = weapon.children[data.id]
-    console.log('shoot operation',data.type, player.weapons) //provides lazer or bullet
     bullet.reset(data.x,data.y)
     bullet.rotation = data.r
     // bullet.body.velocity = game.physics.arcade.velocityFromRotation(bullet.rotation, bullet.body.velocity)
@@ -416,11 +415,12 @@ function checkGameOver(){
   }
 
   function addPlayersToGame(player){
-    console.log('Playerd added')
     players.add(player)
     game.playerMap[player.id] = player
-    //replace global localPlayer variable with an observable
+
+
     if(!localPlayer) {
+      console.log('setting local player', player.id)
       localPlayer = player
       game.camera.follow(localPlayer)
     }

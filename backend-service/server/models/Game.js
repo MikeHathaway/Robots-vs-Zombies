@@ -5,6 +5,7 @@ class Game {
     this.players = {}
     this.map = {}
     this.numPlayersAlive = 0
+    this.lastPlayerId = 0
 
     //Game as single source of truth?
     this.lastRoomID = 0
@@ -23,11 +24,11 @@ class Game {
   }
 
   getPlayerID(){
-
+    return this.lastPlayerId
   }
 
   setPlayerID(){
-
+    return this.lastPlayerId++
   }
 
 }

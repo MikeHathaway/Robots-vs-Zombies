@@ -7,6 +7,18 @@ import game from '../states/game'
 const remotePlayers = []
 
 
+
+
+function onNewGame(){
+  console.log('new game data', data, game.startX, game.startY)
+  sendNewPlayer(data,game)
+}
+
+function sendNewPlayer(data,game){
+  return socket.emit('newPlayer', {x: game.startX, y: game.startY, id: data.id})
+}
+
+
 function onNewPlayer(data){
   console.log('New player connected:', data, remotePlayers)
 
@@ -24,6 +36,8 @@ function onNewPlayer(data){
     const newPlayer = new Player(game,data.x,data.y,'Zombie_Sprite',50,5,game.weapons,data.id)
     remotePlayers.push(newPlayer)
     playerObs.emit('addPlayer', newPlayer)
+    console.log('a remote player!', newPlayer.id)
+    //playerObs.emit('addRemotePlayer', newPlayer)
   }
 }
 
@@ -32,7 +46,6 @@ function localPlayer(game,data){
   playerObs.emit('addPlayer', newPlayer)
   remotePlayers.push(newPlayer)
   console.log('first player!')
-
 
   /** Add enemies if local player is only player in the game */
   socket.emit('newEnemies', {number: 5,x: game.startX, y: game.startY})

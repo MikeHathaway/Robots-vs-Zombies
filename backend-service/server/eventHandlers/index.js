@@ -20,6 +20,7 @@ function setEventHandlers(client){
   client.on('disconnect', gameHandlers.onSocketDisconnect)
 
   /** LOBBY HANDLERS */
+  client.on('joinGame', lobbyHandlers.onJoinGame)
   client.on('newGame', lobbyHandlers.onNewGame)
   client.on('gameOver', lobbyHandlers.onGameOver)
 

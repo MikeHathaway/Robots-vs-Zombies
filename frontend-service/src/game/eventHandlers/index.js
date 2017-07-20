@@ -19,8 +19,11 @@ const enemies = []
 
 function setEventHandlers(){
 
-  // trigger game start
-  socket.emit('newPlayer', {x: game.startX, y: game.startY})
+  // trigger join a game
+  socket.emit('joinGame', {data: 'Start Game'})
+
+  /** LOBBY EVENTS */
+  socket.on('newGame', onNewGame)
 
   /** PLAYER EVENTS */
 
@@ -55,6 +58,14 @@ function setEventHandlers(){
 }
 
 
+function sendNewPlayer(data,game){
+  return socket.emit('newPlayer', {x: game.startX, y: game.startY, id: data.id})
+}
+
+function onNewGame(data){
+  console.log('new game data', data, game.startX, game.startY)
+  sendNewPlayer(data,game)
+}
 
 
 

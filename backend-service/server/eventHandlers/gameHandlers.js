@@ -31,9 +31,10 @@ module.exports = {
 
 function onNewPlayer(data) {
   const newPlayer = new Player(data.x, data.y)
-  newPlayer.id = this.id
-
-  console.log('new played added: ', this.id)
+  newPlayer.id = data.id
+  // // newPlayer.id = this.id
+  // const newPlayer = new Player(data.x, data.y, data.id)
+  console.log('new played added: ', newPlayer)
 
   //first player in new game
   if(players.length === 0){

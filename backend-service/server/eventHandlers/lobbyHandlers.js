@@ -7,19 +7,23 @@
       lobbyID2: [player1, player2],
     }
   */
-const io = global._io
 
+const io = global._io
+// const Game = global._io
 
 /** Store access to game instance variables within the game instance */
-const Game = require('../models/Game')
+const game = require('../models/Game')
+const Game = new game.Game()
+
 const players = []
-const bullets = []
 const enemies = []
 
 
-const gameSessions = {}
-gameSessions.lastRoomID = 0
+Game.gameSessions = {}
+Game.gameSessions.lastRoomID = 0
 
+//initalize lobby list of players
+Game.gameSessions[Game.gameSessions.lastRoomID] = []
 
 module.exports = {
   onNewGame,
@@ -28,35 +32,46 @@ module.exports = {
 }
 
 
-function onJoinGame(){
-  const gameList = gameSessions[gameSessions.lastRoomID]
+function onJoinGame(data){
+  const currGameLobby = Game.gameSessions[Game.gameSessions.lastRoomID]
+  const socketID = this.id
+  console.log('currGameLobby',currGameLobby, this.id)
 
-  if(checkRoomSize(gameSessions[gameSessions.lastRoomID])){
-    io.sockets.emit('newGame',{gameID: gameSessions.lastRoomID})
-    gameList.push(Game.lastPlayerId)
+  if(checkRoomSize(currGameLobby)){
+    io.sockets.emit('newGame',{id: socketID, gameID: Game.gameSessions.lastRoomID})
+    return currGameLobby.push(socketID)
   }
-  
+  else{
+    // if no open game, start a new room
+    io.sockets.emit('newGame',{id: socketID, gameID: Game.gameSessions.lastRoomID})
+    return currGameLobby.push(socketID)
+  }
 }
 
 
 function onNewGame(){
-  gameSessions[gameSessions.lastRoomID] = []
+  Game.gameSessions[Game.gameSessions.lastRoomID] = []
 }
 
 
+function onGameOver(data){
 
-function onGameOver(){
   console.log('starting new game')
   players.length = 0
-  enemies.length = 0
-  console.log(players,enemies)
+  // enemies.length = 0
+  console.log(players)
 }
 
 
 function checkRoomSize(gameLobby){
+  // if(Array.isArray(gameLobby))
+
   if(gameLobby.length <= 4){
     return true
   }
-  gameSessions.lastRoomID++
+
+  //start a new game lobby
+  Game.gameSessions.lastRoomID++
+  Game.gameSessions[Game.gameSessions.lastRoomID] = []
   return false
 }
