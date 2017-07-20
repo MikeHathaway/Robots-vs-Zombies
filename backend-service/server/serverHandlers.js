@@ -7,7 +7,8 @@ const players = []
 const bullets = []
 const enemies = []
 
-const gameSessions = {}
+
+//https://www.codementor.io/codementorteam/socketio-multi-user-app-matchmaking-game-server-2-uexmnux4p
 
   /*
     {
@@ -16,13 +17,22 @@ const gameSessions = {}
     }
   */
 
+const gameSessions = {}
 const game = {} // <- will be a reference to the server side headless phaser
 game.lastEnemyId = 0
 game.lastPlayerId = 0
 game.lastRoomID = 0
 
+gameSessions[game.lastRoomID] = []
+
 //https://www.npmjs.com/package/node-pathfinding
 // ^node pathfinder
+
+function checkRoomSize(list,id){
+  if(list.id.length = 4){
+    game.lastRoomID++
+  }
+}
 
 module.exports = function(io){
 
@@ -140,7 +150,7 @@ module.exports = function(io){
         return
     }
 
-    const enemyRange = moveEnemy.speed * 15
+    const enemyRange = moveEnemy.speed * 100
 
     const target = decideToMove(moveEnemy,enemyRange)
 
@@ -181,15 +191,22 @@ module.exports = function(io){
 
 
   function onShoot(data){
-    console.log(data.id, ' is shooting!')
-    const bullet = new Bullet(Object.keys(bullets).length, data.id, data.x, data.y, data.v, data.r);
-    bullets.push(bullet);
+    const bulletType = data.type
+    console.log(data.id, ' is shooting!', bulletType)
+    const bullet = new Bullet(Object.keys(bullets).length, data.id, data.x, data.y, data.v, data.r, bulletType)
+    bullets.push(bullet)
 
-    // this.volatile.broadcast.emit('shoot', bullet);
-    // this.volatile.emit('shoot', bullet);
-    this.broadcast.emit('shoot', bullet);
-    this.emit('shoot', bullet);
+    // this.volatile.broadcast.emit('shoot', bullet)
+    // this.volatile.emit('shoot', bullet)
+    // this.broadcast.emit('shoot', bullet)
+    io.sockets.emit('shoot', bullet)
   }
+
+
+  function resetBullets(){
+
+  }
+
 
   function onEnemyHit(data){
     const hitEnemy = enemyById(data.id)

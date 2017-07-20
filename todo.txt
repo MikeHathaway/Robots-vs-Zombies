@@ -3,7 +3,12 @@ Lobby System
   restart game
 
 
+Horde Mode
+  rotate player aiming
+  add enemy waves system
 
-rotate player aiming
-add enemy waves system
+reset bullets function on backend
+
 modify backend pathfinding system
+
+full backend bullet tracking

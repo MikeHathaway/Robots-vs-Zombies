@@ -21,14 +21,14 @@ function onNewPlayer(data){
     return localPlayer(game,data)
   }
   else if(remotePlayers.length > 0){
-    const newPlayer = new Player(game,data.x,data.y,'giantZombie',50,5,game.weapons,data.id)
+    const newPlayer = new Player(game,data.x,data.y,'Zombie_Sprite',50,5,game.weapons,data.id)
     remotePlayers.push(newPlayer)
     playerObs.emit('addPlayer', newPlayer)
   }
 }
 
 function localPlayer(game,data){
-  const newPlayer = new Player(game,data.x,data.y,'giantZombie',50,5,game.weapons,data.id)
+  const newPlayer = new Player(game,data.x,data.y,'Zombie_Sprite',50,5,game.weapons,data.id)
   playerObs.emit('addPlayer', newPlayer)
   remotePlayers.push(newPlayer)
   console.log('first player!')
@@ -45,9 +45,18 @@ function onMovePlayer(data){
 }
 
 
-function onShoot(data){
-  playerObs.emit('shootPlayer', {id: data.id, pid: data.pid, x: data.x, y: data.y, v: data.v, r: data.r})
+function movePlayerOperation(movePlayer){
+  const player = movePlayer.player
+  const tween = game.add.tween(player)
+  tween.to({x: movePlayer.data.x,y:movePlayer.data.y}, 0) //formerly duration
+  tween.start()
 }
+
+
+function onShoot(data){
+  playerObs.emit('shootPlayer', {id: data.id, pid: data.pid, x: data.x, y: data.y, v: data.v, r: data.r, type: data.type})
+}
+
 
 
 //clear player data
@@ -80,5 +89,5 @@ function playerById (id) {
   return identifiedPlayer.length > 0 ? identifiedPlayer[0] : false
 }
 
-const playerHandlers = {onNewPlayer,localPlayer,onMovePlayer,onShoot,onRemovePlayer,onSocketDisconnect, remotePlayers}
+const playerHandlers = {onNewPlayer,localPlayer,onMovePlayer,onShoot,onRemovePlayer,onSocketDisconnect, remotePlayers, movePlayerOperation}
 export default playerHandlers

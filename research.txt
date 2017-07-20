@@ -58,3 +58,87 @@ https://cloudacademy.com/blog/amazon-ec2-container-service-docker-aws/
 280821530317.dkr.ecr.us-east-2.amazonaws.com/civilization-zombie
 
 http://docs.aws.amazon.com/AmazonECS/latest/developerguide/ECS_GetStarted.html
+
+
+
+//http://www.dynetisgames.com/2017/03/06/how-to-make-a-multiplayer-online-game-with-phaser-socket-io-and-node-js/
+//https://github.com/Jerenaux/basic-mmo-phaser/blob/master/js/client.js
+//http://www.html5gamedevs.com/topic/29104-how-to-make-a-multiplayer-online-game-with-phaser-socketio-and-nodejs/
+
+//https://gamedev.stackexchange.com/questions/124434/phaser-io-with-socket-io-what-should-the-server-calculate-and-what-the-client
+
+//https://github.com/fbaiodias/phaser-multiplayer-game
+
+//https://github.com/Langerz82/phasertanksmultiplayer
+
+//https://github.com/crisu83/capthatflag/tree/feature/phaser-server
+
+//http://www.gabrielgambetta.com/client-side-prediction-server-reconciliation.html
+
+//https://socket.io/docs/using-multiple-nodes/
+
+//https://github.com/cujojs/most-w3msg
+
+
+
+
+
+func str do
+
+use tiled to generate tile maps for the gameplay ->
+  https://www.joshmorony.com/create-a-running-platformer-game-in-phaser-with-tilemaps/
+
+source of free png for generating tilemaps ->
+  https://opengameart.org/content/trees-bushes
+
+Use for strategic view and or capital tactical traversal ->
+  https://opengameart.org/content/colony-sim-assets
+
+
+
+
+  Add a defeat screen
+  Information about game state (player joined, chat messages)
+  Starting game screen
+  Subtle audio
+
+  Progressively add people in the demo
+
+  Questions:
+    Do things outside of the update loop
+    Using Tweens for animation
+    How to go about using interpolation
+
+    "build": "webpack --config webpack.config.js",
+
+
+     minimap guide
+      http://www.html5gamedevs.com/topic/14182-creating-a-mini-map-in-phaser/
+
+    http://www.html5gamedevs.com/topic/18553-performance-issues-are-making-project-unplayable/
+
+    https://developer.tizen.org/community/tip-tech/creating-isometric-world-phaser.js-using-isometric-plugin
+    https://gamedevelopment.tutsplus.com/tutorials/creating-isometric-worlds-primer-for-game-developers-updated--cms-28392
+       ^includes a really cool minimap
+    http://evilmousestudios.com/optimizing-javascript-games/
+
+    https://gamedevacademy.org/how-to-make-an-infinitely-scrolling-game-with-phaser/
+
+    http://perplexingtech.weebly.com/game-dev-blog/using-states-in-phaserjs-javascript-game-developement
+
+    performance upgradeses!
+      memory leak <- need to unsubscribe to prevent over calling.
+        Excessive logs seen per update cycle
+
+      implement enemy movements as a data stream!!!!
+      https://github.com/cujojs/most
+      https://survivejs.com/blog/most-interview/
+
+    https://github.com/primus/eventemitter3
+    https://netbasal.com/javascript-the-magic-behind-event-emitter-cce3abcbcef9
+    https://www.appneta.com/blog/3-common-node-js-design-patterns-that-are-misused/
+
+    https://hacks.mozilla.org/2012/11/tracking-down-memory-leaks-in-node-js-a-node-js-holiday-season/
+
+
+    //http://codeperfectionist.com/articles/learning-to-think-in-frp-my-experience-coding-a-game-with-kefir-js/

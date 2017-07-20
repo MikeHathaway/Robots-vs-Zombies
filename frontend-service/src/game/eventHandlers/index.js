@@ -1,21 +1,3 @@
-//http://www.dynetisgames.com/2017/03/06/how-to-make-a-multiplayer-online-game-with-phaser-socket-io-and-node-js/
-//https://github.com/Jerenaux/basic-mmo-phaser/blob/master/js/client.js
-//http://www.html5gamedevs.com/topic/29104-how-to-make-a-multiplayer-online-game-with-phaser-socketio-and-nodejs/
-
-//https://gamedev.stackexchange.com/questions/124434/phaser-io-with-socket-io-what-should-the-server-calculate-and-what-the-client
-
-//https://github.com/fbaiodias/phaser-multiplayer-game
-
-//https://github.com/Langerz82/phasertanksmultiplayer
-
-//https://github.com/crisu83/capthatflag/tree/feature/phaser-server
-
-//http://www.gabrielgambetta.com/client-side-prediction-server-reconciliation.html
-
-//https://socket.io/docs/using-multiple-nodes/
-
-//https://github.com/cujojs/most-w3msg
-
 import io from 'socket.io-client'
 
 import EventEmitter from 'eventemitter3'
@@ -26,8 +8,8 @@ import game from '../states/game'
 import playerHandlers from './playerHandlers'
 import enemyHandlers from './enemyHandlers'
 
-// const socket = io('http://localhost:4000')
-const socket = io('https://backend-service-wxtkngvfew.now.sh')
+const socket = io('http://localhost:4000')
+// const socket = io('https://backend-service-wxtkngvfew.now.sh')
 
 const playerObs = new EventEmitter()
 
@@ -39,7 +21,6 @@ function setEventHandlers(){
 
   // trigger game start
   socket.emit('newPlayer', {x: game.startX, y: game.startY})
-  console.log('sent new player')
 
   /** PLAYER EVENTS */
 

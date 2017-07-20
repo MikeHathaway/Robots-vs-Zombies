@@ -59,7 +59,7 @@ function onMoveEnemy(data){
 
 function moveEnemyOperation(moveEnemy){
   const enemy = enemyById(moveEnemy.id)
-  game.add.tween(enemy).to({x:moveEnemy.x,y:moveEnemy.y}, 0).start()
+  game.add.tween(enemy).to({x:moveEnemy.x,y:moveEnemy.y}, 150).start()
 }
 
 

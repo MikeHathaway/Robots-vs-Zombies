@@ -1,5 +1,4 @@
 
-//http://codeperfectionist.com/articles/learning-to-think-in-frp-my-experience-coding-a-game-with-kefir-js/
 
 
 /* ----- Model Dependencies ----- */
@@ -42,7 +41,6 @@ import playerHandlers from '../eventHandlers/playerHandlers'
 
 
   /* ----- Start Game Instance ----- */
-  //should prototype this?
   const game = {
     init: init,
     preload: preload,
@@ -65,7 +63,7 @@ import playerHandlers from '../eventHandlers/playerHandlers'
     game.load.image('tiles', './assets/tilemaps/tmw_desert_spacing.png')
 
     game.load.image('zombie', './assets/CZombieMini.png') //Zombie_Sprite CZombie
-    game.load.image('giantZombie', './assets/CZombie.png') //Zombie_Sprite CZombie
+    game.load.image('Zombie_Sprite', './assets/Zombie_Sprite.png') //Zombie_Sprite CZombie
     game.load.image('bullet', './assets/singleBullet.png')
     game.load.image('lazer', './assets/lazer.png')
     game.load.spritesheet('zombies', './assets/zombie_sheet.png', 32, 48)
@@ -79,7 +77,7 @@ import playerHandlers from '../eventHandlers/playerHandlers'
     addEnemies(numEnemies) //specify number of enemies to be added
 
     addWeapons()
-    addPlayerGroup() // currently incomplete, need to finish tie up
+    addPlayerGroup()
 
     setEventHandlers() // Start listening for events
 
@@ -205,17 +203,6 @@ import playerHandlers from '../eventHandlers/playerHandlers'
     game.scoreLabelTween = game.add.tween(game.scoreLabel.scale).to({ x: 1.5, y: 1.5}, 200, Phaser.Easing.Linear.In).to({ x: 1, y: 1}, 200, Phaser.Easing.Linear.In)
   }
 
-  function checkScore(){
-    if(game.scoreBuffer > 0){
-        incrementScore()
-        game.scoreBuffer--
-    }
-  }
-
-  function incrementScore(){
-    game.score += 1
-    game.scoreLabel.text = game.score
-  }
 
 
   function addPlayerGroup(){
@@ -232,7 +219,11 @@ import playerHandlers from '../eventHandlers/playerHandlers'
     return weapons
   }
 
-
+  function addInputs(){
+    cursors = game.input.keyboard.createCursorKeys()
+    fireButton = game.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR)
+    changeKey = game.input.keyboard.addKey(Phaser.Keyboard.ENTER)
+  }
 
 
 
@@ -244,11 +235,6 @@ import playerHandlers from '../eventHandlers/playerHandlers'
 
    =============== =============== =============== */
 
-   function addInputs(){
-     cursors = game.input.keyboard.createCursorKeys()
-     fireButton = game.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR)
-     changeKey = game.input.keyboard.addKey(Phaser.Keyboard.ENTER)
-   }
 
 
   function checkPlayerInputs(player){
@@ -277,6 +263,31 @@ import playerHandlers from '../eventHandlers/playerHandlers'
     }
   }
 
+  function sendPlayerMovement(player){
+     socket.emit('movePlayer',{id: player.id, x: player.body.x, y: player.body.y})
+  }
+
+  function sendShot(player){
+     const weapon = player.weapons.children[player.currentWeapon]
+
+     const type = weapon.cursor.type //recent addition to be able to view other peoples firing type
+     console.log('type',type,weapon)
+
+     if(checkTimeToFire(player,weapon)){
+       socket.emit('shoot', {id: player.id, x: player.body.x, y: player.body.y, v: weapon.bulletSpeed, r: player.body.rotation, type: type})
+     }
+  }
+
+  function checkTimeToFire(player, weapon){
+     if (game.time.time < weapon.nextFire) {
+       return false
+     }
+     else{
+       weapon.nextFire = game.time.time + weapon.fireRate
+       return true
+     }
+  }
+
 
   function changeWeapon(player){
     if(player.currentWeapon === 1){
@@ -289,6 +300,9 @@ import playerHandlers from '../eventHandlers/playerHandlers'
       return player
     }
   }
+
+
+
 
   function checkCollisions(){
     game.physics.arcade.collide(localPlayer, collisionLayer)
@@ -319,6 +333,20 @@ import playerHandlers from '../eventHandlers/playerHandlers'
     player.takeDamage(bullet.parent.damage)
     // bullet.kill() //<- hits own player
     console.log("Hit Player")
+
+
+  }
+
+  function checkScore(){
+    if(game.scoreBuffer > 0){
+        incrementScore()
+        game.scoreBuffer--
+    }
+  }
+
+  function incrementScore(){
+    game.score += 1
+    game.scoreLabel.text = game.score
   }
 
 
@@ -362,32 +390,11 @@ function checkGameOver(){
      =============== =============== =============== */
 
 
-  function sendShot(player){
-     const weapon = player.weapons.children[player.currentWeapon]
-
-     console.log(player.body.rotation)
-     
-     if(checkTimeToFire(player,weapon)){
-       socket.emit('shoot', {id: player.id, x: player.body.x, y: player.body.y, v: weapon.bulletSpeed, r: player.body.rotation})
-     }
-  }
-
-  function checkTimeToFire(player, weapon){
-     if (game.time.time < weapon.nextFire) {
-       return false
-     }
-     else{
-       weapon.nextFire = game.time.time + weapon.fireRate
-       return true
-     }
-  }
-
-
   function shootOperation(data){
     const player = game.playerMap[data.pid];
     const weapon = player.weapons.children[player.currentWeapon]
     const bullet = weapon.children[data.id]
-    console.log(bullet)
+    console.log('shoot operation',data.type, player.weapons) //provides lazer or bullet
     bullet.reset(data.x,data.y)
     bullet.rotation = data.r
     // bullet.body.velocity = game.physics.arcade.velocityFromRotation(bullet.rotation, bullet.body.velocity)
@@ -420,17 +427,7 @@ function checkGameOver(){
   }
 
 
-  function sendPlayerMovement(player){
-     socket.emit('movePlayer',{id: player.id, x: player.body.x, y: player.body.y})
-  }
 
-
-  function movePlayerOperation(movePlayer){
-    const player = movePlayer.player
-    const tween = game.add.tween(player)
-    tween.to({x: movePlayer.data.x,y:movePlayer.data.y}, 0) //formerly duration
-    tween.start()
-  }
 
 
   function removeOperations(removePlayer){
@@ -450,7 +447,7 @@ function checkGameOver(){
 
   /** Event Listeners outside of update loop*/
   playerObs.on('removePlayer', removeOperations)
-  playerObs.on('movingPlayer', movePlayerOperation)
+  playerObs.on('movingPlayer', playerHandlers.movePlayerOperation)
   playerObs.on('shootPlayer', shootOperation)
   playerObs.on('movingEnemy', enemyHandlers.moveEnemyOperation)
 
