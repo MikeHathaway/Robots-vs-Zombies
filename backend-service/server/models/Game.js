@@ -6,6 +6,9 @@ class Game {
     this.map = {}
     this.numPlayersAlive = 0
 
+    //Game as single source of truth?
+    this.lastRoomID = 0
+
     // This is used to keep track of how many players have acknowledged readiness for a round, to avoid
     // extra socket messages from causing weird behavior.
     this.roundReadyAcknowledgements = []
@@ -18,6 +21,15 @@ class Game {
   getNumPlayers(){
     return Object.keys(this.players).length
   }
+
+  getPlayerID(){
+
+  }
+
+  setPlayerID(){
+
+  }
+
 }
 
 exports.Game = Game

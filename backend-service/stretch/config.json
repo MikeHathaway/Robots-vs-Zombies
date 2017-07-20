@@ -1,8 +1,0 @@
-{
-    "port": 4000
-    , "secret": "topSecretSequenceOfCharacters"
-    , "canvasWidth": 1000
-    , "canvasHeight": 800
-    , "gameWidth": 1000
-    , "gameHeight": 800
-}
