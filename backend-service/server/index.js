@@ -10,7 +10,7 @@ global._Game = Game
 
 const eventHandlers = require('./eventHandlers')(io)
 
-app.get('/test', (req,res) => {
+app.get('/test', (req,res) => {                            
   res.send('hello from the game server!')
 })
 

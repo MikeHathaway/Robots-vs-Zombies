@@ -1,19 +1,7 @@
 //https://www.codementor.io/codementorteam/socketio-multi-user-app-matchmaking-game-server-2-uexmnux4p
 
 const io = global._io
-
-/** Store access to game instance variables within the game instance */
-const game = require('../models/Game')
-const Game = new game.Game()
-
-const players = []
-const enemies = []
-
-/** Initalize Lobby */
-Game.gameSessions = {}
-Game.gameSessions.lastRoomID = 0
-Game.gameSessions[Game.gameSessions.lastRoomID] = []
-
+const Game = global._Game
 
 module.exports = {
   onNewGame,
@@ -23,40 +11,55 @@ module.exports = {
 
 
 function onJoinGame(data){
-  const currGameLobby = Game.gameSessions[Game.getRoomID()]
-  console.log('joing room: ',Game.getRoomID(), currGameLobby)
+  const currGameLobby = initalizeGameData()
   const socketID = this.id
 
   if(checkRoomSize(currGameLobby)){
-    io.sockets.emit('newGame',{id: socketID, gameID: Game.getRoomID()})
-    console.log('currGameLobby',currGameLobby)
-    return currGameLobby.push(socketID)
+    io.sockets.emit('newGame',{id: socketID, gameID: Game.getRoomID().toString()})
   }
   // if no open game, start a new room
   else{
     Game.setRoomID()
-    Game.gameSessions[Game.getRoomID()] = []
-
-    io.sockets.emit('newGame',{id: socketID, gameID: Game.getRoomID()})
-    return currGameLobby.push(socketID)
+    initalizeGameData()
+    io.sockets.emit('newGame',{id: socketID, gameID: Game.getRoomID().toString()})
   }
 }
 
+function initalizeGameData(){
+  const roomID = Game.getRoomID().toString()
+  if(!Game.gameSessions[roomID]){
+    Game.gameSessions[roomID] = {}
+    Game.gameSessions[roomID].players = []
+    Game.gameSessions[roomID].enemies = []
+    return Game.gameSessions[roomID].players
+  }
+    return Game.gameSessions[roomID].players
+}
 
+//check that only 4 people in a game
+function checkRoomSize(gameLobby){
+  return gameLobby.length < 3 ? true : false
+}
+
+
+
+
+
+//function may be unnecessary
 function onNewGame(){
   Game.gameSessions[Game.gameSessions.lastRoomID] = []
 }
 
 
 function onGameOver(data){
+  console.log('GAME OVER',Game.gameSessions, Game.gameSessions[data.gameID])
+  const gameObj = Game.gameSessions[data.gameID]
+  gameObj.players.length = 0
+  gameObj.enemies.length = 0
 
-  console.log('starting new game')
-  players.length = 0
-  // enemies.length = 0
-  console.log(players)
-}
+  //emit new game with check for available instance?
+  io.sockets.emit('gameOver', {gameID: data.gameID})
 
-//check that only 4 people in a game
-function checkRoomSize(gameLobby){
-  return gameLobby.length < 3 ? true : false
+  Game.setRoomID()
+
 }

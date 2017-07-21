@@ -9,13 +9,7 @@ const players = []
 const bullets = []
 const enemies = []
 
-const gameSessions = {}
-
-const game = {} // <- will be a reference to the server side headless phaser
-game.lastEnemyId = 0
-game.lastPlayerId = 0
-
-console.log('global game',Game)
+const gameSessions = Game.gameSessions
 
 //https://www.codementor.io/codementorteam/socketio-multi-user-app-matchmaking-game-server-2-uexmnux4p
 
@@ -38,23 +32,21 @@ module.exports = {
 function onNewPlayer(data) {
   const newPlayer = new Player(data.x, data.y)
   newPlayer.id = data.id
-  newPlayer.gameID = data.gameID
+  newPlayer.gameID = data.gameID.toString()
 
-  //first player in new gamxe
-    //may need to define these elsewhere / attach to global Game object
-  if(!Object.keys(gameSessions).includes(data.gameID)){
-    gameSessions[data.gameID] = {
-      players: [],
-      enemies: []
-    }
+  console.log('on new player')
 
+  //first player in new game
+  if(gameSessions[newPlayer.gameID].players.length === 0){
+    console.log('first player in game', gameSessions)
     io.sockets.emit('newPlayer', {id: newPlayer.id, x: newPlayer.getX(), y: newPlayer.getY(), gameID: newPlayer.gameID})
-    return gameSessions[data.gameID].players.push(newPlayer);
+    return gameSessions[newPlayer.gameID].players.push(newPlayer);
   }
 
-  //existing game
-  else if(gameSessions[newPlayer.gameID].players.length < 3){
-    console.log('a new player!')
+  //existing game - make sure all players are in sync with eachother
+  else if(gameSessions[newPlayer.gameID].players.length <= 3){
+    console.log('joining existing game')
+    //console.log('joining existing game', gameSessions[newPlayer.gameID])
     io.sockets.emit('newPlayer', {id: newPlayer.id, x: newPlayer.getX(), y: newPlayer.getY(), gameID: newPlayer.gameID})
 
     // send enemies if joining existing game
@@ -70,7 +62,7 @@ function onNewPlayer(data) {
 
 
 function onNewEnemies(data){
-  const currentGame = gameSessions[data.gameID]
+  const currentGame = gameSessions[data.gameID.toString()]
   //ensure that enemies are only added once
   console.log('on new enemies called', enemies.length,data.number)
   if(currentGame.enemies.length === 0){
@@ -84,12 +76,12 @@ function onNewEnemies(data){
 
 function addEnemies(data){
   let currentNum = 0
-  console.log(data, game.lastEnemyId)
+  console.log(data, Game.lastEnemyId)
   while(currentNum++ < data.number){
-    const newEnemy = new Enemy(game.lastEnemyId, randomInt(0,data.x), randomInt(0,data.y))
-    newEnemy.gameID = data.gameID
-    game.lastEnemyId++
-    gameSessions[data.gameID].enemies.push(newEnemy)
+    const newEnemy = new Enemy(Game.lastEnemyId, randomInt(0,data.x), randomInt(0,data.y))
+    newEnemy.gameID = data.gameID.toString()
+    Game.lastEnemyId++
+    gameSessions[data.gameID.toString()].enemies.push(newEnemy)
   }
 }
 
