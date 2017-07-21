@@ -28,18 +28,22 @@ module.exports = {
 }
 
 
+//identify the proper game room --roomID
+//io.sockets.in()
 
 function onNewPlayer(data) {
   const newPlayer = new Player(data.x, data.y)
   newPlayer.id = data.id
   newPlayer.gameID = data.gameID.toString()
+  const roomID = newPlayer.gameID
 
   console.log('on new player')
 
   //first player in new game
   if(gameSessions[newPlayer.gameID].players.length === 0){
     console.log('first player in game', gameSessions)
-    io.sockets.emit('newPlayer', {id: newPlayer.id, x: newPlayer.getX(), y: newPlayer.getY(), gameID: newPlayer.gameID})
+    io.sockets.in(roomID).emit('newPlayer', {id: newPlayer.id, x: newPlayer.getX(), y: newPlayer.getY(), gameID: newPlayer.gameID})
+    // io.sockets.emit('newPlayer', {id: newPlayer.id, x: newPlayer.getX(), y: newPlayer.getY(), gameID: newPlayer.gameID})
     return gameSessions[newPlayer.gameID].players.push(newPlayer);
   }
 
@@ -47,13 +51,13 @@ function onNewPlayer(data) {
   else if(gameSessions[newPlayer.gameID].players.length <= 3){
     console.log('joining existing game')
     //console.log('joining existing game', gameSessions[newPlayer.gameID])
-    io.sockets.emit('newPlayer', {id: newPlayer.id, x: newPlayer.getX(), y: newPlayer.getY(), gameID: newPlayer.gameID})
+    io.sockets.in(roomID).emit('newPlayer', {id: newPlayer.id, x: newPlayer.getX(), y: newPlayer.getY(), gameID: newPlayer.gameID})
 
     // send enemies if joining existing game
-    io.sockets.emit('newEnemies', {enemyList: gameSessions[newPlayer.gameID].enemies})
+    io.sockets.in(roomID).emit('newEnemies', {enemyList: gameSessions[newPlayer.gameID].enemies})
 
     gameSessions[newPlayer.gameID].players.forEach(player => {
-      this.emit('newPlayer', {id: player.id, x: player.getX(), y: player.getY(), gameID: newPlayer.gameID})
+      this.in(roomID).emit('newPlayer', {id: player.id, x: player.getX(), y: player.getY(), gameID: newPlayer.gameID})
     })
 
     return gameSessions[newPlayer.gameID].players.push(newPlayer);
@@ -63,14 +67,15 @@ function onNewPlayer(data) {
 
 function onNewEnemies(data){
   const currentGame = gameSessions[data.gameID.toString()]
+  const roomID = data.gameID.toString()
   //ensure that enemies are only added once
   console.log('on new enemies called', enemies.length,data.number)
   if(currentGame.enemies.length === 0){
     addEnemies(data)
-    return io.sockets.emit('newEnemies', {enemyList: currentGame.enemies})
+    return io.sockets.in(roomID).emit('newEnemies', {enemyList: currentGame.enemies})
   }
   else if(currentGame.enemies.length <= data.number){
-    return io.sockets.emit('newEnemies', {enemyList: currentGame.enemies})
+    return io.sockets.in(roomID).emit('newEnemies', {enemyList: currentGame.enemies})
   }
 }
 
@@ -87,6 +92,7 @@ function addEnemies(data){
 
 function onMovePlayer(data) {
   const movePlayer = playerById(data.id,data.gameID)
+  const roomID = data.gameID.toString()
 
   if (!movePlayer) {
       console.log("Player not found: " + data.id)
@@ -96,12 +102,15 @@ function onMovePlayer(data) {
   movePlayer.setX(data.x)
   movePlayer.setY(data.y)
 
-  this.broadcast.emit("movePlayer", {id: movePlayer.id, x: movePlayer.getX(), y: movePlayer.getY()})
+  //need to broadcast.emit this one
+  io.sockets.in(roomID).emit("movePlayer", {id: movePlayer.id, x: movePlayer.getX(), y: movePlayer.getY()})
+  // io.sockets.in(roomID).broadcast.emit("movePlayer", {id: movePlayer.id, x: movePlayer.getX(), y: movePlayer.getY()})
 }
 
 
 function onMoveEnemy(data){
   const moveEnemy = enemyById(data.id,data.gameID) //send gameID as well
+  const roomID = data.gameID.toString()
 
   if (!moveEnemy) {
       // console.log("Enemy (move) not found: " + data.id)
@@ -114,7 +123,7 @@ function onMoveEnemy(data){
 
   if(target !== -1){
     identifyNextPosition(moveEnemy,enemyRange,gameSessions[moveEnemy.gameID].players[target])
-    io.volatile.sockets.emit('moveEnemy', {id: moveEnemy.id, x: moveEnemy.x, y: moveEnemy.y})
+    io.sockets.in(roomID).emit('moveEnemy', {id: moveEnemy.id, x: moveEnemy.x, y: moveEnemy.y})
   }
 }
 
@@ -153,14 +162,14 @@ function onShoot(data){
   console.log(data.id, ' is shooting!', bulletType)
   const bullet = new Bullet(Object.keys(bullets).length, data.id, data.x, data.y, data.v, data.r, bulletType)
   bullet.gameID = data.gameID
+  const roomID = data.gameID.toString()
   bullets.push(bullet)
 
   // this.volatile.broadcast.emit('shoot', bullet)
   // this.volatile.emit('shoot', bullet)
   // this.broadcast.emit('shoot', bullet)
-  io.sockets.emit('shoot', bullet)
+  io.sockets.in(roomID).emit('shoot', bullet)
 }
-
 
 
 
@@ -179,6 +188,7 @@ function resetBullets(){
 
 function onEnemyHit(data){
   const hitEnemy = enemyById(data.id,data.gameID)
+  const roomID = data.gameID.toString()
 
   if (!hitEnemy) {
       console.log("Enemy (move) not found: " + data.id)
@@ -190,12 +200,12 @@ function onEnemyHit(data){
   hitEnemy.health -= data.damage
 
   if(hitEnemy.health <= 0){
-    io.sockets.emit('enemyHit', {id: hitEnemy.id, health: 0, alive: false})
+    io.sockets.in(roomID).emit('enemyHit', {id: hitEnemy.id, health: 0, alive: false})
     return gameSessions[data.gameID].enemies.splice(gameSessions[data.gameID].enemies.indexOf(hitEnemy),1)
 
     // return enemies.splice(enemies.indexOf(hitEnemy),1)
   }
-  return io.sockets.emit('enemyHit', {id: hitEnemy.id, health: hitEnemy.health, alive: true, gameID: data.gameID})
+  return io.sockets.in(roomID).emit('enemyHit', {id: hitEnemy.id, health: hitEnemy.health, alive: true, gameID: data.gameID})
 }
 
 
@@ -204,11 +214,13 @@ function onSocketDisconnect() {
   console.log("Player has disconnected: " + this.id)
 
   const removePlayer = playerById(this.id)
+  
   if (!removePlayer) {
       console.log("Player not found: " + this.id)
       return
   }
 
+  io.sockets.in(roomID).emit()
   this.broadcast.emit('removePlayer', {id: removePlayer.id})
   players.splice(players.indexOf(removePlayer), 1)
 }

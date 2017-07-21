@@ -13,21 +13,24 @@ module.exports = {
 
 function onJoinGame(data){
   const currGameLobby = initalizeGameData()
-  const socketID = this.id
-
-  //this.join(Game.getRoomID().toString())
-
-  console.log('client!',client)
+  const socket = this
+  const socketID = socket.id
 
   if(checkRoomSize(currGameLobby)){
-    io.sockets.emit('newGame',{id: socketID, gameID: Game.getRoomID().toString()})
-    //socket.join(Game.getRoomID().toString())
+    const roomID = Game.getRoomID().toString()
+    //join specified game instance
+    socket.join(roomID)
+    io.sockets.in(roomID).emit('newGame',{id: socketID, gameID: roomID})
+    //io.sockets.emit('newGame',{id: socketID, gameID: Game.getRoomID().toString()})
   }
   // if no open game, start a new room
   else{
     Game.setRoomID()
     initalizeGameData()
-    io.sockets.emit('newGame',{id: socketID, gameID: Game.getRoomID().toString()})
+    const roomID = Game.getRoomID().toString()
+    socket.join(roomID)
+    io.sockets.in(roomID).emit('newGame',{id: socketID, gameID: roomID})
+    // io.sockets.emit('newGame',{id: socketID, gameID: Game.getRoomID().toString()})
   }
 }
 

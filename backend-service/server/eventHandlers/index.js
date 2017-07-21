@@ -10,7 +10,7 @@ module.exports = function(io){
 }
 
 function setEventHandlers(client){
-  console.log('connected!', data)
+  console.log('connected!')
 
   //client.join(data.gameID.toString())
 
