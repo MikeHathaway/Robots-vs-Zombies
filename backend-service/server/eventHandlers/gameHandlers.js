@@ -1,6 +1,6 @@
 const io = global._io
+const Game = global._Game
 
-const Game = require('../models/Game')
 const Player = require('../models/Player').Player
 const Bullet = require('../models/Bullet').Bullet
 const Enemy = require('../models/Enemy').Enemy
@@ -14,6 +14,8 @@ const gameSessions = {}
 const game = {} // <- will be a reference to the server side headless phaser
 game.lastEnemyId = 0
 game.lastPlayerId = 0
+
+console.log('global game',Game)
 
 //https://www.codementor.io/codementorteam/socketio-multi-user-app-matchmaking-game-server-2-uexmnux4p
 
@@ -140,10 +142,11 @@ function identifyNextPosition(enemy,enemyRange,player){
 
 // && enemy.isMoving === false <- check that enemy isn't already moving
 function decideToMove(enemy, enemyRange){
-  for(let i = 0; i < gameSessions[enemy.gameID].players.length; i++){
+  const gamePlayers = gameSessions[enemy.gameID].players
+  for(let i = 0; i < gamePlayers.length; i++){
     if(
-      Math.floor(enemy.x) - Math.floor(gameSessions[enemy.gameID].players[i].getX()) < enemyRange ||
-      Math.floor(enemy.y) - Math.floor(gameSessions[enemy.gameID].players[i].getY()) < enemyRange
+      Math.floor(enemy.x) - Math.floor(gamePlayers[i].getX()) < enemyRange ||
+      Math.floor(enemy.y) - Math.floor(gamePlayers[i].getY()) < enemyRange
        ){
         //console.log('true')
        return i
@@ -167,9 +170,19 @@ function onShoot(data){
 }
 
 
+
+
+
+
 function resetBullets(){
 
 }
+
+
+
+
+
+
 
 
 function onEnemyHit(data){
@@ -192,6 +205,7 @@ function onEnemyHit(data){
   }
   return io.sockets.emit('enemyHit', {id: hitEnemy.id, health: hitEnemy.health, alive: true, gameID: data.gameID})
 }
+
 
 // ADD GAME ID to socket disconnect
 function onSocketDisconnect() {
@@ -227,6 +241,7 @@ function playerById (id,gameID) {
     const identifiedPlayer = gameSessions[gameID].players.filter(player => player.id === id)
     return identifiedPlayer.length > 0 ? identifiedPlayer[0] : false
   }
+  console.error('Game session not properly defined - player')
 }
 
 function enemyById (id,gameID) {
@@ -234,4 +249,5 @@ function enemyById (id,gameID) {
     const identifiedEnemy = gameSessions[gameID].enemies.filter(enemy => enemy.id === id)
     return identifiedEnemy.length > 0 ? identifiedEnemy[0] : false
   }
+  console.error('Game session not properly defined - enemy')
 }

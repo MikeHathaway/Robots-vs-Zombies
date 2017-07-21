@@ -23,13 +23,13 @@ module.exports = {
 
 
 function onJoinGame(data){
-  // const currGameLobby = Game.gameSessions[Game.gameSessions.lastRoomID]
   const currGameLobby = Game.gameSessions[Game.getRoomID()]
   console.log('joing room: ',Game.getRoomID(), currGameLobby)
   const socketID = this.id
 
   if(checkRoomSize(currGameLobby)){
     io.sockets.emit('newGame',{id: socketID, gameID: Game.getRoomID()})
+    console.log('currGameLobby',currGameLobby)
     return currGameLobby.push(socketID)
   }
   // if no open game, start a new room
@@ -56,7 +56,7 @@ function onGameOver(data){
   console.log(players)
 }
 
-
+//check that only 4 people in a game
 function checkRoomSize(gameLobby){
   return gameLobby.length < 3 ? true : false
 }

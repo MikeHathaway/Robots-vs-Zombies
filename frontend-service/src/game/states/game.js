@@ -247,7 +247,7 @@ import playerHandlers from '../eventHandlers/playerHandlers'
   }
 
   function sendPlayerMovement(player){
-     socket.emit('movePlayer',{id: player.id, x: player.body.x, y: player.body.y, gameID: player.gameID}) //gameID: player.gameID
+     return socket.emit('movePlayer',{id: player.id, x: player.body.x, y: player.body.y, gameID: player.gameID}) //gameID: player.gameID
   }
 
   function sendShot(player){
@@ -257,7 +257,7 @@ import playerHandlers from '../eventHandlers/playerHandlers'
      console.log('type',type,weapon)
 
      if(checkTimeToFire(player,weapon)){
-       socket.emit('shoot', {id: player.id, x: player.body.x, y: player.body.y, v: weapon.bulletSpeed, r: player.body.rotation, type: type, gameID: player.gameID})
+       return socket.emit('shoot', {id: player.id, x: player.body.x, y: player.body.y, v: weapon.bulletSpeed, r: player.body.rotation, type: type, gameID: player.gameID})
      }
   }
 
@@ -341,7 +341,11 @@ import playerHandlers from '../eventHandlers/playerHandlers'
 
 
   function checkEnemyActions(){
-    if(enemies) enemies.children.map(enemyOperations)
+    if(enemies) {
+      for(let enemy = 0; enemy < enemies.children.length; enemy++){
+        enemyOperations(enemies.children[enemy])
+      }
+    }
   }
 
   function enemyOperations(enemy){
@@ -406,22 +410,11 @@ function checkGameOver(){
   }
 
 
-
-
-
   function removeOperations(removePlayer){
     removePlayer.kill()
     delete game.playerMap[removePlayer.id]
   }
 
-
-
-  function addEnemiesToGroup(){
-    playerObs.on('enemyGroup',(data) => {
-      console.log('enemy data!!',data)
-      return enemies.add(data)
-    })
-  }
 
 
   /** Event Listeners outside of update loop*/
@@ -430,6 +423,13 @@ function checkGameOver(){
   playerObs.on('shootPlayer', shootOperation)
   playerObs.on('movingEnemy', enemyHandlers.moveEnemyOperation)
   playerObs.on('addPlayer', addPlayersToGame)
+
+  function addEnemiesToGroup(){
+    playerObs.on('enemyGroup',(data) => {
+      console.log('enemy data!!',data)
+      return enemies.add(data)
+    })
+  }
 
 
 
