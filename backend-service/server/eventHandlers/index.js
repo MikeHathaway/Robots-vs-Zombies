@@ -1,5 +1,7 @@
 const gameHandlers = require('./gameHandlers')
 const lobbyHandlers = require('./lobbyHandlers')
+const Game = global._Game
+
 
 module.exports = function(io){
 
@@ -8,7 +10,9 @@ module.exports = function(io){
 }
 
 function setEventHandlers(client){
-  console.log('connected!')
+  console.log('connected!', data)
+
+  //client.join(data.gameID.toString())
 
   /** GAME HANDLERS */
   client.on('newPlayer', gameHandlers.onNewPlayer)
@@ -26,3 +30,5 @@ function setEventHandlers(client){
 
   client.on('test', (data) => { console.log(data)})
 }
+
+//https://gist.github.com/crtr0/2896891

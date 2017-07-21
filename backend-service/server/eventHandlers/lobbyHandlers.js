@@ -10,12 +10,18 @@ module.exports = {
 }
 
 
+
 function onJoinGame(data){
   const currGameLobby = initalizeGameData()
   const socketID = this.id
 
+  //this.join(Game.getRoomID().toString())
+
+  console.log('client!',client)
+
   if(checkRoomSize(currGameLobby)){
     io.sockets.emit('newGame',{id: socketID, gameID: Game.getRoomID().toString()})
+    //socket.join(Game.getRoomID().toString())
   }
   // if no open game, start a new room
   else{
