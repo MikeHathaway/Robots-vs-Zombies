@@ -38,7 +38,6 @@ function addEnemyOperation(enemyData){
 /** MOVE ENEMIES */
 //need to modify this to accept enemy collection
 function sendEnemyMovement(enemy){
-  console.log('enemy mover!!!!!', enemy)
   socket.emit('moveEnemy',{id: enemy.id, x: enemy.body.x, y: enemy.body.y, gameID: enemy.gameID})
 }
 

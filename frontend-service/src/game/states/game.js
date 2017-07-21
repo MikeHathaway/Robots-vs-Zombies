@@ -1,6 +1,3 @@
-
-
-
 /* ----- Model Dependencies ----- */
 import Bullet from '../models/bullet'
 import {SingleBullet, LazerBeam} from '../models/weapon'
@@ -31,13 +28,9 @@ import playerHandlers from '../eventHandlers/playerHandlers'
     , weapons
     , localPlayer
 
-    let gameID = 0
-
-
   const gameWidth = 1000
   const gameHeight = 800
   const score = 0
-
   const enemyMap = []
   const numEnemies = 15
 
@@ -75,19 +68,15 @@ import playerHandlers from '../eventHandlers/playerHandlers'
     configureGame()
 
     addMap('desert') // specify map can be: ['desert', 'forest']
-
     addEnemies(numEnemies) //specify number of enemies to be added
-
     addWeapons()
     addPlayerGroup()
+    addScore() // Score animations
+    addInputs() // Add game controls
 
     setEventHandlers() // Start listening for events
 
-    addInputs() // Add game controls
-    addScore() // Score animations
-
-    checkForNewPlayers()
-
+    // checkForNewPlayers()
     addEnemiesToGroup()
     enemyHandlers.addRemoteEnemies()
   }
@@ -108,13 +97,6 @@ import playerHandlers from '../eventHandlers/playerHandlers'
   }
 
 
-  //use this to sync with streams running external to the update loop
-  function retreiveGameTime(){
-    return game.time
-  }
-
-
-
   /* =============== =============== ===============
 
    =============== CREATE FUNCTIONS ===============
@@ -132,7 +114,6 @@ import playerHandlers from '../eventHandlers/playerHandlers'
     // configure FPS
     game.time.advancedTiming = true;
     game.time.desiredFps = 60;
-
 
     //bounds for enemy positioning
     game.startX = 32
@@ -373,11 +354,10 @@ import playerHandlers from '../eventHandlers/playerHandlers'
 
 function checkGameOver(){
   if(game.score >= 100){
-
     // refresh socket after game over: socket.emit('disconnect')
     socket.emit('gameOver', {gameID: gameID})
     CivZombie.game.state.start('GameOver')
-    //
+
   }
 }
 
@@ -411,10 +391,6 @@ function checkGameOver(){
   }
 
 
-  function checkForNewPlayers(){
-    playerObs.on('addPlayer', addPlayersToGame)
-  }
-
   function addPlayersToGame(player){
     players.add(player)
     game.playerMap[player.id] = player
@@ -423,6 +399,8 @@ function checkGameOver(){
     if(!localPlayer) {
       console.log('setting local player', player.id)
       localPlayer = player
+
+      // game.gameID = localPlayer.gameID
       game.camera.follow(localPlayer)
     }
   }
@@ -451,6 +429,7 @@ function checkGameOver(){
   playerObs.on('movingPlayer', playerHandlers.movePlayerOperation)
   playerObs.on('shootPlayer', shootOperation)
   playerObs.on('movingEnemy', enemyHandlers.moveEnemyOperation)
+  playerObs.on('addPlayer', addPlayersToGame)
 
 
 

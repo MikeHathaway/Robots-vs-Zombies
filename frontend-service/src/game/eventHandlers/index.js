@@ -4,7 +4,6 @@ import EventEmitter from 'eventemitter3'
 
 import Player from '../models/player'
 import game from '../states/game'
-
 import playerHandlers from './playerHandlers'
 import enemyHandlers from './enemyHandlers'
 
@@ -13,20 +12,17 @@ const socket = io('http://localhost:4000')
 
 const playerObs = new EventEmitter()
 
-const remotePlayers = []
-const enemies = []
-
-
 function setEventHandlers(){
 
-  // trigger join a game
+  /** LOBBY EVENTS */
+  // trigger connection to game server
   socket.emit('joinGame', {data: 'Start Game'})
 
-  /** LOBBY EVENTS */
+  // receive new game data from server
   socket.on('newGame', onNewGame)
 
-  /** PLAYER EVENTS */
 
+  /** PLAYER EVENTS */
   // New player message received
   socket.on('newPlayer', playerHandlers.onNewPlayer)
 
@@ -44,7 +40,6 @@ function setEventHandlers(){
 
 
   /** ENEMY EVENTS */
-
   // add enemies to the game
   socket.on('newEnemies', enemyHandlers.onNewEnemies)
 

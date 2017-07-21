@@ -15,6 +15,8 @@ const game = {} // <- will be a reference to the server side headless phaser
 game.lastEnemyId = 0
 game.lastPlayerId = 0
 
+//https://www.codementor.io/codementorteam/socketio-multi-user-app-matchmaking-game-server-2-uexmnux4p
+
 //https://www.npmjs.com/package/node-pathfinding
 // ^node pathfinder
 
@@ -36,14 +38,14 @@ function onNewPlayer(data) {
   newPlayer.id = data.id
   newPlayer.gameID = data.gameID
 
-  //first player in new game
-    //need to attach an enemy and a players array to the gameSessions obj
+  //first player in new gamxe
+    //may need to define these elsewhere / attach to global Game object
   if(!Object.keys(gameSessions).includes(data.gameID)){
-    gameSessions[data.gameID] = {}
-    gameSessions[data.gameID].players = []
-    gameSessions[data.gameID].enemies = []
+    gameSessions[data.gameID] = {
+      players: [],
+      enemies: []
+    }
 
-    console.log(gameSessions)
     io.sockets.emit('newPlayer', {id: newPlayer.id, x: newPlayer.getX(), y: newPlayer.getY(), gameID: newPlayer.gameID})
     return gameSessions[data.gameID].players.push(newPlayer);
   }
@@ -66,15 +68,15 @@ function onNewPlayer(data) {
 
 
 function onNewEnemies(data){
+  const currentGame = gameSessions[data.gameID]
   //ensure that enemies are only added once
   console.log('on new enemies called', enemies.length,data.number)
-  if(gameSessions[data.gameID].enemies.length === 0){
-    console.log('first player enemies!')
+  if(currentGame.enemies.length === 0){
     addEnemies(data)
-    return io.sockets.emit('newEnemies', {enemyList: gameSessions[data.gameID].enemies})
+    return io.sockets.emit('newEnemies', {enemyList: currentGame.enemies})
   }
-  else if(gameSessions[data.gameID].enemies.length <= data.number){
-    return io.sockets.emit('newEnemies', {enemyList: gameSessions[data.gameID].enemies})
+  else if(currentGame.enemies.length <= data.number){
+    return io.sockets.emit('newEnemies', {enemyList: currentGame.enemies})
   }
 }
 
@@ -233,13 +235,3 @@ function enemyById (id,gameID) {
     return identifiedEnemy.length > 0 ? identifiedEnemy[0] : false
   }
 }
-
-// function playerById (id) {
-//   const identifiedPlayer = players.filter(player => player.id === id)
-//   return identifiedPlayer.length > 0 ? identifiedPlayer[0] : false
-// }
-
-// function enemyById (id) {
-//   const identifiedEnemy = enemies.filter(enemy => enemy.id === id)
-//   return identifiedEnemy.length > 0 ? identifiedEnemy[0] : false
-// }
