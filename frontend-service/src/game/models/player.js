@@ -1,5 +1,5 @@
 class Player extends Phaser.Sprite{
-  constructor(game,x,y,avatar,health,speed,weapons,id){
+  constructor(game,x,y,avatar,health,speed,weapons,id,gameID){
     super(game,x,y,avatar)
     this.game = game
     this.x = x
@@ -10,6 +10,7 @@ class Player extends Phaser.Sprite{
     this.avatar = 'zombie'
     this.weapons = weapons
     this.id = id
+    this.gameID = gameID
     this.currentWeapon = 0
     // this.anchor.setTo(0.5, 0.5) // <- purpose?
 

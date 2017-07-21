@@ -23,7 +23,7 @@ function addRemoteEnemies(){
 function addEnemyOperation(enemyData){
   if(enemyMap.length < 5){
     enemyData.enemyList.forEach(enemy => {
-      const newEnemy = new Enemy(game,enemy.x,enemy.y,enemy.type,enemy.id)
+      const newEnemy = new Enemy(game,enemy.x,enemy.y,enemy.type,enemy.id,enemy.gameID)
       playerObs.emit('enemyGroup',newEnemy)
       enemyMap.push(newEnemy)
     })
@@ -38,7 +38,8 @@ function addEnemyOperation(enemyData){
 /** MOVE ENEMIES */
 //need to modify this to accept enemy collection
 function sendEnemyMovement(enemy){
-  socket.emit('moveEnemy',{id: enemy.id, x: enemy.body.x, y: enemy.body.y})
+  console.log('enemy mover!!!!!', enemy)
+  socket.emit('moveEnemy',{id: enemy.id, x: enemy.body.x, y: enemy.body.y, gameID: enemy.gameID})
 }
 
 function onMoveEnemy(data){

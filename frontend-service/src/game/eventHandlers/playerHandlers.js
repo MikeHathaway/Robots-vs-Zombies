@@ -19,22 +19,21 @@ function onNewPlayer(data){
     return localPlayer(game,data)
   }
   else if(remotePlayers.length > 0){
-    const newPlayer = new Player(game,data.x,data.y,'Zombie_Sprite',50,5,game.weapons,data.id)
+    const newPlayer = new Player(game,data.x,data.y,'Zombie_Sprite',50,5,game.weapons,data.id, data.gameID)
     remotePlayers.push(newPlayer)
     playerObs.emit('addPlayer', newPlayer)
     console.log('a remote player!', newPlayer.id)
-    //playerObs.emit('addRemotePlayer', newPlayer)
   }
 }
 
 function localPlayer(game,data){
-  const newPlayer = new Player(game,data.x,data.y,'Zombie_Sprite',50,5,game.weapons,data.id)
+  const newPlayer = new Player(game,data.x,data.y,'Zombie_Sprite',50,5,game.weapons,data.id,data.gameID)
   playerObs.emit('addPlayer', newPlayer)
   remotePlayers.push(newPlayer)
-  console.log('first player!')
+  console.log('first player!', data.gameID)
 
   /** Add enemies if local player is only player in the game */
-  socket.emit('newEnemies', {number: 5,x: game.startX, y: game.startY})
+  socket.emit('newEnemies', {number: 5,x: game.startX, y: game.startY, gameID: data.gameID})
 }
 
 

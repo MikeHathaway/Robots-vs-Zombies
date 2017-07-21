@@ -266,7 +266,7 @@ import playerHandlers from '../eventHandlers/playerHandlers'
   }
 
   function sendPlayerMovement(player){
-     socket.emit('movePlayer',{id: player.id, x: player.body.x, y: player.body.y})
+     socket.emit('movePlayer',{id: player.id, x: player.body.x, y: player.body.y, gameID: player.gameID}) //gameID: player.gameID
   }
 
   function sendShot(player){
@@ -276,7 +276,7 @@ import playerHandlers from '../eventHandlers/playerHandlers'
      console.log('type',type,weapon)
 
      if(checkTimeToFire(player,weapon)){
-       socket.emit('shoot', {id: player.id, x: player.body.x, y: player.body.y, v: weapon.bulletSpeed, r: player.body.rotation, type: type})
+       socket.emit('shoot', {id: player.id, x: player.body.x, y: player.body.y, v: weapon.bulletSpeed, r: player.body.rotation, type: type, gameID: player.gameID})
      }
   }
 
@@ -323,7 +323,7 @@ import playerHandlers from '../eventHandlers/playerHandlers'
     enemy.takeDamage(damage)
     bullet.kill()
     console.log("Hit Zombie")
-    socket.emit('enemyHit',{id: enemy.id, damage: damage})
+    socket.emit('enemyHit',{id: enemy.id, damage: damage, gameID: enemy.gameID})
 
     const score = damage
     // game.score += 5

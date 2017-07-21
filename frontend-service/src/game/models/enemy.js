@@ -1,5 +1,5 @@
 class Enemy extends Phaser.Sprite{
-  constructor(game,x,y,type,id){
+  constructor(game,x,y,type,id,gameID){
     super(game,0,0,'zombie')
     this.x = genRandomNum(x)
     this.y = genRandomNum(y)
@@ -7,6 +7,7 @@ class Enemy extends Phaser.Sprite{
     this.type = type
     this.health = 30
     this.id = id
+    this.gameID = gameID
     game.physics.enable(this)
   }
 
