@@ -15,8 +15,10 @@ class Player extends Phaser.Sprite{
     // this.anchor.setTo(0.5, 0.5) // <- purpose?
 
     game.physics.enable(this)
+
     this.body.velocity.x = 10
     this.body.velocity.y = 10
+    this.body.angularVelocity = 0
 
     this.allowRotation = true
     this.allowGravity = false

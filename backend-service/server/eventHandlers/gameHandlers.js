@@ -96,6 +96,7 @@ function addEnemies(data){
 }
 
 function onMovePlayer(data) {
+  console.log('move player!',data)
   const movePlayer = playerById(data.id,data.gameID)
   const roomID = data.gameID.toString()
 
@@ -109,9 +110,11 @@ function onMovePlayer(data) {
   movePlayer.setX(data.x)
   movePlayer.setY(data.y)
 
+  movePlayer.r = data.rotation
+
   //need to broadcast.emit this one
   // io.sockets.in(roomID).emit("movePlayer", {id: movePlayer.id, x: movePlayer.getX(), y: movePlayer.getY()})
-  socket.broadcast.to(roomID).emit("movePlayer", {id: movePlayer.id, x: movePlayer.getX(), y: movePlayer.getY()})
+  socket.broadcast.to(roomID).emit("movePlayer", {id: movePlayer.id, x: movePlayer.getX(), y: movePlayer.getY(), rotation: movePlayer.r})
   // io.sockets.in(roomID).broadcast.emit("movePlayer", {id: movePlayer.id, x: movePlayer.getX(), y: movePlayer.getY()})
 }
 
@@ -185,30 +188,12 @@ function onShoot(data){
     console.log('a bullet!', Object.keys(bullets).length, data.id, data.x, data.y, data.v, data.r)
     const bullet = new Bullet(bulletPID, data.id, data.x, data.y, data.v, data.r, bulletType)
     bulletPID++
-    // const bullet = new Bullet(Object.keys(bullets).length, data.id, data.x, data.y, data.v, data.r, bulletType)
     bullet.gameID = data.gameID
     bullets.push(bullet)
 
-    // this.volatile.broadcast.emit('shoot', bullet)
-    // this.volatile.emit('shoot', bullet)
-    // this.broadcast.emit('shoot', bullet)
     io.sockets.in(roomID).emit('shoot', bullet)
   }
 }
-
-
-
-
-
-function resetBullets(){
-
-}
-
-
-
-
-
-
 
 
 function onEnemyHit(data){

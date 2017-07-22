@@ -20,6 +20,7 @@ import playerHandlers from '../eventHandlers/playerHandlers'
     , layer
     , players
     , cursors
+    , controls
     , fireButton
     , changeKey
     , collisionLayer
@@ -213,6 +214,13 @@ import playerHandlers from '../eventHandlers/playerHandlers'
     cursors = game.input.keyboard.createCursorKeys()
     fireButton = game.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR)
     changeKey = game.input.keyboard.addKey(Phaser.Keyboard.ENTER)
+    controls = {
+      up: game.input.keyboard.addKey(Phaser.Keyboard.W),
+      left: game.input.keyboard.addKey(Phaser.Keyboard.A),
+      down: game.input.keyboard.addKey(Phaser.Keyboard.S),
+      right: game.input.keyboard.addKey(Phaser.Keyboard.D),
+    }
+
   }
 
 
@@ -226,39 +234,48 @@ import playerHandlers from '../eventHandlers/playerHandlers'
    =============== =============== =============== */
 
 
-
+   //http://phaser.io/examples/v2/input/cursor-key-movement
+   //http://examples.phaser.io/_site/view_full.html?d=arcade%20physics&f=angular+velocity.js&t=angular%20velocity)
+   //https://phaser.io/examples/v2/arcade-physics/shoot-the-pointer
+   //https://github.com/tlmader/theodoric/blob/master/js/Game.js
   function checkPlayerInputs(player){
-    if (cursors.left.isDown){
+
+    player.rotation = game.physics.arcade.angleToPointer(player)
+
+    if (cursors.left.isDown || controls.left.isDown){
       player.body.x -= player.body.velocity.x
-      sendPlayerMovement(player)
+      return sendPlayerMovement(player)
     }
-    if (cursors.right.isDown){
+    if (cursors.right.isDown || controls.right.isDown){
       player.body.x += player.body.velocity.x
-      sendPlayerMovement(player)
+      return sendPlayerMovement(player)
     }
-    if (cursors.up.isDown){
+    if (cursors.up.isDown || controls.up.isDown){
       player.body.y -= player.body.velocity.y
-      sendPlayerMovement(player)
+      return sendPlayerMovement(player)
     }
-    if (cursors.down.isDown){
+    if (cursors.down.isDown || controls.down.isDown){
+
       player.body.y += player.body.velocity.y
-      sendPlayerMovement(player)
+      return sendPlayerMovement(player)
     }
-    if (fireButton.isDown){
-      // player.weapons.children[player.currentWeapon].fire(player)
-      sendShot(player)
+    if (fireButton.isDown || game.input.activePointer.isDown){
+      return sendShot(player)
     }
     if(changeKey.isDown){
-      changeWeapon(player)
+      return changeWeapon(player)
+    }
+    // halt player if no input
+    else{
+      // player.body.angularVelocity = 0
+      // player.body.velocity.x = 0
+      // player.body.velocity.y = 0
     }
   }
 
-  //game.physics.arcade.velocityFromRotation(player.rotation, currentSpeed, player.body.velocity)
-    // ^ simulate player rotation
-    //emit player.angle as well
 
   function sendPlayerMovement(player){
-     return socket.emit('movePlayer',{id: player.id, x: player.body.x, y: player.body.y, gameID: player.gameID}) //gameID: player.gameID
+     return socket.emit('movePlayer',{id: player.id, x: player.body.x, y: player.body.y, rotation: player.body.rotation, gameID: player.gameID}) //gameID: player.gameID
   }
 
   function sendShot(player){

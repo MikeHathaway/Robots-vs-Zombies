@@ -37,8 +37,12 @@ function localPlayer(game,data){
 }
 
 
+//http://examples.phaser.io/_site/view_full.html?d=arcade%20physics&f=angular+velocity.js&t=angular%20velocity)
 function onMovePlayer(data){
   const movePlayer = playerById(data.id);
+
+  movePlayer.body.rotation = data.rotation
+  console.log('move player', movePlayer)
   return movePlayer ? playerObs.emit('movingPlayer', {player: movePlayer, data: data}) : false
 }
 

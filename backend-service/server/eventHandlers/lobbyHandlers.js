@@ -64,11 +64,12 @@ function onNewGame(){
 function onGameOver(data){
   console.log('GAME OVER',Game.gameSessions, Game.gameSessions[data.gameID])
   const gameObj = Game.gameSessions[data.gameID]
+  const roomID = data.gameID
   gameObj.players.length = 0
   gameObj.enemies.length = 0
 
   //emit new game with check for available instance?
-  io.sockets.emit('gameOver', {gameID: data.gameID})
+  io.sockets.in(roomID).emit('gameOver', {gameID: data.gameID})
 
   Game.setRoomID()
 
