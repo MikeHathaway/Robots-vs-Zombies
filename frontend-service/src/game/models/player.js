@@ -17,6 +17,10 @@ class Player extends Phaser.Sprite{
     game.physics.enable(this)
     this.body.velocity.x = 10
     this.body.velocity.y = 10
+
+    this.allowRotation = true
+    this.allowGravity = false
+
     // this.body.collideWorldBounds = true;
   }
 

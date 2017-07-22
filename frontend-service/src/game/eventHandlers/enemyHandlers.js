@@ -17,8 +17,10 @@ function onNewEnemies(data){
 
 //potentially utilize once?
 function addRemoteEnemies(){
+  console.log('adding enemies!')
   playerObs.on('addEnemies', addEnemyOperation)
 }
+
 
 function addEnemyOperation(enemyData){
   if(enemyMap.length < 5){
@@ -77,6 +79,7 @@ function onEnemyHit(data){
   }
   else{
     enemy.health = 0
+    enemyMap.splice(enemyMap.indexOf(enemy),1)
     enemy.kill()
   }
 }

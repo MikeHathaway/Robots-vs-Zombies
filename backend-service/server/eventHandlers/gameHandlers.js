@@ -7,7 +7,11 @@ const Enemy = require('../models/Enemy').Enemy
 
 const players = []
 const bullets = []
-const enemies = []
+let numEnemies = 5
+// const enemies = []
+
+const gameWidth = 1000
+const gameHeight = 800
 
 const gameSessions = Game.gameSessions
 
@@ -70,7 +74,7 @@ function onNewEnemies(data){
   const currentGame = gameSessions[data.gameID.toString()]
   const roomID = data.gameID.toString()
   //ensure that enemies are only added once
-  console.log('on new enemies called', enemies.length,data.number)
+  console.log('on new enemies called',data.number)
   if(currentGame.enemies.length === 0){
     addEnemies(data)
     return io.sockets.in(roomID).emit('newEnemies', {enemyList: currentGame.enemies})
@@ -160,29 +164,35 @@ function decideToMove(enemy, enemyRange){
   }
 }
 
+let bulletPID = 0
+
 //add additional keys??
 function onShoot(data){
   const bulletType = data.type
   const roomID = data.gameID.toString()
-  let pid
 
   //resetting bullets before it reaches 120
-  if(Object.keys(bullets).length === 119){
-    pid = 0
+  if(bulletPID === 119){
+    bulletPID = 0
+    //need to reset the bullet object as well so that it doesnt just grow infinetly
+
+    const bullet = new Bullet(bulletPID, data.id, data.x, data.y, data.v, data.r, bulletType)
+    bullet.gameID = data.gameID
+    bullets.push(bullet)
+    io.sockets.in(roomID).emit('shoot', bullet)
   }
   else{
-    pid = Object.keys(bullets).length
+    console.log('a bullet!', Object.keys(bullets).length, data.id, data.x, data.y, data.v, data.r)
+    const bullet = new Bullet(bulletPID, data.id, data.x, data.y, data.v, data.r, bulletType)
+    bulletPID++
+    // const bullet = new Bullet(Object.keys(bullets).length, data.id, data.x, data.y, data.v, data.r, bulletType)
+    bullet.gameID = data.gameID
+    bullets.push(bullet)
 
-  console.log('a bullet!', Object.keys(bullets).length, data.id, data.x, data.y, data.v, data.r)
-  const bullet = new Bullet(pid, data.id, data.x, data.y, data.v, data.r, bulletType)
-  // const bullet = new Bullet(Object.keys(bullets).length, data.id, data.x, data.y, data.v, data.r, bulletType)
-  bullet.gameID = data.gameID
-  bullets.push(bullet)
-
-  // this.volatile.broadcast.emit('shoot', bullet)
-  // this.volatile.emit('shoot', bullet)
-  // this.broadcast.emit('shoot', bullet)
-  io.sockets.in(roomID).emit('shoot', bullet)
+    // this.volatile.broadcast.emit('shoot', bullet)
+    // this.volatile.emit('shoot', bullet)
+    // this.broadcast.emit('shoot', bullet)
+    io.sockets.in(roomID).emit('shoot', bullet)
   }
 }
 
@@ -248,11 +258,25 @@ function onSocketDisconnect(){
 
 
 
-
+//new enemies appear to go through but not properly added
 function onWaveComplete(data){
-  const roomID = data.gameID.toString()
-  console.log('Wave Complete', data)
-  gameSessions[roomID].level++
+  const roomID = data.gameID
+
+  if(gameSessions[roomID]){
+    gameSessions[roomID].level += 1
+    const nextWaveConfig = configureNextWave(roomID)
+    addEnemies(nextWaveConfig)
+
+    console.log('Wave Complete', data)
+
+    io.sockets.in(roomID).emit('newEnemies', {enemyList: gameSessions[roomID].enemies, message: `LEVEL ${gameSessions[roomID].level}`})
+  }
+}
+
+function configureNextWave(roomID){
+  const numberOfEnemies = gameSessions[roomID].level
+  // gameWidth && gameHeight var for x and y
+  return {number: numberOfEnemies, x: 400, y: 400, gameID: roomID}
 }
 
 

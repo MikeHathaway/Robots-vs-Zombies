@@ -253,6 +253,10 @@ import playerHandlers from '../eventHandlers/playerHandlers'
     }
   }
 
+  //game.physics.arcade.velocityFromRotation(player.rotation, currentSpeed, player.body.velocity)
+    // ^ simulate player rotation
+    //emit player.angle as well
+
   function sendPlayerMovement(player){
      return socket.emit('movePlayer',{id: player.id, x: player.body.x, y: player.body.y, gameID: player.gameID}) //gameID: player.gameID
   }
@@ -261,9 +265,9 @@ import playerHandlers from '../eventHandlers/playerHandlers'
      const weapon = player.weapons.children[player.currentWeapon]
 
      const type = weapon.cursor.type //recent addition to be able to view other peoples firing type
-     console.log('type',type,weapon)
 
      if(checkTimeToFire(player,weapon)){
+       console.log('player rotation!', player.body.rotation)
        return socket.emit('shoot', {id: player.id, x: player.body.x, y: player.body.y, v: weapon.bulletSpeed, r: player.body.rotation, type: type, gameID: player.gameID})
      }
   }
@@ -372,11 +376,15 @@ function checkGameOver(){
   }
 }
 
+//super hacky
+let calls = 0
 
 function checkWaveComplete(){
   let curLevel = 0
-  if(enemies.children.length === 0 && globalGameID[0]) {
-    setTimeout(() => socket.emit('waveComplete', {gameID: globalGameID[0], curWave: curLevel},2500))
+  if(enemies.children.length === 0 && globalGameID[0] && calls <= 50) {
+    calls += 1
+    socket.emit('waveComplete', {gameID: globalGameID[0], curWave: curLevel})
+    console.log('WAVE COMPLETE!!!!!!')
   }
 }
 
@@ -389,6 +397,8 @@ function checkWaveComplete(){
 
    =============== =============== =============== */
 
+   //add rotation back in!
+
   function shootOperation(data){
     const player = game.playerMap[data.pid];
     const weapon = player.weapons.children[player.currentWeapon]
@@ -396,11 +406,6 @@ function checkWaveComplete(){
     console.log('bullets', bullet)
     bullet.reset(data.x,data.y)
     bullet.rotation = data.r
-
-    /** Bullets are not recycling properly.... */
-    // bullet.events.onKilled.addOnce(this.debugKilled, this)
-    // bullet.events.onOutOfBounds.addOnce(this.debugOut, this)
-
 
     // bullet.body.velocity = game.physics.arcade.velocityFromRotation(bullet.rotation, bullet.body.velocity)
     game.physics.arcade.velocityFromAngle(bullet.rotation, weapon.bulletSpeed, bullet.body.velocity)
