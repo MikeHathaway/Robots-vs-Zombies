@@ -24,6 +24,7 @@ module.exports = {
   onMoveEnemy,
   onShoot,
   onEnemyHit,
+  onWaveComplete,
   onSocketDisconnect
 }
 
@@ -94,6 +95,8 @@ function onMovePlayer(data) {
   const movePlayer = playerById(data.id,data.gameID)
   const roomID = data.gameID.toString()
 
+  const socket = this
+
   if (!movePlayer) {
       console.log("Player not found: " + data.id)
       return
@@ -103,7 +106,8 @@ function onMovePlayer(data) {
   movePlayer.setY(data.y)
 
   //need to broadcast.emit this one
-  io.sockets.in(roomID).emit("movePlayer", {id: movePlayer.id, x: movePlayer.getX(), y: movePlayer.getY()})
+  // io.sockets.in(roomID).emit("movePlayer", {id: movePlayer.id, x: movePlayer.getX(), y: movePlayer.getY()})
+  socket.broadcast.to(roomID).emit("movePlayer", {id: movePlayer.id, x: movePlayer.getX(), y: movePlayer.getY()})
   // io.sockets.in(roomID).broadcast.emit("movePlayer", {id: movePlayer.id, x: movePlayer.getX(), y: movePlayer.getY()})
 }
 
@@ -156,19 +160,30 @@ function decideToMove(enemy, enemyRange){
   }
 }
 
-
+//add additional keys??
 function onShoot(data){
   const bulletType = data.type
-  console.log(data.id, ' is shooting!', bulletType)
-  const bullet = new Bullet(Object.keys(bullets).length, data.id, data.x, data.y, data.v, data.r, bulletType)
-  bullet.gameID = data.gameID
   const roomID = data.gameID.toString()
+  let pid
+
+  //resetting bullets before it reaches 120
+  if(Object.keys(bullets).length === 119){
+    pid = 0
+  }
+  else{
+    pid = Object.keys(bullets).length
+
+  console.log('a bullet!', Object.keys(bullets).length, data.id, data.x, data.y, data.v, data.r)
+  const bullet = new Bullet(pid, data.id, data.x, data.y, data.v, data.r, bulletType)
+  // const bullet = new Bullet(Object.keys(bullets).length, data.id, data.x, data.y, data.v, data.r, bulletType)
+  bullet.gameID = data.gameID
   bullets.push(bullet)
 
   // this.volatile.broadcast.emit('shoot', bullet)
   // this.volatile.emit('shoot', bullet)
   // this.broadcast.emit('shoot', bullet)
   io.sockets.in(roomID).emit('shoot', bullet)
+  }
 }
 
 
@@ -203,27 +218,43 @@ function onEnemyHit(data){
     io.sockets.in(roomID).emit('enemyHit', {id: hitEnemy.id, health: 0, alive: false})
     return gameSessions[data.gameID].enemies.splice(gameSessions[data.gameID].enemies.indexOf(hitEnemy),1)
 
-    // return enemies.splice(enemies.indexOf(hitEnemy),1)
   }
   return io.sockets.in(roomID).emit('enemyHit', {id: hitEnemy.id, health: hitEnemy.health, alive: true, gameID: data.gameID})
 }
 
 
 // ADD GAME ID to socket disconnect
-function onSocketDisconnect() {
-  console.log("Player has disconnected: " + this.id)
+function onSocketDisconnect(){
+  console.log("Player has disconnected: " + this.id, this.rooms)
+  const socket = this
+
+  //socket.rooms should provide access to the current sockets room
+  setTimeout(() => console.log(socket.rooms),10000)
 
   const removePlayer = playerById(this.id)
-  
+
   if (!removePlayer) {
       console.log("Player not found: " + this.id)
       return
   }
 
-  io.sockets.in(roomID).emit()
+  //socket.broadcast.to(roomID).emit('removePlayer', {id: removePlayer.id})
   this.broadcast.emit('removePlayer', {id: removePlayer.id})
   players.splice(players.indexOf(removePlayer), 1)
 }
+
+
+
+
+
+
+
+function onWaveComplete(data){
+  const roomID = data.gameID.toString()
+  console.log('Wave Complete', data)
+  gameSessions[roomID].level++
+}
+
 
 
 

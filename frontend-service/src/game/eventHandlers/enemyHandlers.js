@@ -53,9 +53,6 @@ function onMoveEnemy(data){
 
 }
 
-// function moveEnemy(){
-//   playerObs.on('movingEnemy', moveEnemyOperation)
-// }
 
 function moveEnemyOperation(moveEnemy){
   const enemy = enemyById(moveEnemy.id)

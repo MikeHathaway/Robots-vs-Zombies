@@ -22,6 +22,7 @@ class Bullet extends Phaser.Sprite{
 
     this.tracking = tracking || false
     this.scaleSpeed = 0
+
   }
 
   fire(x, y, angle, speed, gx, gy){
@@ -33,7 +34,7 @@ class Bullet extends Phaser.Sprite{
     this.angle = angle
     this.body.gravity.set(gx, gy)
   }
-  
+
 }
 
 export default Bullet

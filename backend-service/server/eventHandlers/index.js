@@ -12,8 +12,6 @@ module.exports = function(io){
 function setEventHandlers(client){
   console.log('connected!')
 
-  //client.join(data.gameID.toString())
-
   /** GAME HANDLERS */
   client.on('newPlayer', gameHandlers.onNewPlayer)
   client.on('newEnemies', gameHandlers.onNewEnemies)
@@ -21,14 +19,16 @@ function setEventHandlers(client){
   client.on('moveEnemy', gameHandlers.onMoveEnemy)
   client.on('shoot', gameHandlers.onShoot)
   client.on('enemyHit', gameHandlers.onEnemyHit)
-  client.on('disconnect', gameHandlers.onSocketDisconnect)
+  client.on('waveComplete', gameHandlers.onWaveComplete)
+
 
   /** LOBBY HANDLERS */
   client.on('joinGame', lobbyHandlers.onJoinGame)
   client.on('newGame', lobbyHandlers.onNewGame)
   client.on('gameOver', lobbyHandlers.onGameOver)
+  client.on('disconnect', gameHandlers.onSocketDisconnect)
 
-  client.on('test', (data) => { console.log(data)})
+  client.on('test', (data) => { console.log('test successful',data)})
 }
 
 //https://gist.github.com/crtr0/2896891

@@ -11,7 +11,7 @@ GameOver.prototype = {
     this.game.background.autoScroll(-20, 0)
 
     //start game text
-    let text = "WRONG"
+    let text = "You cannot score more than 9000!"
     let style = { font: "30px Arial", fill: "#fff", align: "center" }
     const t = this.game.add.text(this.game.width/2, this.game.height/2, text, style)
     t.anchor.set(0.5)

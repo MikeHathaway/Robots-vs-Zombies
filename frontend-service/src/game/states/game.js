@@ -34,6 +34,8 @@ import playerHandlers from '../eventHandlers/playerHandlers'
   const enemyMap = []
   const numEnemies = 15
 
+  const globalGameID = []
+
 
   /* ----- Start Game Instance ----- */
   const game = {
@@ -86,6 +88,8 @@ import playerHandlers from '../eventHandlers/playerHandlers'
     if (localPlayer) checkCollisions()
     if (enemies) checkEnemyActions()
 
+    if (localPlayer && enemies) checkWaveComplete()
+
     checkScore()
     checkGameOver()
   }
@@ -106,7 +110,11 @@ import playerHandlers from '../eventHandlers/playerHandlers'
   function configureGame(){
     game.physics.startSystem(Phaser.Physics.ARCADE)
     game.forceSingleUpdate = true //suggested sync config
-    // game.world.setBounds(-1000, -1000, 2000, 2000)
+
+    game.world.setBounds(-1000, -1000, 2000, 2000)
+    console.log(game.world)
+
+
     game.playerMap = {}
     game.scale.pageAlignHorizontally = true;
     game.scale.pageAlignVertically = true;
@@ -147,7 +155,6 @@ import playerHandlers from '../eventHandlers/playerHandlers'
   //https://leanpub.com/html5shootemupinanafternoon/read <- info on randomizing enemy spawn
   function addEnemies(number = 100){
     enemies = game.add.group()
-    //socket.emit('newEnemies',{number: number, x: gameWidth, y: gameHeight})
   }
 
 
@@ -357,11 +364,19 @@ import playerHandlers from '../eventHandlers/playerHandlers'
   }
 
 function checkGameOver(){
-  if(game.score >= 100){
+  if(game.score >= 9000){
     // refresh socket after game over: socket.emit('disconnect')
-    socket.emit('gameOver', {gameID: gameID})
+    socket.emit('gameOver', {gameID: globalGameID[0]})
     CivZombie.game.state.start('GameOver')
 
+  }
+}
+
+
+function checkWaveComplete(){
+  let curLevel = 0
+  if(enemies.children.length === 0 && globalGameID[0]) {
+    setTimeout(() => socket.emit('waveComplete', {gameID: globalGameID[0], curWave: curLevel},2500))
   }
 }
 
@@ -374,13 +389,19 @@ function checkGameOver(){
 
    =============== =============== =============== */
 
-
   function shootOperation(data){
     const player = game.playerMap[data.pid];
     const weapon = player.weapons.children[player.currentWeapon]
     const bullet = weapon.children[data.id]
+    console.log('bullets', bullet)
     bullet.reset(data.x,data.y)
     bullet.rotation = data.r
+
+    /** Bullets are not recycling properly.... */
+    // bullet.events.onKilled.addOnce(this.debugKilled, this)
+    // bullet.events.onOutOfBounds.addOnce(this.debugOut, this)
+
+
     // bullet.body.velocity = game.physics.arcade.velocityFromRotation(bullet.rotation, bullet.body.velocity)
     game.physics.arcade.velocityFromAngle(bullet.rotation, weapon.bulletSpeed, bullet.body.velocity)
   }
@@ -403,6 +424,7 @@ function checkGameOver(){
     if(!localPlayer) {
       console.log('setting local player', player.id)
       localPlayer = player
+      globalGameID.push(localPlayer.gameID)
 
       // game.gameID = localPlayer.gameID
       game.camera.follow(localPlayer)

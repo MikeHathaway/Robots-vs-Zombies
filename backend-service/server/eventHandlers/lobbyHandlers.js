@@ -40,6 +40,7 @@ function initalizeGameData(){
     Game.gameSessions[roomID] = {}
     Game.gameSessions[roomID].players = []
     Game.gameSessions[roomID].enemies = []
+    Game.gameSessions[roomID].level = 0
     return Game.gameSessions[roomID].players
   }
     return Game.gameSessions[roomID].players

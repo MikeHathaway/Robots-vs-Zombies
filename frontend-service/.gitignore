@@ -2,3 +2,4 @@ node_modules
 public/build/game.js
 public/build/react.js
 package-lock.json
+presentationNotes.txt
