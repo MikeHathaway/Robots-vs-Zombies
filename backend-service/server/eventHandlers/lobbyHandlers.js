@@ -40,6 +40,7 @@ function initalizeGameData(){
     Game.gameSessions[roomID] = {}
     Game.gameSessions[roomID].players = []
     Game.gameSessions[roomID].enemies = []
+    Game.gameSessions[roomID].bullets = []
     Game.gameSessions[roomID].level = 0
     return Game.gameSessions[roomID].players
   }
@@ -51,6 +52,30 @@ function checkRoomSize(gameLobby){
   return gameLobby.length < 3 ? true : false
 }
 
+
+
+function cullEmptyRooms(){
+  Object.keys(Game.gameSessions).forEach(lobby => {
+    const gameInstance = Game.gameSessions[lobby]
+    if(lobby !== 0 && gameInstance.players.length === 0){
+      gameInstance.enemies.length = 0
+      gameInstance.bullets.length = 0
+    }
+  })
+}
+
+//check if any rooms should be abandoned after 30 seconds
+setInterval(cullEmptyRooms,30000)
+
+
+// function placeNewPlayer(){
+//   Object.keys(Game.gameSessions).forEach(lobby => {
+//     const gameInstance = Game.gameSessions[lobby]
+//     if(gameInstance.players.length === 0){
+//       gameIn
+//     }
+//   })
+// }
 
 
 

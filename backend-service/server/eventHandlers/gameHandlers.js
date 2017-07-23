@@ -1,14 +1,14 @@
 const io = global._io
 const Game = global._Game
 
+const PF = require('pathfinding')
+
 const Player = require('../models/Player').Player
 const Bullet = require('../models/Bullet').Bullet
 const Enemy = require('../models/Enemy').Enemy
 
 const players = []
-const bullets = []
 let numEnemies = 5
-// const enemies = []
 
 const gameWidth = 1000
 const gameHeight = 800
@@ -119,6 +119,9 @@ function onMovePlayer(data) {
 }
 
 
+
+//https://github.com/qiao/PathFinding.js
+
 function onMoveEnemy(data){
   const moveEnemy = enemyById(data.id,data.gameID) //send gameID as well
   const roomID = data.gameID.toString()
@@ -178,19 +181,16 @@ function onShoot(data){
   if(bulletPID === 119){
     bulletPID = 0
     //need to reset the bullet object as well so that it doesnt just grow infinetly
-
     const bullet = new Bullet(bulletPID, data.id, data.x, data.y, data.v, data.r, bulletType)
     bullet.gameID = data.gameID
-    bullets.push(bullet)
+    gameSessions[roomID].bullets.push(bullet)
     io.sockets.in(roomID).emit('shoot', bullet)
   }
   else{
-    console.log('a bullet!', Object.keys(bullets).length, data.id, data.x, data.y, data.v, data.r)
     const bullet = new Bullet(bulletPID, data.id, data.x, data.y, data.v, data.r, bulletType)
     bulletPID++
     bullet.gameID = data.gameID
-    bullets.push(bullet)
-
+    gameSessions[roomID].bullets.push(bullet)
     io.sockets.in(roomID).emit('shoot', bullet)
   }
 }
