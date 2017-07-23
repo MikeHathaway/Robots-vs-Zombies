@@ -42,18 +42,18 @@ function onNewPlayer(data) {
   newPlayer.gameID = data.gameID.toString()
   const roomID = newPlayer.gameID
 
-  console.log('on new player')
+  console.log('on new player', roomID, gameSessions, gameSessions[newPlayer.gameID])
 
   //first player in new game
   if(gameSessions[newPlayer.gameID].players.length === 0){
     console.log('first player in game', gameSessions)
     io.sockets.in(roomID).emit('newPlayer', {id: newPlayer.id, x: newPlayer.getX(), y: newPlayer.getY(), gameID: newPlayer.gameID})
-    // io.sockets.emit('newPlayer', {id: newPlayer.id, x: newPlayer.getX(), y: newPlayer.getY(), gameID: newPlayer.gameID})
+    // return placeNewPlayer(newPlayer)
     return gameSessions[newPlayer.gameID].players.push(newPlayer);
   }
 
   //existing game - make sure all players are in sync with eachother
-  else if(gameSessions[newPlayer.gameID].players.length <= 3){
+  else if(gameSessions[newPlayer.gameID].players.length < 4){
     console.log('joining existing game')
     //console.log('joining existing game', gameSessions[newPlayer.gameID])
     io.sockets.in(roomID).emit('newPlayer', {id: newPlayer.id, x: newPlayer.getX(), y: newPlayer.getY(), gameID: newPlayer.gameID})
@@ -65,9 +65,12 @@ function onNewPlayer(data) {
       this.in(roomID).emit('newPlayer', {id: player.id, x: player.getX(), y: player.getY(), gameID: newPlayer.gameID})
     })
 
+    // return placeNewPlayer(newPlayer)
     return gameSessions[newPlayer.gameID].players.push(newPlayer);
   }
 }
+
+
 
 
 function onNewEnemies(data){
@@ -96,7 +99,6 @@ function addEnemies(data){
 }
 
 function onMovePlayer(data) {
-  console.log('move player!',data)
   const movePlayer = playerById(data.id,data.gameID)
   const roomID = data.gameID.toString()
 

@@ -60,6 +60,9 @@ import playerHandlers from '../eventHandlers/playerHandlers'
     game.load.image('forestTiles', './assets/tilemaps/trees-and-bushes.png')
     game.load.image('tiles', './assets/tilemaps/tmw_desert_spacing.png')
 
+    game.load.image('frontRobot', './assets/frontRobot.png') //Zombie_Sprite CZombie
+    game.load.image('backRobot', './assets/backRobot.png') //Zombie_Sprite CZombie
+
     game.load.image('zombie', './assets/CZombieMini.png') //Zombie_Sprite CZombie
     game.load.image('Zombie_Sprite', './assets/Zombie_Sprite.png') //Zombie_Sprite CZombie
     game.load.image('bullet', './assets/singleBullet.png')
@@ -178,6 +181,7 @@ import playerHandlers from '../eventHandlers/playerHandlers'
     }, game)
   }
 
+
   function addScore(){
     game.score = 0
     game.scoreBuffer = 0
@@ -270,6 +274,13 @@ import playerHandlers from '../eventHandlers/playerHandlers'
       // player.body.angularVelocity = 0
       // player.body.velocity.x = 0
       // player.body.velocity.y = 0
+    }
+  }
+
+  //check player state and then reanimate
+  function animatePlayer(player){
+    if(player.body.rotation === 1){
+      //change animation [1,2]
     }
   }
 
