@@ -339,7 +339,9 @@ import playerHandlers from '../eventHandlers/playerHandlers'
     /* Collide weaponry with enemies */
     game.physics.arcade.overlap(localPlayer.weapons, enemies, hitEnemy, null, this)
 
-    /* Collide weaponry with other players */
+    /* Collide enemy with players */
+    game.physics.arcade.overlap(enemies, localPlayer, hitPlayer, null, this)
+
       //currently a stretch goal to include 3v3 mode
       // game.physics.arcade.overlap(localPlayer.weapons, players, hitPlayer, null, this)
   }
@@ -356,13 +358,23 @@ import playerHandlers from '../eventHandlers/playerHandlers'
     createScoreAnimation(enemy.x,enemy.y,`${score}`,5)
   }
 
-  function hitPlayer(bullet, player){
-    console.log(bullet, player)
-    player.takeDamage(bullet.parent.damage)
-    // bullet.kill() //<- hits own player
-    console.log("Hit Player")
 
+  function hitPlayer(player, enemy){
+    console.log('collisions!',player.health, enemy.damage)
+    player.takeDamage(enemy.damage)
+    //add enemy attack animation
+    // enemyAtackAnimation()
+  }
 
+  function enemyAtackAnimation(){
+
+  }
+
+  //handle player respawn and messages to backend
+  function checkPlayerStatus(){
+    if(player.lives){
+
+    }
   }
 
   function checkScore(){
@@ -420,7 +432,7 @@ import playerHandlers from '../eventHandlers/playerHandlers'
   }
 
 function checkGameOver(){
-  if(game.score >= 9000){
+  if(game.score >= 9000 || localPlayer.lives === 0){
     // refresh socket after game over: socket.emit('disconnect')
     socket.emit('gameOver', {gameID: globalGameID[0]})
     CivZombie.game.state.start('GameOver')
@@ -437,6 +449,7 @@ function checkWaveComplete(){
     enemiesAdded = false
   }
 }
+
 
 
 

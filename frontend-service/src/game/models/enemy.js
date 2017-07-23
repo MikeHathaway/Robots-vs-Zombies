@@ -8,6 +8,7 @@ class Enemy extends Phaser.Sprite{
     this.health = 30
     this.id = id
     this.gameID = gameID
+    this.damage = 10
     game.physics.enable(this)
   }
 
@@ -23,8 +24,8 @@ class Enemy extends Phaser.Sprite{
   }
 
   move(game,enemy,player){
-    console.log(this.speed)
-    game.physics.arcade.moveToObject(enemy, player, this.speed);
+    if(player) game.physics.arcade.moveToObject(enemy, player, this.speed);
+
   }
 
 }

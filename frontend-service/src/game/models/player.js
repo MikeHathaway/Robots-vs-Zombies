@@ -4,7 +4,7 @@ class Player extends Phaser.Sprite{
     this.game = game
     this.x = x
     this.y = y
-    this.health = health || 50
+    this.health = health || 500
     this.maxHealth = health
     this.speed = speed || 5
     this.avatar = 'zombie'
@@ -12,6 +12,7 @@ class Player extends Phaser.Sprite{
     this.id = id
     this.gameID = gameID
     this.currentWeapon = 0
+    this.lives = 3
     // this.anchor.setTo(0.5, 0.5) // <- purpose?
 
     game.physics.enable(this)
@@ -26,7 +27,6 @@ class Player extends Phaser.Sprite{
     // this.body.collideWorldBounds = true;
   }
 
-
   removePlayer(game,id){
     game.playerMap[id].destroy()
     delete game.playerMap[id]
@@ -35,15 +35,15 @@ class Player extends Phaser.Sprite{
   takeDamage(damage){
     this.health -= damage
 
+    console.log('player health!',this.health)
+
     if(this.health <= 0){
       this.health = 0
       this.alive = false
-      this.kill()
-      return true
+      this.lives--
     }
-    return false
+    return this
   }
-
 }
 
 
