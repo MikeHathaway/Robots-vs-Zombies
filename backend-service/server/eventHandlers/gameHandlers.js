@@ -1,7 +1,6 @@
 const io = global._io
 const Game = global._Game
 
-const PF = require('pathfinding')
 
 const Player = require('../models/Player').Player
 const Bullet = require('../models/Bullet').Bullet
@@ -10,8 +9,19 @@ const Enemy = require('../models/Enemy').Enemy
 const players = []
 let numEnemies = 5
 
-const gameWidth = 1000
-const gameHeight = 800
+const gameWidth = 1200
+const gameHeight = 1000
+
+//enable pathfinding
+const PF = require('pathfinding')
+const grid = new PF.Grid(gameWidth,gameHeight)
+
+const finder = new PF.AStarFinder({
+  allowDiagonal: true,
+  dontCrossCorners: true
+})
+
+// const finder = new PF.AStarFinder()
 
 const gameSessions = Game.gameSessions
 
@@ -99,6 +109,7 @@ function addEnemies(data){
 }
 
 function onMovePlayer(data) {
+  console.log('move player received')
   const movePlayer = playerById(data.id,data.gameID)
   const roomID = data.gameID.toString()
 
@@ -121,27 +132,100 @@ function onMovePlayer(data) {
 }
 
 
+//update enemy position with latest information
+function onMoveEnemy(data){
+    const moveEnemy = enemyById(data.id,data.gameID) //send gameID as well
+    const roomID = data.gameID.toString()
+    const socket = this
+
+    if (!moveEnemy) {
+        console.log("Enemy not found: " + data.id)
+        return
+    }
+    
+    console.log('moving enemy!')
+
+    moveEnemy.setX(data.x)
+    moveEnemy.setY(data.y)
+
+    socket.broadcast.to(roomID).emit("movePlayer", {id: moveEnemy.id, x: moveEnemy.x, y: moveEnemy.y})
+}
 
 //https://github.com/qiao/PathFinding.js
+//https://github.com/prettymuchbryce/easystarjs
+// function onMoveEnemy(data){
+//   const moveEnemy = enemyById(data.id,data.gameID) //send gameID as well
+//   const roomID = data.gameID.toString()
+//
+//   if (!moveEnemy) {
+//       // console.log("Enemy (move) not found: " + data.id)
+//       return
+//   }
+//
+//   // const gridClone = grid.clone()
+//
+//   const enemyRange = moveEnemy.speed * 60
+//   const target = identifyTarget(moveEnemy)
+//
+//   //console.log('PATH COORDINATES',moveEnemy.x, moveEnemy.y, target.getX(),target.getY())
+//
+//   if(target.getX() < gameWidth - 100 && target.getY() < gameHeight - 100){
+//     const path = finder.findPath(Math.floor(moveEnemy.x), Math.floor(moveEnemy.y), Math.floor(target.getX()), Math.floor(target.getY()), grid)
+//     if(path[3]){
+//       console.log('place to move', path[0][0], path[0][1])
+//       io.sockets.in(roomID).emit('moveEnemy', {id: moveEnemy.id, x: path[3][0], y: path[3][1]})
+//     }
+//   }
+// }
+//
+//
+// function identifyTarget(enemy){
+//   const gamePlayers = gameSessions[enemy.gameID].players
+//   return gamePlayers[0]
+// }
+//
+//
+// function movementInterval(){
+//   return setInterval()
+// }
+//
+//
+// function decideToMove(enemy, enemyRange){
+//   const gamePlayers = gameSessions[enemy.gameID].players
+//   // console.log('TARGET',gamePlayers[0])
+//   return gamePlayers[0]
+//   // for(let i = 0; i < gamePlayers.length; i++){
+//   //   if(
+//   //     Math.floor(enemy.x) - Math.floor(gamePlayers[i].getX()) < enemyRange ||
+//   //     Math.floor(enemy.y) - Math.floor(gamePlayers[i].getY()) < enemyRange
+//   //      ){
+//   //       //console.log('true')
+//   //      return gamePlayers[i]
+//   //    }
+//   //     return -1
+//   // }
+// }
 
-function onMoveEnemy(data){
-  const moveEnemy = enemyById(data.id,data.gameID) //send gameID as well
-  const roomID = data.gameID.toString()
+// function onMoveEnemy(data){
+//   const moveEnemy = enemyById(data.id,data.gameID) //send gameID as well
+//   const roomID = data.gameID.toString()
+//
+//   if (!moveEnemy) {
+//       // console.log("Enemy (move) not found: " + data.id)
+//       return
+//   }
+//
+//   const enemyRange = moveEnemy.speed * 60
+//
+//   const target = decideToMove(moveEnemy,enemyRange)
+//
+//   if(target !== -1){
+//     identifyNextPosition(moveEnemy,enemyRange,gameSessions[moveEnemy.gameID].players[target])
+//     io.sockets.in(roomID).emit('moveEnemy', {id: moveEnemy.id, x: moveEnemy.x, y: moveEnemy.y})
+//   }
+// }
 
-  if (!moveEnemy) {
-      // console.log("Enemy (move) not found: " + data.id)
-      return
-  }
 
-  const enemyRange = moveEnemy.speed * 60
-
-  const target = decideToMove(moveEnemy,enemyRange)
-
-  if(target !== -1){
-    identifyNextPosition(moveEnemy,enemyRange,gameSessions[moveEnemy.gameID].players[target])
-    io.sockets.in(roomID).emit('moveEnemy', {id: moveEnemy.id, x: moveEnemy.x, y: moveEnemy.y})
-  }
-}
 
 // && check that they are also within y range
 function identifyNextPosition(enemy,enemyRange,player){
@@ -158,19 +242,19 @@ function identifyNextPosition(enemy,enemyRange,player){
 }
 
 // && enemy.isMoving === false <- check that enemy isn't already moving
-function decideToMove(enemy, enemyRange){
-  const gamePlayers = gameSessions[enemy.gameID].players
-  for(let i = 0; i < gamePlayers.length; i++){
-    if(
-      Math.floor(enemy.x) - Math.floor(gamePlayers[i].getX()) < enemyRange ||
-      Math.floor(enemy.y) - Math.floor(gamePlayers[i].getY()) < enemyRange
-       ){
-        //console.log('true')
-       return i
-     }
-      return -1
-  }
-}
+// function decideToMove(enemy, enemyRange){
+//   const gamePlayers = gameSessions[enemy.gameID].players
+//   for(let i = 0; i < gamePlayers.length; i++){
+//     if(
+//       Math.floor(enemy.x) - Math.floor(gamePlayers[i].getX()) < enemyRange ||
+//       Math.floor(enemy.y) - Math.floor(gamePlayers[i].getY()) < enemyRange
+//        ){
+//         //console.log('true')
+//        return i
+//      }
+//       return -1
+//   }
+// }
 
 let bulletPID = 0
 

@@ -3,7 +3,7 @@ class Enemy extends Phaser.Sprite{
     super(game,0,0,'zombie')
     this.x = genRandomNum(x)
     this.y = genRandomNum(y)
-    this.speed = 2
+    this.speed = 100
     this.type = type
     this.health = 30
     this.id = id
@@ -21,6 +21,12 @@ class Enemy extends Phaser.Sprite{
   takeDamage(damage){
     this.health -= damage
   }
+
+  move(game,enemy,player){
+    console.log(this.speed)
+    game.physics.arcade.moveToObject(enemy, player, this.speed);
+  }
+
 }
 
 function genRandomNum(factor){

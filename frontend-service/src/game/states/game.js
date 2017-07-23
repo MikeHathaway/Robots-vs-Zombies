@@ -36,6 +36,8 @@ import playerHandlers from '../eventHandlers/playerHandlers'
   const numEnemies = 15
 
   const globalGameID = []
+  let currentWave = 0
+  let enemiesAdded = false // make sure waves dont start excessively
 
 
   /* ----- Start Game Instance ----- */
@@ -90,7 +92,7 @@ import playerHandlers from '../eventHandlers/playerHandlers'
   function update(){
     if (localPlayer) checkPlayerInputs(localPlayer)
     if (localPlayer) checkCollisions()
-    if (enemies) checkEnemyActions()
+    if (localPlayer && enemies) checkEnemyActions()
 
     if (localPlayer && enemies) checkWaveComplete()
 
@@ -161,6 +163,12 @@ import playerHandlers from '../eventHandlers/playerHandlers'
     enemies = game.add.group()
   }
 
+
+  //https://www.joshmorony.com/how-to-create-an-animated-character-using-sprites-in-phaser/
+  //https://www.codeandweb.com/blog/2014/12/17/creating-spritesheets-for-phaser-with-texturepacker
+  function addPlayerAnimation(){
+
+  }
 
   function createScoreAnimation(x,y,message,score){
     const scoreFont = "20px Arial"
@@ -259,7 +267,6 @@ import playerHandlers from '../eventHandlers/playerHandlers'
       return sendPlayerMovement(player)
     }
     if (cursors.down.isDown || controls.down.isDown){
-
       player.body.y += player.body.velocity.y
       return sendPlayerMovement(player)
     }
@@ -295,7 +302,6 @@ import playerHandlers from '../eventHandlers/playerHandlers'
      const type = weapon.cursor.type //recent addition to be able to view other peoples firing type
 
      if(checkTimeToFire(player,weapon)){
-       console.log('player rotation!', player.body.rotation)
        return socket.emit('shoot', {id: player.id, x: player.body.x, y: player.body.y, v: weapon.bulletSpeed, r: player.body.rotation, type: type, gameID: player.gameID})
      }
   }
@@ -344,7 +350,7 @@ import playerHandlers from '../eventHandlers/playerHandlers'
     bullet.kill()
     console.log("Hit Zombie")
     socket.emit('enemyHit',{id: enemy.id, damage: damage, gameID: enemy.gameID})
-
+    enemiesAdded = true
     const score = damage
     // game.score += 5
     createScoreAnimation(enemy.x,enemy.y,`${score}`,5)
@@ -372,13 +378,6 @@ import playerHandlers from '../eventHandlers/playerHandlers'
   }
 
 
-  function aimRotation(){
-    const myPoint = new Phaser.Point( sprite.width / 2 + 30,  -sprite.height / 2)
-    myPoint.rotate(sprite.rotation)
-    this.getFirstExists(false).fire(sprite.x+myPoint.x, sprite.y+myPoint.y, sprite.rotation, BulletPool.BULLET_SPEED)
-  }
-
-
   function checkEnemyActions(){
     if(enemies) {
       for(let enemy = 0; enemy < enemies.children.length; enemy++){
@@ -387,12 +386,37 @@ import playerHandlers from '../eventHandlers/playerHandlers'
     }
   }
 
+  function findClosestPlayer(enemy){
+    if(enemy.body) {
+      for(let player = 0; player < players.children.length; player++){
+        if(Math.abs(enemy.body.x) - Math.abs(players.children[player].body.x) < 100){
+          return players.children[player]
+        }
+      }
+    }
+  }
+
   function enemyOperations(enemy){
     if(enemy.isAlive()){
-      enemyHandlers.sendEnemyMovement(enemy)
+      if(checkTimeSinceLastMove(enemy)){
+        console.log('checked ')
+        enemy.move(game, enemy, findClosestPlayer(enemy)) //use custom movetoobject to calc next pos
+        enemyHandlers.sendEnemyMovement(enemy)
+        return enemy
+      }
       return enemy
     }
+    // return enemy.kill()
     return enemy.destroy()
+  }
+
+  function checkTimeSinceLastMove(enemy){
+    if(game.time.time < enemy.nextMove) return false
+    else {
+      //add a 1000 milisecond delay between movements
+      enemy.nextMove = game.time.time + 500;
+      return true
+    }
   }
 
 function checkGameOver(){
@@ -404,15 +428,13 @@ function checkGameOver(){
   }
 }
 
-//super hacky
-let calls = 0
-
 function checkWaveComplete(){
-  let curLevel = 0
-  if(enemies.children.length === 0 && globalGameID[0] && calls <= 50) {
-    calls += 1
-    socket.emit('waveComplete', {gameID: globalGameID[0], curWave: curLevel})
+  console.log(enemies.children.length === 0)
+  if(enemies.children.length === 0 && globalGameID[0] && enemiesAdded) {
+    currentWave++
+    socket.emit('waveComplete', {gameID: globalGameID[0], curWave: currentWave})
     console.log('WAVE COMPLETE!!!!!!')
+    enemiesAdded = false
   }
 }
 

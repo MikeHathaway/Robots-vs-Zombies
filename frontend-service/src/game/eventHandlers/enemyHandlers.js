@@ -17,7 +17,6 @@ function onNewEnemies(data){
 
 //potentially utilize once?
 function addRemoteEnemies(){
-  console.log('adding enemies!')
   playerObs.on('addEnemies', addEnemyOperation)
 }
 
