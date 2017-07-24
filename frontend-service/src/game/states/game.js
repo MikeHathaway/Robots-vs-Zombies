@@ -70,6 +70,8 @@ import playerHandlers from '../eventHandlers/playerHandlers'
     game.load.image('bullet', './assets/singleBullet.png')
     game.load.image('lazer', './assets/lazer.png')
     game.load.spritesheet('zombies', './assets/zombie_sheet.png', 32, 48)
+
+    game.load.spritesheet('zombieAttack', './assets/zombieSheet1.png', 32, 48)
   }
 
   function create(){
@@ -362,11 +364,14 @@ import playerHandlers from '../eventHandlers/playerHandlers'
     const damage = enemy.attack()
     console.log('collisions!',player.health, damage)
     player.takeDamage(damage)
-    // enemyAtackAnimation()
+    enemyAtackAnimation(enemy)
     socket.emit('playerAttacked', {id: player.id, health: player.health, lives: player.lives, gameID: player.gameID})
   }
 
-  function enemyAtackAnimation(){
+  function enemyAtackAnimation(enemy){
+    const zombieAttack = game.add.sprite(enemy.body.x, enemy.body.y, 'zombieAttack')
+    const attack = zombieAttack.animations.add('attack')
+    zombieAttack.animations.play('attack', 60, false)
 
   }
 
