@@ -8,7 +8,7 @@ import playerHandlers from './playerHandlers'
 import enemyHandlers from './enemyHandlers'
 
 const socket = io('http://localhost:4000') // <-- dev url
-// const socket = io('https://backend-service-ilmvgrhefc.now.sh') // <-- prod url
+// const socket = io('https://backend-service-prhlgrmjpl.now.sh') // <-- prod url
 
 const playerObs = new EventEmitter()
 

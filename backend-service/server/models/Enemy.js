@@ -3,7 +3,7 @@ class Enemy {
     this.id = id
     this.x = x
     this.y = y
-    this.speed = speed || 4
+    this.speed = speed || 8
     this.scoreValue = scoreValue || 2
     this.type = type || 'zombie'
     this.health = health || 30

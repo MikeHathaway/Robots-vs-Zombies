@@ -3,7 +3,7 @@ class Enemy extends Phaser.Sprite{
     super(game,0,0,'zombie','zombieAttack')
     this.x = genRandomNum(x)
     this.y = genRandomNum(y)
-    this.speed = 100
+    this.speed = 200
     this.attackSpeed = 1500
     this.type = type
     this.health = 30

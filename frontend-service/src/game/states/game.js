@@ -188,6 +188,7 @@ import playerHandlers from '../eventHandlers/playerHandlers'
         game.scoreLabelTween.start()
         game.scoreBuffer += score
     }, game)
+
   }
 
 
@@ -199,12 +200,15 @@ import playerHandlers from '../eventHandlers/playerHandlers'
     const scoreFont = "100px Indie Flower"
 
     //Create the score label -> may want to move away from adding it directly on game object?
-    game.scoreLabel = game.add.text(game.world.centerX, 50, '0', {font: scoreFont, fill: "#ff0000", stroke: "#535353", strokeThickness: 15})
+    game.scoreLabel = game.add.text(game.camera.width / 2, 50, '0', {font: scoreFont, fill: "#ff0000", stroke: "#535353", strokeThickness: 15})
     // scoreLabel.anchor.setTo(0.5, 0)
     game.scoreLabel.align = 'center'
+    game.scoreLabel.fixedToCamera = true;
 
     //Create a tween to grow / shrink the score label
     game.scoreLabelTween = game.add.tween(game.scoreLabel.scale).to({ x: 1.5, y: 1.5}, 200, Phaser.Easing.Linear.In).to({ x: 1, y: 1}, 200, Phaser.Easing.Linear.In)
+
+
   }
 
 
@@ -377,7 +381,6 @@ import playerHandlers from '../eventHandlers/playerHandlers'
     const zombieAttack = game.add.sprite(enemy.body.x, enemy.body.y, 'zombieAttack')
     const attack = zombieAttack.animations.add('attack')
     zombieAttack.animations.play('attack', 10, false, true)
-    // zombieAttack.animations.stop(null,true)
   }
 
   //handle player respawn and messages to backend
@@ -411,7 +414,7 @@ import playerHandlers from '../eventHandlers/playerHandlers'
   function findClosestPlayer(enemy){
     if(enemy.body) {
       for(let player = 0; player < players.children.length; player++){
-        if(Math.abs(enemy.body.x) - Math.abs(players.children[player].body.x) < 100){
+        if(Math.abs(enemy.body.x) - Math.abs(players.children[player].body.x) < 500){
           return players.children[player]
         }
       }
@@ -450,13 +453,24 @@ function checkGameOver(){
 }
 
 function checkWaveComplete(){
-  console.log(enemies.children.length === 0)
   if(enemies.children.length === 0 && globalGameID[0] && enemiesAdded) {
+    announceLevel()
     currentWave++
     socket.emit('waveComplete', {gameID: globalGameID[0], curWave: currentWave})
     console.log('WAVE COMPLETE!!!!!!')
     enemiesAdded = false
   }
+}
+
+function announceLevel(){
+  const txt = game.add.text(game.camera.width / 2, game.camera.height / 2, `WAVE ${currentWave} Complete`, {font: "60px Arial", fill: "#ffffff", stroke: '#000000', strokeThickness: 7});
+  txt.anchor.setTo(0.5, 0.5);
+  txt.fixedToCamera = true;
+  // removeText(txt)
+}
+
+function removeText(text){
+  return setTimeout(text.destroy(),3000)
 }
 
 
