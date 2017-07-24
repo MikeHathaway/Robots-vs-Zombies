@@ -1,4 +1,5 @@
 import CivZombie from '../main'
+import game from './game'
 
 const GameOver = function () {};
 

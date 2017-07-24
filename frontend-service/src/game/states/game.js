@@ -201,7 +201,7 @@ import playerHandlers from '../eventHandlers/playerHandlers'
     const scoreFont = "100px Indie Flower"
 
     //Create the score label -> may want to move away from adding it directly on game object?
-    game.scoreLabel = game.add.text(game.camera.width / 2, 50, '0', {font: scoreFont, fill: "#ff0000", stroke: "#535353", strokeThickness: 15})
+    game.scoreLabel = game.add.text(game.camera.width / 2 - 30, 50, '0', {font: scoreFont, fill: "#ff0000", stroke: "#535353", strokeThickness: 15})
     // scoreLabel.anchor.setTo(0.5, 0)
     game.scoreLabel.align = 'center'
     game.scoreLabel.fixedToCamera = true;

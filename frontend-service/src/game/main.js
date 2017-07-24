@@ -8,8 +8,8 @@ const CivZombie = {}
 const gameWidth = window.innerWidth
 const gameHeight = window.innerHeight
 
-//Phaser.AUTO for rendering; force Phaser.CANVAS to boost performacne
-CivZombie.game = new Phaser.Game(1000, 800, Phaser.AUTO, 'game-container')
+//originally 1000 by 800
+CivZombie.game = new Phaser.Game(1200, 920, Phaser.AUTO, 'game-container')
 
 CivZombie.game.state.add('Boot', Boot)
 CivZombie.game.state.add('MainMenu', mainMenu)
