@@ -102,9 +102,10 @@ import playerHandlers from '../eventHandlers/playerHandlers'
   }
 
   function render(){
-	  //  if (localPlayer) game.debug.text("Player Health: " + localPlayer.health + " / " + localPlayer.maxHealth, 32, 32);
-	  //  if (localPlayer) game.debug.text("Player Score:  " + game.score, 32, 64);
-    //  if (localPlayer) game.debug.text("Enemies Remaining:  " + enemies.children.length, 32, 96);
+	   if (localPlayer) this.game.debug.text("Player Health: " + localPlayer.health + " / " + localPlayer.maxHealth, 32, 32);
+     if (localPlayer) this.game.debug.text("Enemies Remaining:  " + enemies.children.length, 32, 64);
+     if (localPlayer) this.game.debug.text("Level:  " + currentWave, 32, 96);
+
   }
 
 
@@ -116,11 +117,10 @@ import playerHandlers from '../eventHandlers/playerHandlers'
 
   function configureGame(){
     game.physics.startSystem(Phaser.Physics.ARCADE)
+    game.physics.arcade.setBoundsToWorld()
     game.forceSingleUpdate = true //suggested sync config
 
-    game.world.setBounds(-1000, -1000, 2000, 2000)
-    console.log(game.world)
-
+    // game.world.setBounds(gameWidth * -1, gameHeight * -1, gameWidth, gameHeight)
 
     game.playerMap = {}
     game.scale.pageAlignHorizontally = true;
@@ -131,8 +131,8 @@ import playerHandlers from '../eventHandlers/playerHandlers'
     game.time.desiredFps = 60;
 
     //bounds for enemy positioning
-    game.startX = 32
-    game.startY = game.world.height / 2
+    game.startX = gameWidth
+    game.startY = gameHeight
   }
 
 
@@ -188,7 +188,6 @@ import playerHandlers from '../eventHandlers/playerHandlers'
         game.scoreLabelTween.start()
         game.scoreBuffer += score
     }, game)
-
   }
 
 
@@ -456,7 +455,9 @@ function checkWaveComplete(){
   if(enemies.children.length === 0 && globalGameID[0] && enemiesAdded) {
     announceLevel()
     currentWave++
-    socket.emit('waveComplete', {gameID: globalGameID[0], curWave: currentWave})
+    setTimeout(() => socket.emit('waveComplete', {gameID: globalGameID[0], curWave: currentWave}), 3000)
+
+    // socket.emit('waveComplete', {gameID: globalGameID[0], curWave: currentWave})
     console.log('WAVE COMPLETE!!!!!!')
     enemiesAdded = false
   }
@@ -466,15 +467,8 @@ function announceLevel(){
   const txt = game.add.text(game.camera.width / 2, game.camera.height / 2, `WAVE ${currentWave} Complete`, {font: "60px Arial", fill: "#ffffff", stroke: '#000000', strokeThickness: 7});
   txt.anchor.setTo(0.5, 0.5);
   txt.fixedToCamera = true;
-  // removeText(txt)
+  setTimeout(() => txt.destroy(),3000)
 }
-
-function removeText(text){
-  return setTimeout(text.destroy(),3000)
-}
-
-
-
 
 
   /* =============== =============== ===============

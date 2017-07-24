@@ -24,7 +24,7 @@ class Player extends Phaser.Sprite{
     this.allowRotation = true
     this.allowGravity = false
 
-    // this.body.collideWorldBounds = true;
+    this.body.collideWorldBounds = true;
   }
 
   removePlayer(game,id){

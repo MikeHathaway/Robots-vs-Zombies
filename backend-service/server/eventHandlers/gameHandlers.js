@@ -37,7 +37,6 @@ function onNewPlayer(data) {
   if(gameSessions[newPlayer.gameID].players.length === 0){
     console.log('first player in game', gameSessions)
     io.sockets.in(roomID).emit('newPlayer', {id: newPlayer.id, x: newPlayer.getX(), y: newPlayer.getY(), gameID: newPlayer.gameID})
-    // return placeNewPlayer(newPlayer)
     return gameSessions[newPlayer.gameID].players.push(newPlayer);
   }
 
@@ -54,7 +53,6 @@ function onNewPlayer(data) {
       this.in(roomID).emit('newPlayer', {id: player.id, x: player.getX(), y: player.getY(), gameID: newPlayer.gameID})
     })
 
-    // return placeNewPlayer(newPlayer)
     return gameSessions[newPlayer.gameID].players.push(newPlayer);
   }
 }
@@ -78,9 +76,11 @@ function onNewEnemies(data){
 
 function addEnemies(data){
   let currentNum = 0
-  console.log(data, Game.lastEnemyId)
   while(currentNum++ < data.number){
-    const newEnemy = new Enemy(Game.lastEnemyId, randomInt(0,data.x), randomInt(0,data.y))
+    const xPos = randomInt(0,gameWidth)
+    const yPos = randomInt(0,gameHeight)
+    const newEnemy = new Enemy(Game.lastEnemyId, xPos, yPos)
+    // const newEnemy = new Enemy(Game.lastEnemyId, randomInt(0,data.x), randomInt(0,data.y))
     newEnemy.gameID = data.gameID.toString()
     Game.lastEnemyId++
     gameSessions[data.gameID.toString()].enemies.push(newEnemy)
@@ -88,7 +88,6 @@ function addEnemies(data){
 }
 
 function onMovePlayer(data) {
-  console.log('move player received')
   const movePlayer = playerById(data.id,data.gameID)
   const roomID = data.gameID.toString()
 
@@ -101,13 +100,9 @@ function onMovePlayer(data) {
 
   movePlayer.setX(data.x)
   movePlayer.setY(data.y)
-
   movePlayer.r = data.rotation
 
-  //need to broadcast.emit this one
-  // io.sockets.in(roomID).emit("movePlayer", {id: movePlayer.id, x: movePlayer.getX(), y: movePlayer.getY()})
   socket.broadcast.to(roomID).emit("movePlayer", {id: movePlayer.id, x: movePlayer.getX(), y: movePlayer.getY(), rotation: movePlayer.r})
-  // io.sockets.in(roomID).broadcast.emit("movePlayer", {id: movePlayer.id, x: movePlayer.getX(), y: movePlayer.getY()})
 }
 
 

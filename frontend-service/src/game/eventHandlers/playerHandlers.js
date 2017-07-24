@@ -22,7 +22,6 @@ function onNewPlayer(data){
     const newPlayer = new Player(game,data.x,data.y,'FrontRobot',100,5,game.weapons,data.id, data.gameID)
     remotePlayers.push(newPlayer)
     playerObs.emit('addPlayer', newPlayer)
-    console.log('a remote player!', newPlayer.id)
   }
 }
 
@@ -30,9 +29,9 @@ function localPlayer(game,data){
   const newPlayer = new Player(game,data.x,data.y,'FrontRobot',100,5,game.weapons,data.id,data.gameID)
   playerObs.emit('addPlayer', newPlayer)
   remotePlayers.push(newPlayer)
-  console.log('first player!', data.gameID)
 
   /** Add enemies if local player is only player in the game */
+  console.log('enemy spawn points',game.startX, game.startY)
   socket.emit('newEnemies', {number: 5,x: game.startX, y: game.startY, gameID: data.gameID})
 }
 
@@ -40,9 +39,7 @@ function localPlayer(game,data){
 //http://examples.phaser.io/_site/view_full.html?d=arcade%20physics&f=angular+velocity.js&t=angular%20velocity)
 function onMovePlayer(data){
   const movePlayer = playerById(data.id);
-
   movePlayer.body.rotation = data.rotation
-  console.log('move player', movePlayer)
   return movePlayer ? playerObs.emit('movingPlayer', {player: movePlayer, data: data}) : false
 }
 
