@@ -98,13 +98,15 @@ import playerHandlers from '../eventHandlers/playerHandlers'
     if (localPlayer && enemies) checkEnemyActions()
     if (localPlayer && enemies) checkWaveComplete()
 
+
     checkScore()
   }
 
   function render(){
 	   if (localPlayer) this.game.debug.text("Player Health: " + localPlayer.health + " / " + localPlayer.maxHealth, 32, 32);
-     if (localPlayer) this.game.debug.text("Enemies Remaining:  " + enemies.children.length, 32, 64);
-     if (localPlayer) this.game.debug.text("Level:  " + currentWave, 32, 96);
+     if (localPlayer) this.game.debug.text("Lives Remaining:  " + localPlayer.lives, 32, 64);
+     if (localPlayer) this.game.debug.text("Enemies Remaining:  " + enemies.children.length, 32, 96);
+     if (localPlayer) this.game.debug.text("Level:  " + currentWave, 32, 128);
 
   }
 
@@ -282,6 +284,7 @@ import playerHandlers from '../eventHandlers/playerHandlers'
     }
     // halt player if no input
     else{
+      // return player.body.velocity.setTo(0,0)
       // player.body.angularVelocity = 0
       // player.body.velocity.x = 0
       // player.body.velocity.y = 0
@@ -346,9 +349,9 @@ import playerHandlers from '../eventHandlers/playerHandlers'
     /* Collide enemy with players */
     game.physics.arcade.overlap(enemies, localPlayer, hitPlayer, null, this)
 
-      //currently a stretch goal to include 3v3 mode
-      // game.physics.arcade.overlap(localPlayer.weapons, players, hitPlayer, null, this)
+    /* Collide player with world bounds */
   }
+
 
   function hitEnemy(bullet, enemy){
     const damage = bullet.parent.damage

@@ -25,6 +25,7 @@ class Player extends Phaser.Sprite{
     this.allowGravity = false
 
     this.body.collideWorldBounds = true;
+    this.body.bounce.set(1,1)
   }
 
   removePlayer(game,id){
