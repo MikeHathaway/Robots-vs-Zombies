@@ -2,35 +2,35 @@
 
 {
 	"filename": "Zombie - Alpha - At Rest.png",
-	"frame": {"x":0,"y":0,"w":128,"h":128},
+	"frame": {"x":0,"y":0,"w":64,"h":64},
 	"rotated": false,
 	"trimmed": false,
-	"spriteSourceSize": {"x":0,"y":0,"w":128,"h":128},
-	"sourceSize": {"w":128,"h":128}
+	"spriteSourceSize": {"x":0,"y":0,"w":64,"h":64},
+	"sourceSize": {"w":64,"h":64}
 },
 {
 	"filename": "Zombie - Alpha - Swipe Down.png",
-	"frame": {"x":128,"y":0,"w":128,"h":128},
+	"frame": {"x":64,"y":0,"w":64,"h":64},
 	"rotated": false,
 	"trimmed": false,
-	"spriteSourceSize": {"x":0,"y":0,"w":128,"h":128},
-	"sourceSize": {"w":128,"h":128}
+	"spriteSourceSize": {"x":0,"y":0,"w":64,"h":64},
+	"sourceSize": {"w":64,"h":64}
 },
 {
 	"filename": "Zombie - Alpha - Swipe Up.png",
-	"frame": {"x":256,"y":0,"w":128,"h":128},
+	"frame": {"x":128,"y":0,"w":64,"h":64},
 	"rotated": false,
 	"trimmed": false,
-	"spriteSourceSize": {"x":0,"y":0,"w":128,"h":128},
-	"sourceSize": {"w":128,"h":128}
+	"spriteSourceSize": {"x":0,"y":0,"w":64,"h":64},
+	"sourceSize": {"w":64,"h":64}
 }],
 "meta": {
 	"app": "http://www.codeandweb.com/texturepacker",
 	"version": "1.0",
 	"image": "zombieSheet1.png",
 	"format": "RGBA8888",
-	"size": {"w":384,"h":128},
+	"size": {"w":192,"h":64},
 	"scale": "1",
-	"smartupdate": "$TexturePacker:SmartUpdate:f2cb58aec00e4b35e51848677fdd16d7:704a157c1a1343d8bd7b7654ab02fe7e:3f8810c6c0d60a114e0503145eff89a1$"
+	"smartupdate": "$TexturePacker:SmartUpdate:8c29c6cece75132f53f63caa7577f812:3b70b732b7b76a193b0ad67957525b78:3f8810c6c0d60a114e0503145eff89a1$"
 }
 }

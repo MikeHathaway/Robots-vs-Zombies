@@ -1,6 +1,6 @@
 class Enemy extends Phaser.Sprite{
   constructor(game,x,y,type,id,gameID){
-    super(game,0,0,'zombie')
+    super(game,0,0,'zombie','zombieAttack')
     this.x = genRandomNum(x)
     this.y = genRandomNum(y)
     this.speed = 100
@@ -26,13 +26,6 @@ class Enemy extends Phaser.Sprite{
 
   move(game,enemy,player){
     if(player) game.physics.arcade.moveToObject(enemy, player, this.speed);
-  }
-
-  attack(){
-    if (this.game.time.time < this.nextAttack) return 0
-    this.nextAttack = this.game.time.time + this.attackSpeed;
-    console.log('damage!!',this.damage)
-    return this.damage
   }
 
 }

@@ -71,7 +71,7 @@ import playerHandlers from '../eventHandlers/playerHandlers'
     game.load.image('lazer', './assets/lazer.png')
     game.load.spritesheet('zombies', './assets/zombie_sheet.png', 32, 48)
 
-    game.load.spritesheet('zombieAttack', './assets/zombieSheet1.png', 32, 48)
+    game.load.spritesheet('zombieAttack', './assets/zombieSheet1.png', 64, 64) // [32,48] //zombies seem to be too big
   }
 
   function create(){
@@ -361,18 +361,23 @@ import playerHandlers from '../eventHandlers/playerHandlers'
 
 
   function hitPlayer(player, enemy){
-    const damage = enemy.attack()
-    console.log('collisions!',player.health, damage)
-    player.takeDamage(damage)
-    enemyAtackAnimation(enemy)
-    socket.emit('playerAttacked', {id: player.id, health: player.health, lives: player.lives, gameID: player.gameID})
+    if (game.time.time < enemy.nextAttack) return
+    else {
+      enemy.nextAttack = game.time.time + enemy.attackSpeed;
+      console.log('collisions!',player.health, enemy.damage)
+      console.log(enemy.nextAttack)
+      player.takeDamage(enemy.damage)
+      enemyAtackAnimation(enemy)
+      socket.emit('playerAttacked', {id: player.id, health: player.health, lives: player.lives, gameID: player.gameID})
+    }
   }
+
 
   function enemyAtackAnimation(enemy){
     const zombieAttack = game.add.sprite(enemy.body.x, enemy.body.y, 'zombieAttack')
     const attack = zombieAttack.animations.add('attack')
-    zombieAttack.animations.play('attack', 60, false)
-
+    zombieAttack.animations.play('attack', 10, false, true)
+    // zombieAttack.animations.stop(null,true)
   }
 
   //handle player respawn and messages to backend
@@ -416,7 +421,6 @@ import playerHandlers from '../eventHandlers/playerHandlers'
   function enemyOperations(enemy){
     if(enemy.isAlive()){
       if(checkTimeSinceLastMove(enemy)){
-        console.log('checked ')
         enemy.move(game, enemy, findClosestPlayer(enemy)) //use custom movetoobject to calc next pos
         enemyHandlers.sendEnemyMovement(enemy)
         return enemy
