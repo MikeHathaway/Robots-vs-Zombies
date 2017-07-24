@@ -40,10 +40,20 @@ class Player extends Phaser.Sprite{
     if(this.health <= 0){
       this.health = 0
       this.alive = false
-      this.lives--
+      this.loseALife()
     }
     return this
   }
+
+  loseALife(){
+    if(this.lives === 0){
+      this.kill()
+    }
+    this.lives -= 1
+    this.health = 500
+    return this
+  }
+
 }
 
 

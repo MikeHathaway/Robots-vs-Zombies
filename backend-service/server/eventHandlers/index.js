@@ -19,6 +19,7 @@ function setEventHandlers(client){
   client.on('moveEnemy', gameHandlers.onMoveEnemy)
   client.on('shoot', gameHandlers.onShoot)
   client.on('enemyHit', gameHandlers.onEnemyHit)
+  // client.on('playerAttacked', gameHandlers.onPlayerAttacked)
   client.on('waveComplete', gameHandlers.onWaveComplete)
 
 

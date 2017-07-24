@@ -4,6 +4,7 @@ class Enemy extends Phaser.Sprite{
     this.x = genRandomNum(x)
     this.y = genRandomNum(y)
     this.speed = 100
+    this.attackSpeed = 1500
     this.type = type
     this.health = 30
     this.id = id
@@ -25,7 +26,13 @@ class Enemy extends Phaser.Sprite{
 
   move(game,enemy,player){
     if(player) game.physics.arcade.moveToObject(enemy, player, this.speed);
+  }
 
+  attack(){
+    if (this.game.time.time < this.nextAttack) return 0
+    this.nextAttack = this.game.time.time + this.attackSpeed;
+    console.log('damage!!',this.damage)
+    return this.damage
   }
 
 }

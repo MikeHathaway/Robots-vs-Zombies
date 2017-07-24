@@ -62,7 +62,7 @@ import playerHandlers from '../eventHandlers/playerHandlers'
     game.load.image('forestTiles', './assets/tilemaps/trees-and-bushes.png')
     game.load.image('tiles', './assets/tilemaps/tmw_desert_spacing.png')
 
-    game.load.image('frontRobot', './assets/frontRobot.png') //Zombie_Sprite CZombie
+    game.load.image('FrontRobot', './assets/frontRobot.png') //Zombie_Sprite CZombie
     game.load.image('backRobot', './assets/backRobot.png') //Zombie_Sprite CZombie
 
     game.load.image('zombie', './assets/CZombieMini.png') //Zombie_Sprite CZombie
@@ -92,12 +92,11 @@ import playerHandlers from '../eventHandlers/playerHandlers'
   function update(){
     if (localPlayer) checkPlayerInputs(localPlayer)
     if (localPlayer) checkCollisions()
+    if (localPlayer && enemies) checkGameOver()
     if (localPlayer && enemies) checkEnemyActions()
-
     if (localPlayer && enemies) checkWaveComplete()
 
     checkScore()
-    checkGameOver()
   }
 
   function render(){
@@ -360,10 +359,11 @@ import playerHandlers from '../eventHandlers/playerHandlers'
 
 
   function hitPlayer(player, enemy){
-    console.log('collisions!',player.health, enemy.damage)
-    player.takeDamage(enemy.damage)
-    //add enemy attack animation
+    const damage = enemy.attack()
+    console.log('collisions!',player.health, damage)
+    player.takeDamage(damage)
     // enemyAtackAnimation()
+    socket.emit('playerAttacked', {id: player.id, damage: damage, gameID: player.gameID})
   }
 
   function enemyAtackAnimation(){
@@ -371,9 +371,9 @@ import playerHandlers from '../eventHandlers/playerHandlers'
   }
 
   //handle player respawn and messages to backend
-  function checkPlayerStatus(){
-    if(player.lives){
-
+  function checkPlayerStatus(player){
+    if(player.lives === 0){
+      player.kill()
     }
   }
 
@@ -432,7 +432,7 @@ import playerHandlers from '../eventHandlers/playerHandlers'
   }
 
 function checkGameOver(){
-  if(game.score >= 9000 || localPlayer.lives === 0){
+  if(game.score >= 9000 || localPlayer.lives === 0 && enemiesAdded){
     // refresh socket after game over: socket.emit('disconnect')
     socket.emit('gameOver', {gameID: globalGameID[0]})
     CivZombie.game.state.start('GameOver')
