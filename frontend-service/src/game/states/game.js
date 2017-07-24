@@ -363,7 +363,7 @@ import playerHandlers from '../eventHandlers/playerHandlers'
     console.log('collisions!',player.health, damage)
     player.takeDamage(damage)
     // enemyAtackAnimation()
-    socket.emit('playerAttacked', {id: player.id, damage: damage, gameID: player.gameID})
+    socket.emit('playerAttacked', {id: player.id, health: player.health, lives: player.lives, gameID: player.gameID})
   }
 
   function enemyAtackAnimation(){

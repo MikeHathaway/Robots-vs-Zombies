@@ -4,7 +4,7 @@ class Player extends Phaser.Sprite{
     this.game = game
     this.x = x
     this.y = y
-    this.health = health || 500
+    this.health = health || 50
     this.maxHealth = health
     this.speed = speed || 5
     this.avatar = 'zombie'
@@ -50,7 +50,7 @@ class Player extends Phaser.Sprite{
       this.kill()
     }
     this.lives -= 1
-    this.health = 500
+    this.health = 50
     return this
   }
 

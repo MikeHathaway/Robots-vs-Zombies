@@ -60,12 +60,19 @@ function onShoot(data){
 }
 
 
+function onPlayerAttacked(data){
+  const attackedPlayer = playerById(data.id)
 
-//clear player data
-// playerObs.on('newGame', () => {
-//   console.log('starting new game')
-//   remotePlayers.length = 0
-// })
+  attackedPlayer.health = data.health
+  attackedPlayer.lives = data.lives
+
+  console.log('ATTACKED PLAYER!', attackedPlayer)
+
+  if(attackedPlayer.lives === 0){
+    remotePlayers.splice(remotePlayers.indexOf(attackedPlayer), 1)
+  }
+}
+
 
 
 function onRemovePlayer(data){
@@ -91,5 +98,5 @@ function playerById (id) {
   return identifiedPlayer.length > 0 ? identifiedPlayer[0] : false
 }
 
-const playerHandlers = {onNewPlayer,localPlayer,onMovePlayer,onShoot,onRemovePlayer,onSocketDisconnect, remotePlayers, movePlayerOperation}
+const playerHandlers = {onNewPlayer,localPlayer,onMovePlayer,onShoot,onRemovePlayer,onSocketDisconnect, remotePlayers, movePlayerOperation, onPlayerAttacked}
 export default playerHandlers

@@ -1,7 +1,6 @@
 const io = global._io
 const Game = global._Game
 
-
 const Player = require('../models/Player').Player
 const Bullet = require('../models/Bullet').Bullet
 const Enemy = require('../models/Enemy').Enemy
@@ -12,24 +11,7 @@ let numEnemies = 5
 const gameWidth = 1200
 const gameHeight = 1000
 
-//enable pathfinding
-// const PF = require('pathfinding')
-// const grid = new PF.Grid(gameWidth,gameHeight)
-//
-// const finder = new PF.AStarFinder({
-//   allowDiagonal: true,
-//   dontCrossCorners: true
-// })
-
-// const finder = new PF.AStarFinder()
-
 const gameSessions = Game.gameSessions
-
-//https://www.codementor.io/codementorteam/socketio-multi-user-app-matchmaking-game-server-2-uexmnux4p
-
-//https://www.npmjs.com/package/node-pathfinding
-// ^node pathfinder
-
 
 module.exports = {
   onNewPlayer,
@@ -38,13 +20,10 @@ module.exports = {
   onMoveEnemy,
   onShoot,
   onEnemyHit,
+  onPlayerAttacked,
   onWaveComplete,
   onSocketDisconnect
 }
-
-
-//identify the proper game room --roomID
-//io.sockets.in()
 
 function onNewPlayer(data) {
   const newPlayer = new Player(data.x, data.y)
@@ -199,7 +178,25 @@ function onEnemyHit(data){
 }
 
 function onPlayerAttacked(data){
+  const attackedPlayer = playerById(data.id,data.gameID)
+  const roomID = data.gameID.toString()
 
+  if(!attackedPlayer) {
+    console.log("Player (attacked) not found: " + data.id)
+    return
+  }
+
+  attackedPlayer.health = data.health
+  attackedPlayer.lives = data.lives
+
+  console.log('player attacked called', attackedPlayer)
+
+
+  if(attackedPlayer.health === 0 && attackedPlayer.lives === 0){
+    return gameSessions[roomID].players.splice(gameSessions[roomID].player.indexOf(attackedPlayer),1)
+  }
+
+  return io.sockets.in(roomID).emit('playerAttacked', {id: attackedPlayer.id, health: attackedPlayer.health, lives: attackedPlayer.lives, gameID: roomID})
 }
 
 

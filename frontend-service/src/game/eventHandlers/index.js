@@ -38,6 +38,9 @@ function setEventHandlers(){
   // Socket disconnection
   socket.on('disconnect', playerHandlers.onSocketDisconnect)
 
+  socket.on('playerAttacked', playerHandlers.onPlayerAttacked)
+
+
 
   /** ENEMY EVENTS */
   // add enemies to the game
@@ -48,6 +51,8 @@ function setEventHandlers(){
 
   //bulletHitPlayer(data);
   socket.on('enemyHit', enemyHandlers.onEnemyHit)
+
+
 
   socket.on('test', (data) => console.log('test', data))
 }
