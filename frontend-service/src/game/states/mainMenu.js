@@ -16,7 +16,7 @@ GameMenu.prototype = {
 
     // title text
     let text = "Robots VS Zombies"
-    let style = { font: "80px Arial", fill: "#FF0000", align: "center" } //#fff
+    let style = { font: "80px Orbitron", fill: "#FF0000", align: "center" } //#fff Arial
     const title = this.game.add.text(this.game.width/2, this.game.height - 650, text, style)
     title.anchor.set(0.5)
 

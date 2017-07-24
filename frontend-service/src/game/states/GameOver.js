@@ -1,5 +1,7 @@
 import CivZombie from '../main'
-import game from './game'
+
+//const score = CivZombie.global.score
+const score = 0
 
 const GameOver = function () {};
 
@@ -12,7 +14,7 @@ GameOver.prototype = {
     this.game.background.autoScroll(-20, 0)
 
     //start game text
-    let text = "GAME OVER"
+    let text = `GAME OVER \n You scored: ${score}`
     let style = { font: "30px Arial", fill: "#fff", align: "center" }
     const t = this.game.add.text(this.game.width/2, this.game.height/2, text, style)
     t.anchor.set(0.5)
@@ -28,7 +30,8 @@ GameOver.prototype = {
   },
 
   startOver: function () {
-    CivZombie.game.state.start('MainMenu')
+    CivZombie.game.state.start('Game') //'mainMenu'
+    //currently blocked by the duplicate player check
   }
 
 }

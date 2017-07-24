@@ -31,14 +31,12 @@ import playerHandlers from '../eventHandlers/playerHandlers'
 
   const gameWidth = 1000
   const gameHeight = 800
-  const score = 0
   const enemyMap = []
   const numEnemies = 15
 
   const globalGameID = []
   let currentWave = 0
   let enemiesAdded = false // make sure waves dont start excessively
-
 
   /* ----- Start Game Instance ----- */
   const game = {
@@ -48,7 +46,6 @@ import playerHandlers from '../eventHandlers/playerHandlers'
     update: update,
     render: render
   }
-
 
   function init(){
     game.stage.disableVisibilityChange = true
@@ -62,7 +59,7 @@ import playerHandlers from '../eventHandlers/playerHandlers'
     game.load.image('forestTiles', './assets/tilemaps/trees-and-bushes.png')
     game.load.image('tiles', './assets/tilemaps/tmw_desert_spacing.png')
 
-    game.load.image('FrontRobot', './assets/frontRobot.png') //Zombie_Sprite CZombie
+    game.load.image('FrontRobot', './assets/FrontRobot.png') // frontRobot for smaller version
     game.load.image('backRobot', './assets/backRobot.png') //Zombie_Sprite CZombie
 
     game.load.image('zombie', './assets/CZombieMini.png') //Zombie_Sprite CZombie
@@ -196,7 +193,6 @@ import playerHandlers from '../eventHandlers/playerHandlers'
   function addScore(){
     game.score = 0
     game.scoreBuffer = 0
-    // game.add.text(16, 16, 'score: 0', { fontSize: '32px', fill: '#111' })
 
     const scoreFont = "100px Indie Flower"
 
@@ -357,7 +353,6 @@ import playerHandlers from '../eventHandlers/playerHandlers'
     const damage = bullet.parent.damage
     enemy.takeDamage(damage)
     bullet.kill()
-    console.log("Hit Zombie")
     socket.emit('enemyHit',{id: enemy.id, damage: damage, gameID: enemy.gameID})
     enemiesAdded = true
     const score = damage
@@ -370,8 +365,6 @@ import playerHandlers from '../eventHandlers/playerHandlers'
     if (game.time.time < enemy.nextAttack) return
     else {
       enemy.nextAttack = game.time.time + enemy.attackSpeed;
-      console.log('collisions!',player.health, enemy.damage)
-      console.log(enemy.nextAttack)
       player.takeDamage(enemy.damage)
       enemyAtackAnimation(enemy)
       socket.emit('playerAttacked', {id: player.id, health: player.health, lives: player.lives, gameID: player.gameID})
@@ -402,6 +395,7 @@ import playerHandlers from '../eventHandlers/playerHandlers'
   function incrementScore(){
     game.score += 1
     game.scoreLabel.text = game.score
+    CivZombie.global.score = game.score
   }
 
 
@@ -439,14 +433,14 @@ import playerHandlers from '../eventHandlers/playerHandlers'
   function checkTimeSinceLastMove(enemy){
     if(game.time.time < enemy.nextMove) return false
     else {
-      //add a 1000 milisecond delay between movements
+      //add a 500 milisecond delay between movements
       enemy.nextMove = game.time.time + 500;
       return true
     }
   }
 
 function checkGameOver(){
-  if(game.score >= 9000 || localPlayer.lives === 0 && enemiesAdded){
+  if(localPlayer.lives < 0 || localPlayer.lives === 0 && enemiesAdded){
     // refresh socket after game over: socket.emit('disconnect')
     socket.emit('gameOver', {gameID: globalGameID[0]})
     CivZombie.game.state.start('GameOver')
@@ -486,7 +480,7 @@ function announceLevel(){
     const player = game.playerMap[data.pid];
     const weapon = player.weapons.children[player.currentWeapon]
     const bullet = weapon.children[data.id]
-    console.log('bullets', bullet)
+    console.log('bullets', data)
     bullet.reset(data.x,data.y)
     bullet.rotation = data.r
 

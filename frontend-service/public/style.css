@@ -1,15 +1,20 @@
 .container {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: center;
+  /*display: flex;*/
+  /*flex-direction: row;*/
+  /*justify-content: space-between;*/
+  /*align-items: center;*/
   width: 100%;
 }
 
 #game-container {
-  display: flex;
-  position: auto;
+  /*display: flex;*/
+  /*position: auto;*/
+  /*display: flex;*/
   width: 100%;
+}
+
+#game-container canvas {
+  margin: 0 auto !important;
 }
 
 body {
