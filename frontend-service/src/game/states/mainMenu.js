@@ -16,22 +16,22 @@ GameMenu.prototype = {
 
     // title text
     let text = "Robots VS Zombies"
-    let style = { font: "80px Orbitron", fill: "#FF0000", align: "center" } //#fff Arial
+    let style = { font: "90px Orbitron", fill: "#FF0000", align: "center" } //#fff Arial
     const title = this.game.add.text(this.game.width/2, this.game.height - 650, text, style)
     title.anchor.set(0.5)
 
     //start game text
     text = "Click here to begin"
-    style = { font: "30px Arial", fill: "#fff", align: "center" }
-    const t = this.game.add.text(this.game.width/2, this.game.height/2, text, style)
+    style = { font: "40px Orbitron", fill: "#fff", align: "center" }
+    const t = this.game.add.text(this.game.width/2, this.game.height/2 + 100, text, style)
     t.anchor.set(0.5)
 
     //highest score
     //text = "Highest score: " + this.game.score
     text = 'Use WASD to Move, Mouse to Aim, Click or Space to Fire, \n Enter to change weapon'
-    style = { font: "15px Arial", fill: "#fff", align: "center" }
+    style = { font: "25px Orbitron", fill: "#fff", align: "center" }
 
-    const h = this.game.add.text(this.game.width/2, this.game.height/2 + 50, text, style)
+    const h = this.game.add.text(this.game.width/2, this.game.height/2, text, style)
     h.anchor.set(0.5)
 
     t.inputEnabled = true

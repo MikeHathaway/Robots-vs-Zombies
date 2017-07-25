@@ -1,11 +1,10 @@
 
 # Rebuild Civilization. Overcome the Zombies.
 
- <!-- focused upon rebuilding after the Zombies appeared -->
 
 # [Play Now](frontend-service-zmxlosghyt.now.sh)
 
-Continuously running zombie survial mode. Scales with the number of players
+Top down, multiplayer, zombie survival shooter.
 
 # Realtime Infrastructure
 
@@ -36,6 +35,9 @@ Mike Hathaway
 *  https://medium.com/the-backlog-by-nimbo-x/creating-a-serverless-web-app-with-node-js-ember-js-and-paas-services-hyperdev-surge-sh-8e3ebe263a76
 
 * https://www.joshmorony.com/creating-animated-scoring-in-an-html5-phaser-game/
+
+* Buch for Space themed terrain http://blog-buch.rhcloud.com
+
 
 ## License
 

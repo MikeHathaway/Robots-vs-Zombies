@@ -59,7 +59,7 @@ import playerHandlers from '../eventHandlers/playerHandlers'
     game.load.image('forestTiles', './assets/tilemaps/trees-and-bushes.png')
     game.load.image('tiles', './assets/tilemaps/tmw_desert_spacing.png')
 
-    game.load.image('FrontRobot', './assets/FrontRobot.png') // frontRobot for smaller version
+    game.load.image('FrontRobot', './assets/frontRobot.png') // frontRobot for smaller version
     game.load.image('backRobot', './assets/backRobot.png') //Zombie_Sprite CZombie
 
     game.load.image('zombie', './assets/CZombieMini.png') //Zombie_Sprite CZombie
@@ -171,7 +171,7 @@ import playerHandlers from '../eventHandlers/playerHandlers'
   }
 
   function createScoreAnimation(x,y,message,score){
-    const scoreFont = "20px Arial"
+    const scoreFont = "20px Orbitron"
 
     //Create a new label for the score
     const scoreAnimation = game.add.text(x, y, message, {font: scoreFont, fill: "#ff0000", stroke: "#ffffff", strokeThickness: 5})
@@ -179,7 +179,8 @@ import playerHandlers from '../eventHandlers/playerHandlers'
     scoreAnimation.align = 'center'
 
     //Tween this score label to the total score label
-    const scoreTween = game.add.tween(scoreAnimation).to({x:game.world.centerX, y: 50}, 800, Phaser.Easing.Exponential.In, true)
+    // const scoreTween = game.add.tween(scoreAnimation).to({x:game.camera.width -230, y: 0}, 800, Phaser.Easing.Exponential.In, true)
+    const scoreTween = game.add.tween(scoreAnimation).to({x:game.world.centerX, y: 0}, 800, Phaser.Easing.Exponential.In, true)
 
     //When the animation finishes, destroy this score label, trigger the total score labels animation and add the score
     scoreTween.onComplete.add(function(){
@@ -194,10 +195,10 @@ import playerHandlers from '../eventHandlers/playerHandlers'
     game.score = 0
     game.scoreBuffer = 0
 
-    const scoreFont = "100px Indie Flower"
+    const scoreFont = "75px Orbitron"//"100px Indie Flower"
 
-    //Create the score label -> may want to move away from adding it directly on game object?
-    game.scoreLabel = game.add.text(game.camera.width / 2 - 30, 50, '0', {font: scoreFont, fill: "#ff0000", stroke: "#535353", strokeThickness: 15})
+    // game.camera.width / 2 - 50, 50 //game.camera.width - 225, 0
+    game.scoreLabel = game.add.text(game.camera.width / 2 - 50, 0, '0', {font: scoreFont, fill: "#ff0000", stroke: "#535353", strokeThickness: 10})
     // scoreLabel.anchor.setTo(0.5, 0)
     game.scoreLabel.align = 'center'
     game.scoreLabel.fixedToCamera = true;
@@ -395,7 +396,7 @@ import playerHandlers from '../eventHandlers/playerHandlers'
   function incrementScore(){
     game.score += 1
     game.scoreLabel.text = game.score
-    CivZombie.global.score = game.score
+    window._score = game.score
   }
 
 
@@ -457,11 +458,12 @@ function checkWaveComplete(){
     // socket.emit('waveComplete', {gameID: globalGameID[0], curWave: currentWave})
     console.log('WAVE COMPLETE!!!!!!')
     enemiesAdded = false
+    window._level = currentWave
   }
 }
 
 function announceLevel(){
-  const txt = game.add.text(game.camera.width / 2, game.camera.height / 2, `WAVE ${currentWave} Complete`, {font: "60px Arial", fill: "#ffffff", stroke: '#000000', strokeThickness: 7});
+  const txt = game.add.text(game.camera.width / 2, game.camera.height / 2, `WAVE ${currentWave} Complete`, {font: "60px Orbitron", fill: "#ffffff", stroke: '#000000', strokeThickness: 7});
   txt.anchor.setTo(0.5, 0.5);
   txt.fixedToCamera = true;
   setTimeout(() => txt.destroy(),3000)

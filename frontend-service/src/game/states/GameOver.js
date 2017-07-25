@@ -1,8 +1,5 @@
 import CivZombie from '../main'
 
-//const score = CivZombie.global.score
-const score = 0
-
 const GameOver = function () {};
 
 GameOver.prototype = {
@@ -14,19 +11,19 @@ GameOver.prototype = {
     this.game.background.autoScroll(-20, 0)
 
     //start game text
-    let text = `GAME OVER \n You scored: ${score}`
-    let style = { font: "30px Arial", fill: "#fff", align: "center" }
-    const t = this.game.add.text(this.game.width/2, this.game.height/2, text, style)
+    let text = `GAME OVER`
+    let style = { font: "90px Orbitron", fill: "#FF0000", align: "center" }
+    const t = this.game.add.text(this.game.width/2, this.game.height - 650, text, style)
     t.anchor.set(0.5)
 
-    text = 'Restart'
-    style = { font: "15px Arial", fill: "#fff", align: "center" }
+    text = `Score: ${window._score || 0} \nLevel: ${window._level || 1} `
+    style = { font: "45px Orbitron", fill: "#fff", align: "center" }
 
-    const h = this.game.add.text(this.game.width/2, this.game.height/2 + 50, text, style)
+    const h = this.game.add.text(this.game.width/2, this.game.height/2 + 100, text, style)
     h.anchor.set(0.5)
 
-    h.inputEnabled = true
-    h.events.onInputDown.addOnce(this.startOver, this)
+    t.inputEnabled = true
+    t.events.onInputDown.addOnce(this.startOver, this)
   },
 
   startOver: function () {
