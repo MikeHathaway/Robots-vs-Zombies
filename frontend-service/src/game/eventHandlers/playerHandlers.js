@@ -19,14 +19,14 @@ function onNewPlayer(data){
     return localPlayer(game,data)
   }
   else if(remotePlayers.length > 0){
-    const newPlayer = new Player(game,data.x,data.y,'FrontRobot',100,5,game.weapons,data.id, data.gameID)
+    const newPlayer = new Player(game,data.x,data.y,'frontRobot',100,5,game.weapons,data.id, data.gameID)
     remotePlayers.push(newPlayer)
     playerObs.emit('addPlayer', newPlayer)
   }
 }
 
 function localPlayer(game,data){
-  const newPlayer = new Player(game,data.x,data.y,'FrontRobot',100,5,game.weapons,data.id,data.gameID)
+  const newPlayer = new Player(game,data.x,data.y,'frontRobot',100,5,game.weapons,data.id,data.gameID)
   playerObs.emit('addPlayer', newPlayer)
   remotePlayers.push(newPlayer)
 

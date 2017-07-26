@@ -59,7 +59,7 @@ import playerHandlers from '../eventHandlers/playerHandlers'
     game.load.image('forestTiles', './assets/tilemaps/trees-and-bushes.png')
     game.load.image('tiles', './assets/tilemaps/tmw_desert_spacing.png')
 
-    game.load.image('FrontRobot', './assets/frontRobot.png') // frontRobot for smaller version
+    game.load.image('frontRobot', './assets/frontRobot.png') // frontRobot for smaller version
     game.load.image('backRobot', './assets/backRobot.png') //Zombie_Sprite CZombie
 
     game.load.image('zombie', './assets/CZombieMini.png') //Zombie_Sprite CZombie
@@ -451,6 +451,7 @@ function checkGameOver(){
 
 function checkWaveComplete(){
   if(enemies.children.length === 0 && globalGameID[0] && enemiesAdded) {
+    // currentWave++
     announceLevel()
     currentWave++
     setTimeout(() => socket.emit('waveComplete', {gameID: globalGameID[0], curWave: currentWave}), 3000)
