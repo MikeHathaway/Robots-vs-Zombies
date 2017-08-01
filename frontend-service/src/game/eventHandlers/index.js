@@ -17,11 +17,11 @@ function setEventHandlers(){
   // trigger connection to game server
   socket.emit('joinGame', {data: 'Start Game'})
 
-  // receive new game data from server
-  socket.on('newGame', onNewGame)
-
 
   /** PLAYER EVENTS */
+  // receive new game data from server
+  socket.on('newGame', playerHandlers.onNewGame)
+
   // New player message received
   socket.on('newPlayer', playerHandlers.onNewPlayer)
 
@@ -48,25 +48,10 @@ function setEventHandlers(){
   // Enemy move message received
   socket.on('moveEnemy', enemyHandlers.onMoveEnemy)
 
-  //bulletHitPlayer(data);
   socket.on('enemyHit', enemyHandlers.onEnemyHit)
-
-
 
   socket.on('test', (data) => console.log('test', data))
 }
-
-
-function sendNewPlayer(data,game){
-  return socket.emit('newPlayer', {x: game.startX, y: game.startY, id: data.id, gameID: data.gameID})
-}
-
-function onNewGame(data){
-  console.log('new game data', data, game.startX, game.startY)
-  sendNewPlayer(data,game)
-}
-
-
 
 
 export {socket, setEventHandlers, playerObs}

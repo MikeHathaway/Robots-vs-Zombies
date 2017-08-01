@@ -2,3 +2,4 @@ node_modules
 package-lock.json
 frontend-service/public/build/game.js
 zombieSheet
+artillery_report*

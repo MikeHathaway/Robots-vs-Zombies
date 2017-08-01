@@ -9,7 +9,6 @@ const enemyMap = []
 
 /** ADD ENEMIES */
 function onNewEnemies(data){
-  console.log('new enemies to add!', data.enemyList, enemyMap.length,data.level)
   if(enemyMap.length < data.enemyList.length) {
     playerObs.emit('addEnemies', data)
   }
@@ -25,7 +24,6 @@ function addEnemyOperation(enemyData){
   if(enemyMap.length < 5){
     enemyData.enemyList.forEach(enemy => {
       const newEnemy = new Enemy(game,enemy.x,enemy.y,enemy.type,enemy.id,enemy.gameID)
-      console.log('level!',enemyData.level)
       playerObs.emit('enemyGroup',{enemy: newEnemy, level: enemyData.level})
       enemyMap.push(newEnemy)
     })
@@ -47,7 +45,7 @@ function onMoveEnemy(data){
   const moveEnemy = enemyById(data.id);
 
   if (!moveEnemy) {
-      console.log("Enemy (move) not found: " + data.id);
+      console.error("Enemy (move) not found: " + data.id);
       return;
   }
   // playerObs.emit('movingEnemy', {id: moveEnemy.id, x: moveEnemy.body.x, y: moveEnemy.body.y})
@@ -72,7 +70,6 @@ function enemyById (id) {
 /** SHOOT ENEMIES */
 function onEnemyHit(data){
   const enemy = enemyById(data.id)
-  console.log('enemy hit',data)
 
   if(data.alive){
     enemy.health = data.health

@@ -1,0 +1,14 @@
+{
+  "name": "test-service",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "artillery run game.yml"
+  },
+  "author": "Mike Hathaway",
+  "license": "ISC",
+  "dependencies": {
+    "artillery": "^1.6.0-2"
+  }
+}

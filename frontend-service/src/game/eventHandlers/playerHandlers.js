@@ -5,13 +5,23 @@ import game from '../states/game'
 const remotePlayers = []
 
 
+function onNewGame(data){
+  console.log('new game data', data, game.startX, game.startY)
+  sendNewPlayer(data,game)
+}
+
+function sendNewPlayer(data,game){
+  return socket.emit('newPlayer', {x: game.startX, y: game.startY, id: data.id, gameID: data.gameID})
+}
+
+
 function onNewPlayer(data){
   console.log('New player connected:', data, remotePlayers)
 
   const duplicate = playerById(data.id)
 
   if (duplicate) {
-    console.log('Duplicate player!')
+    console.error('Duplicate player!')
     return
   }
 
@@ -31,7 +41,6 @@ function localPlayer(game,data){
   remotePlayers.push(newPlayer)
 
   /** Add enemies if local player is only player in the game */
-  console.log('enemy spawn points',game.startX, game.startY)
   socket.emit('newEnemies', {number: 5,x: game.startX, y: game.startY, gameID: data.gameID})
 }
 
@@ -71,12 +80,10 @@ function onPlayerAttacked(data){
 
 
 function onRemovePlayer(data){
-  console.log('REMOVE PLAYER', data)
   const removePlayer = playerById(data.playerID)
 
-
   if (!removePlayer) {
-    console.log('Player (remove) not found: ', data.playerID)
+    console.error('Player (remove) not found: ', data.playerID)
     return
   }
 
@@ -86,7 +93,6 @@ function onRemovePlayer(data){
 }
 
 function onSocketDisconnect(){
-  console.log(this)
   console.log('Disconnected from socket server')
 }
 
@@ -96,5 +102,5 @@ function playerById (id) {
   return identifiedPlayer.length > 0 ? identifiedPlayer[0] : false
 }
 
-const playerHandlers = {onNewPlayer,localPlayer,onMovePlayer,onShoot,onRemovePlayer,onSocketDisconnect, remotePlayers, movePlayerOperation, onPlayerAttacked}
+const playerHandlers = {onNewGame,onNewPlayer,localPlayer,onMovePlayer,onShoot,onRemovePlayer,onSocketDisconnect, remotePlayers, movePlayerOperation, onPlayerAttacked}
 export default playerHandlers
