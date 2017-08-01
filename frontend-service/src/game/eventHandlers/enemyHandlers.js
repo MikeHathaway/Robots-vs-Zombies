@@ -9,7 +9,7 @@ const enemyMap = []
 
 /** ADD ENEMIES */
 function onNewEnemies(data){
-  console.log('new enemies to add!', data.enemyList, enemyMap.length)
+  console.log('new enemies to add!', data.enemyList, enemyMap.length,data.level)
   if(enemyMap.length < data.enemyList.length) {
     playerObs.emit('addEnemies', data)
   }
@@ -25,7 +25,8 @@ function addEnemyOperation(enemyData){
   if(enemyMap.length < 5){
     enemyData.enemyList.forEach(enemy => {
       const newEnemy = new Enemy(game,enemy.x,enemy.y,enemy.type,enemy.id,enemy.gameID)
-      playerObs.emit('enemyGroup',newEnemy)
+      console.log('level!',enemyData.level)
+      playerObs.emit('enemyGroup',{enemy: newEnemy, level: enemyData.level})
       enemyMap.push(newEnemy)
     })
   }

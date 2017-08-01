@@ -51,3 +51,16 @@ export class LazerBeam extends Weapon {
     this.addBullets(this,game,type,120)
   }
 }
+
+
+/* ----- Heart Weapon ----- */
+export class HeartGun extends Weapon {
+  constructor(game,type){
+    super(game)
+    this.nextFire = 0
+    this.bulletSpeed = 600;
+    this.fireRate = 50
+    this.damage = 10
+    this.addBullets(this,game,type,120)
+  }
+}

@@ -36,8 +36,6 @@ class Player extends Phaser.Sprite{
   takeDamage(damage){
     this.health -= damage
 
-    console.log('player health!',this.health)
-
     if(this.health <= 0){
       this.health = 0
       this.alive = false

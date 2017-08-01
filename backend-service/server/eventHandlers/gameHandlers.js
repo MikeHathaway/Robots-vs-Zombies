@@ -47,7 +47,7 @@ function onNewPlayer(data) {
     io.sockets.in(roomID).emit('newPlayer', {id: newPlayer.id, x: newPlayer.getX(), y: newPlayer.getY(), gameID: newPlayer.gameID})
 
     // send enemies if joining existing game
-    io.sockets.in(roomID).emit('newEnemies', {enemyList: gameSessions[newPlayer.gameID].enemies})
+    io.sockets.in(roomID).emit('newEnemies', {enemyList: gameSessions[newPlayer.gameID].enemies, level: gameSessions[newPlayer.gameID].level})
 
     gameSessions[newPlayer.gameID].players.forEach(player => {
       this.in(roomID).emit('newPlayer', {id: player.id, x: player.getX(), y: player.getY(), gameID: newPlayer.gameID})
@@ -64,13 +64,13 @@ function onNewEnemies(data){
   const currentGame = gameSessions[data.gameID.toString()]
   const roomID = data.gameID.toString()
   //ensure that enemies are only added once
-  console.log('on new enemies called',data.number)
+  console.log('on new enemies called',data.number, currentGame)
   if(currentGame.enemies.length === 0){
     addEnemies(data)
-    return io.sockets.in(roomID).emit('newEnemies', {enemyList: currentGame.enemies})
+    return io.sockets.in(roomID).emit('newEnemies', {enemyList: currentGame.enemies, level: currentGame.level})
   }
   else if(currentGame.enemies.length <= data.number){
-    return io.sockets.in(roomID).emit('newEnemies', {enemyList: currentGame.enemies})
+    return io.sockets.in(roomID).emit('newEnemies', {enemyList: currentGame.enemies, level: currentGame.level})
   }
 }
 
@@ -231,7 +231,7 @@ function onWaveComplete(data){
 
     console.log('Wave Complete', data)
 
-    io.sockets.in(roomID).emit('newEnemies', {enemyList: gameSessions[roomID].enemies, message: `LEVEL ${gameSessions[roomID].level}`})
+    io.sockets.in(roomID).emit('newEnemies', {enemyList: gameSessions[roomID].enemies, level: gameSessions[roomID].level})
   }
 }
 

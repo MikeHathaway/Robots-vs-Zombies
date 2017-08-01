@@ -1,6 +1,6 @@
 /* ----- Model Dependencies ----- */
 import Bullet from '../models/bullet'
-import {SingleBullet, LazerBeam} from '../models/weapon'
+import {SingleBullet, LazerBeam, HeartGun} from '../models/weapon'
 import Enemy from '../models/enemy'
 import Player from '../models/player'
 
@@ -66,6 +66,7 @@ import playerHandlers from '../eventHandlers/playerHandlers'
     game.load.image('Zombie_Sprite', './assets/Zombie_Sprite.png') //Zombie_Sprite CZombie
     game.load.image('bullet', './assets/singleBullet.png')
     game.load.image('lazer', './assets/lazer.png')
+    game.load.image('heart', './assets/heart.png')
     game.load.spritesheet('zombies', './assets/zombie_sheet.png', 32, 48)
 
     game.load.spritesheet('zombieAttack', './assets/zombieSheet1.png', 64, 64) // [32,48] //zombies seem to be too big
@@ -83,8 +84,6 @@ import playerHandlers from '../eventHandlers/playerHandlers'
 
     setEventHandlers() // Start listening for events
 
-    // checkForNewPlayers()
-    addEnemiesToGroup()
     enemyHandlers.addRemoteEnemies()
   }
 
@@ -94,7 +93,6 @@ import playerHandlers from '../eventHandlers/playerHandlers'
     if (localPlayer && enemies) checkGameOver()
     if (localPlayer && enemies) checkEnemyActions()
     if (localPlayer && enemies) checkWaveComplete()
-
 
     checkScore()
   }
@@ -220,6 +218,7 @@ import playerHandlers from '../eventHandlers/playerHandlers'
     weapons = game.add.group()
     weapons.add(new SingleBullet(game,'bullet'))
     weapons.add(new LazerBeam(game,'lazer'))
+    weapons.add(new HeartGun(game,'heart'))
     game.weapons = weapons
 
     return weapons
@@ -322,8 +321,13 @@ import playerHandlers from '../eventHandlers/playerHandlers'
 
 
   function changeWeapon(player){
-    if(player.currentWeapon === 1){
+    if(player.currentWeapon === 2){
       player.currentWeapon = 0
+      return player
+    }
+
+    if(player.currentWeapon === 1){
+      player.currentWeapon = 2
       return player
     }
 
@@ -476,14 +480,10 @@ function announceLevel(){
    =============== MULTIPLAYER FUNCTIONS ===============
 
    =============== =============== =============== */
-
-   //add rotation back in!
-
   function shootOperation(data){
     const player = game.playerMap[data.pid];
     const weapon = player.weapons.children[player.currentWeapon]
     const bullet = weapon.children[data.id]
-    console.log('bullets', data)
     bullet.reset(data.x,data.y)
     bullet.rotation = data.r
 
@@ -522,6 +522,16 @@ function announceLevel(){
     delete game.playerMap[removePlayer.id]
   }
 
+  function errorHandler(error){
+    console.error('Event Emitter Error: ',error)
+  }
+
+  function addEnemiesToGroup(data){
+    console.log(data)
+    currentWave = data.level
+    return enemies.add(data.enemy)
+  }
+
 
 
   /** Event Listeners outside of update loop*/
@@ -530,13 +540,8 @@ function announceLevel(){
   playerObs.on('shootPlayer', shootOperation)
   playerObs.on('movingEnemy', enemyHandlers.moveEnemyOperation)
   playerObs.on('addPlayer', addPlayersToGame)
-
-  function addEnemiesToGroup(){
-    playerObs.on('enemyGroup',(data) => {
-      console.log('enemy data!!',data)
-      return enemies.add(data)
-    })
-  }
+  playerObs.on('enemyGroup',addEnemiesToGroup)
+  playerObs.on('error', errorHandler)
 
 
 
