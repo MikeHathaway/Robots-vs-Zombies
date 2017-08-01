@@ -6,7 +6,8 @@ const Game = global._Game
 module.exports = {
   onNewGame,
   onJoinGame,
-  onGameOver
+  onGameOver,
+  handleDisconnecting
 }
 
 
@@ -115,5 +116,12 @@ function onGameOver(data){
   io.sockets.in(roomID).emit('gameOver', {gameID: data.gameID})
 
   Game.setRoomID()
+}
 
+
+function handleDisconnecting(){
+  const id = this.id
+  const currentRoom = Object.keys(this.rooms)[0]
+  
+  io.sockets.in(currentRoom).emit('removePlayer', {playerID: id, gameID: currentRoom})
 }

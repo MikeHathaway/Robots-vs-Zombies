@@ -507,7 +507,6 @@ function announceLevel(){
 
 
     if(!localPlayer) {
-      console.log('setting local player', player.id)
       localPlayer = player
       globalGameID.push(localPlayer.gameID)
 
@@ -518,6 +517,7 @@ function announceLevel(){
 
 
   function removeOperations(removePlayer){
+    console.log('removing player!', removePlayer)
     removePlayer.kill()
     delete game.playerMap[removePlayer.id]
   }
@@ -527,7 +527,6 @@ function announceLevel(){
   }
 
   function addEnemiesToGroup(data){
-    console.log(data)
     currentWave = data.level
     return enemies.add(data.enemy)
   }

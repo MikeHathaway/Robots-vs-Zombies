@@ -63,8 +63,6 @@ function onPlayerAttacked(data){
   attackedPlayer.health = data.health
   attackedPlayer.lives = data.lives
 
-  console.log('ATTACKED PLAYER!', attackedPlayer)
-
   if(attackedPlayer.lives === 0){
     remotePlayers.splice(remotePlayers.indexOf(attackedPlayer), 1)
   }
@@ -73,10 +71,12 @@ function onPlayerAttacked(data){
 
 
 function onRemovePlayer(data){
-  const removePlayer = playerById(data.id)
+  console.log('REMOVE PLAYER', data)
+  const removePlayer = playerById(data.playerID)
+
 
   if (!removePlayer) {
-    console.log('Player (remove) not found: ', data.id)
+    console.log('Player (remove) not found: ', data.playerID)
     return
   }
 
@@ -86,6 +86,7 @@ function onRemovePlayer(data){
 }
 
 function onSocketDisconnect(){
+  console.log(this)
   console.log('Disconnected from socket server')
 }
 

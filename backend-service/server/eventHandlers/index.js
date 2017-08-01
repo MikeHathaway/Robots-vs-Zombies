@@ -27,9 +27,12 @@ function setEventHandlers(client){
   client.on('joinGame', lobbyHandlers.onJoinGame)
   client.on('newGame', lobbyHandlers.onNewGame)
   client.on('gameOver', lobbyHandlers.onGameOver)
+  client.on('disconnecting', lobbyHandlers.handleDisconnecting)
+
   client.on('disconnect', gameHandlers.onSocketDisconnect)
 
   client.on('test', (data) => { console.log('test successful',data)})
 }
+
 
 //https://gist.github.com/crtr0/2896891
