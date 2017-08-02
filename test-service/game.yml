@@ -13,14 +13,14 @@ scenarios:
           url: "/test"
       -
         emit:
-          channel: "echo"
+          channel: "0"
           data: "hello"
           response:
             channel: "echoed"
             data: "hello"
       -
         emit:
-          channel: "echo"
+          channel: "0"
           data: "world"
           response:
             channel: "echoed"

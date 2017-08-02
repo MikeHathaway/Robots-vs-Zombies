@@ -5,7 +5,7 @@ const Player = require('../models/Player').Player
 const Bullet = require('../models/Bullet').Bullet
 const Enemy = require('../models/Enemy').Enemy
 
-const players = []
+// const players = []
 let numEnemies = 5
 
 const gameWidth = 1200
@@ -21,8 +21,7 @@ module.exports = {
   onShoot,
   onEnemyHit,
   onPlayerAttacked,
-  onWaveComplete,
-  onSocketDisconnect
+  onWaveComplete
 }
 
 function onNewPlayer(data) {
@@ -40,10 +39,8 @@ function onNewPlayer(data) {
     return gameSessions[newPlayer.gameID].players.push(newPlayer);
   }
 
-  //existing game - make sure all players are in sync with eachother
   else if(gameSessions[newPlayer.gameID].players.length < 4){
     console.log('joining existing game')
-    //console.log('joining existing game', gameSessions[newPlayer.gameID])
     io.sockets.in(roomID).emit('newPlayer', {id: newPlayer.id, x: newPlayer.getX(), y: newPlayer.getY(), gameID: newPlayer.gameID})
 
     // send enemies if joining existing game
@@ -117,8 +114,6 @@ function onMoveEnemy(data){
         return
     }
 
-    console.log('moving enemy!')
-
     moveEnemy.setX(data.x)
     moveEnemy.setY(data.y)
 
@@ -160,8 +155,6 @@ function onEnemyHit(data){
       return
   }
 
-  console.log('ENEMY HIT!!!!!!',hitEnemy.health, data.damage)
-
   hitEnemy.health -= data.damage
 
   if(hitEnemy.health <= 0){
@@ -184,40 +177,12 @@ function onPlayerAttacked(data){
   attackedPlayer.health = data.health
   attackedPlayer.lives = data.lives
 
-  console.log('player attacked called', attackedPlayer)
-
-
   if(attackedPlayer.health === 0 && attackedPlayer.lives === 0){
     return gameSessions[roomID].players.splice(gameSessions[roomID].player.indexOf(attackedPlayer),1)
   }
 
   return io.sockets.in(roomID).emit('playerAttacked', {id: attackedPlayer.id, health: attackedPlayer.health, lives: attackedPlayer.lives, gameID: roomID})
 }
-
-
-// ADD GAME ID to socket disconnect
-function onSocketDisconnect(){
-  console.log("Player has disconnected: " + this.id, this.rooms)
-  const socket = this
-
-  //socket.rooms should provide access to the current sockets room
-  setTimeout(() => console.log(socket.rooms),10000)
-
-  const removePlayer = playerById(this.id)
-
-  if (!removePlayer) {
-      console.log("Player not found: " + this.id)
-      return
-  }
-
-  //socket.broadcast.to(roomID).emit('removePlayer', {id: removePlayer.id})
-  this.broadcast.emit('removePlayer', {id: removePlayer.id})
-  players.splice(players.indexOf(removePlayer), 1)
-}
-
-
-
-
 
 
 //new enemies appear to go through but not properly added

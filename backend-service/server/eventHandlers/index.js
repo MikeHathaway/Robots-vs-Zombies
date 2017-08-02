@@ -9,30 +9,27 @@ module.exports = function(io){
 
 }
 
-function setEventHandlers(client){
+function setEventHandlers(socket){
   console.log('connected!')
 
   /** GAME HANDLERS */
-  client.on('newPlayer', gameHandlers.onNewPlayer)
-  client.on('newEnemies', gameHandlers.onNewEnemies)
-  client.on('movePlayer', gameHandlers.onMovePlayer)
-  client.on('moveEnemy', gameHandlers.onMoveEnemy)
-  client.on('shoot', gameHandlers.onShoot)
-  client.on('enemyHit', gameHandlers.onEnemyHit)
-  client.on('playerAttacked', gameHandlers.onPlayerAttacked)
-  client.on('waveComplete', gameHandlers.onWaveComplete)
+  socket.on('newPlayer', gameHandlers.onNewPlayer)
+  socket.on('newEnemies', gameHandlers.onNewEnemies)
+  socket.on('movePlayer', gameHandlers.onMovePlayer)
+  socket.on('moveEnemy', gameHandlers.onMoveEnemy)
+  socket.on('shoot', gameHandlers.onShoot)
+  socket.on('enemyHit', gameHandlers.onEnemyHit)
+  socket.on('playerAttacked', gameHandlers.onPlayerAttacked)
+  socket.on('waveComplete', gameHandlers.onWaveComplete)
 
 
   /** LOBBY HANDLERS */
-  client.on('joinGame', lobbyHandlers.onJoinGame)
-  client.on('newGame', lobbyHandlers.onNewGame)
-  client.on('gameOver', lobbyHandlers.onGameOver)
-  client.on('disconnecting', lobbyHandlers.handleDisconnecting)
+  socket.on('joinGame', lobbyHandlers.onJoinGame)
+  socket.on('newGame', lobbyHandlers.onNewGame)
+  socket.on('gameOver', lobbyHandlers.onGameOver)
+  socket.on('disconnecting', lobbyHandlers.onDisconnecting)
+  socket.on('disconnect', lobbyHandlers.onSocketDisconnect)
 
-  client.on('disconnect', gameHandlers.onSocketDisconnect)
-
-  client.on('test', (data) => { console.log('test successful',data)})
+  socket.on('error', (error) => console.error(error))
+  socket.on('test', (data) => console.log('test successful',data))
 }
-
-
-//https://gist.github.com/crtr0/2896891

@@ -7,7 +7,8 @@ module.exports = {
   onNewGame,
   onJoinGame,
   onGameOver,
-  handleDisconnecting
+  onDisconnecting,
+  onSocketDisconnect
 }
 
 
@@ -27,7 +28,6 @@ function onJoinGame(data){
   }
   // if no open game, start a new room
   else{
-    console.log('second game')
     Game.setRoomID()
     const roomID = Game.getRoomID().toString()
     initalizeGameData(roomID)
@@ -67,7 +67,6 @@ function initalizeGameData(roomID){
     Game.gameSessions[roomID].enemies = []
     Game.gameSessions[roomID].bullets = []
     Game.gameSessions[roomID].level = 0
-    console.log('first - not',roomID, typeof roomID)
     return roomID
   }
   return Game.gameSessions[roomID]
@@ -79,27 +78,23 @@ function checkRoomSize(gameLobby){
 }
 
 
+//check if any rooms should be abandoned after 30 seconds
+setInterval(cullEmptyRooms,30000)
 
 function cullEmptyRooms(){
   console.log('culling called', Game.gameSessions)
   Object.keys(Game.gameSessions).forEach(lobby => {
     const gameInstance = Game.gameSessions[lobby]
     if(gameInstance.players.length === 0){
-      console.log('culling!!!!!!!')
       gameInstance.enemies.length = 0
       gameInstance.bullets.length = 0
+      gameInstance.level = 0
     }
   })
 }
 
-//check if any rooms should be abandoned after 30 seconds
-setInterval(cullEmptyRooms,30000)
 
 
-
-
-
-//function may be unnecessary
 function onNewGame(){
   Game.gameSessions[Game.gameSessions.lastRoomID] = []
 }
@@ -119,9 +114,16 @@ function onGameOver(data){
 }
 
 
-function handleDisconnecting(){
+function onDisconnecting(){
   const id = this.id
   const currentRoom = Object.keys(this.rooms)[0]
-  
+  console.log('Exited Room', this.rooms)
+
   io.sockets.in(currentRoom).emit('removePlayer', {playerID: id, gameID: currentRoom})
+  Game.gameSessions[currentRoom].players.splice(Game.gameSessions[currentRoom].players.indexOf(id),1)
+}
+
+
+function onSocketDisconnect(){
+  console.log("Player has disconnected: " + this.id)
 }

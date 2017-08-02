@@ -142,3 +142,7 @@ Use for strategic view and or capital tactical traversal ->
 
 
     //http://codeperfectionist.com/articles/learning-to-think-in-frp-my-experience-coding-a-game-with-kefir-js/
+
+
+  Setting dynamic rooms
+      https://gist.github.com/crtr0/2896891
