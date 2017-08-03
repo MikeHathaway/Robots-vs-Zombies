@@ -9,6 +9,7 @@ const player = {
   gameID: '0'
 }
 
+
 function* generateRandomStr(){
   const possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
   yield possible.charAt(Math.floor(Math.random() * possible.length))
@@ -20,7 +21,8 @@ function callGenerator(){
   while(str.length < 8){
     const nextChar = strGenerator.next().value
     console.log('nextChar',nextChar)
-    str = str.concat(nextChar)
+    str += nextChar
+    // str = str.concat(nextChar)
   }
   console.log('outputstr!', str)
   return str

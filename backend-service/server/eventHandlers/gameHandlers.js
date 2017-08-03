@@ -23,38 +23,46 @@ module.exports = {
   onWaveComplete
 }
 
+function testForJSON(data){
+  if(typeof JSON.parse(data) !== obj) return true
+}
+
 function onNewPlayer(data) {
 
   // //added for test building purposes - temporary
-  // data = JSON.parse(data)
-  // console.log('test data!',JSON.parse(data))
-
-  const newPlayer = new Player(data.x, data.y)
-  newPlayer.id = data.id
-  newPlayer.gameID = data.gameID.toString()
-  const roomID = newPlayer.gameID
-
-  console.log('on new player', roomID, gameSessions, gameSessions[newPlayer.gameID])
-
-  //first player in new game
-  if(gameSessions[newPlayer.gameID].players.length === 0){
-    console.log('first player in game', gameSessions)
-    io.sockets.in(roomID).emit('newPlayer', {id: newPlayer.id, x: newPlayer.getX(), y: newPlayer.getY(), gameID: newPlayer.gameID})
-    return gameSessions[newPlayer.gameID].players.push(newPlayer);
+  try {
+    data = JSON.parse(data)
+    console.log('test data!',JSON.parse(data))
   }
 
-  else if(gameSessions[newPlayer.gameID].players.length < 4){
-    console.log('joining existing game')
-    io.sockets.in(roomID).emit('newPlayer', {id: newPlayer.id, x: newPlayer.getX(), y: newPlayer.getY(), gameID: newPlayer.gameID})
+  catch (err) {
+    const newPlayer = new Player(data.x, data.y)
+    newPlayer.id = data.id
+    newPlayer.gameID = data.gameID.toString()
+    const roomID = newPlayer.gameID
 
-    // send enemies if joining existing game
-    io.sockets.in(roomID).emit('newEnemies', {enemyList: gameSessions[newPlayer.gameID].enemies, level: gameSessions[newPlayer.gameID].level})
+    console.log('on new player', roomID, gameSessions, gameSessions[newPlayer.gameID])
 
-    gameSessions[newPlayer.gameID].players.forEach(player => {
-      this.in(roomID).emit('newPlayer', {id: player.id, x: player.getX(), y: player.getY(), gameID: newPlayer.gameID})
-    })
+    //first player in new game
+    if(gameSessions[newPlayer.gameID].players.length === 0){
+      console.log('first player in game', gameSessions)
+      io.sockets.in(roomID).emit('newPlayer', {id: newPlayer.id, x: newPlayer.getX(), y: newPlayer.getY(), gameID: newPlayer.gameID})
+      return gameSessions[newPlayer.gameID].players.push(newPlayer);
+    }
 
-    return gameSessions[newPlayer.gameID].players.push(newPlayer);
+    else if(gameSessions[newPlayer.gameID].players.length < 4){
+      console.log('joining existing game')
+      io.sockets.in(roomID).emit('newPlayer', {id: newPlayer.id, x: newPlayer.getX(), y: newPlayer.getY(), gameID: newPlayer.gameID})
+
+      // send enemies if joining existing game
+      io.sockets.in(roomID).emit('newEnemies', {enemyList: gameSessions[newPlayer.gameID].enemies, level: gameSessions[newPlayer.gameID].level})
+
+      gameSessions[newPlayer.gameID].players.forEach(player => {
+        this.in(roomID).emit('newPlayer', {id: player.id, x: player.getX(), y: player.getY(), gameID: newPlayer.gameID})
+      })
+
+      return gameSessions[newPlayer.gameID].players.push(newPlayer);
+    }
   }
 }
 

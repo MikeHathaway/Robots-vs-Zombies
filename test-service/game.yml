@@ -3,9 +3,9 @@
 config:
   target: "http://127.0.0.1:4000"
   phases:
-    - duration: 500
+    - duration: 20
       arrivalRate: 5
-  processor: "./index.js"
+  processor: "./tests"
 
 scenarios:
     - name: "Simulate lobby processing"
@@ -19,5 +19,9 @@ scenarios:
             - emit:
                 channel: "newPlayer"
                 data: "{{ player }}"
+            - function: "setEnemy"
+            - emit:
+                channel: "newEnemy"
+                data: "{{ enemy }}"
             - think: 1
           count: 50
