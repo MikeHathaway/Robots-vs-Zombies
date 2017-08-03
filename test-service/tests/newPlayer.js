@@ -9,12 +9,6 @@ const player = {
   gameID: '0'
 }
 
-function setPlayer(context, events, done) {
-  // make it available to templates as "player"
-  context.vars.player = player
-  return done()
-}
-
 function* generateRandomStr(){
   const possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
   yield possible.charAt(Math.floor(Math.random() * possible.length))
@@ -33,4 +27,4 @@ function callGenerator(){
 }
 
 console.log('Generated Player: ',player)
-module.exports = setPlayer
+module.exports = player

@@ -12,10 +12,10 @@ scenarios:
       engine: "socketio"
       flow:
         - loop:
-            - function: "setPlayer"
             - emit:
                 channel: "joinGame"
                 data: ""
+            - function: "setPlayer"
             - emit:
                 channel: "newPlayer"
                 data: "{{ player }}"

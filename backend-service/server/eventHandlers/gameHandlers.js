@@ -5,7 +5,6 @@ const Player = require('../models/Player').Player
 const Bullet = require('../models/Bullet').Bullet
 const Enemy = require('../models/Enemy').Enemy
 
-// const players = []
 let numEnemies = 5
 
 const gameWidth = 1200
@@ -25,6 +24,11 @@ module.exports = {
 }
 
 function onNewPlayer(data) {
+
+  // //added for test building purposes - temporary
+  // data = JSON.parse(data)
+  // console.log('test data!',JSON.parse(data))
+
   const newPlayer = new Player(data.x, data.y)
   newPlayer.id = data.id
   newPlayer.gameID = data.gameID.toString()

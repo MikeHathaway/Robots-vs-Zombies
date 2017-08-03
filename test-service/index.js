@@ -1,10 +1,15 @@
 //https://artillery.io/docs/testing_socketio.html#emit
 'use strict';
 
-const newPlayer = require('./tests/newPlayer')
-
-console.log(newPlayer)
+const newPlayerData = require('./tests/newPlayer')
 
 module.exports = {
-  setPlayer: newPlayer
+  setPlayer: setPlayer
+}
+
+
+function setPlayer(context, events, done) {
+  // make it available to templates as "player"
+  context.vars.player = newPlayerData
+  return done()
 }
