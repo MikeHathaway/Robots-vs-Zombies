@@ -1,39 +1,23 @@
+# https://github.com/hassy/socketio-load-test-artillery-example/blob/master/socketio-chat-load-test.yaml
+
 config:
-  target: "http://127.0.0.1:3000"
+  target: "http://127.0.0.1:4000"
   phases:
-    -
-      duration: 10
-      arrivalRate: 1
+    - duration: 500
+      arrivalRate: 5
+  processor: "./index.js"
+
 scenarios:
-  -
-    engine: "socketio"
-    flow:
-      -
-        get:
-          url: "/test"
-      -
-        emit:
-          channel: "0"
-          data: "hello"
-          response:
-            channel: "echoed"
-            data: "hello"
-      -
-        emit:
-          channel: "0"
-          data: "world"
-          response:
-            channel: "echoed"
-            data: "world"
-      -
-        think: 1
-      -
-        emit:
-          channel: "echo"
-          data: "do not care about the response"
-      -
-        emit:
-          channel: "echo"
-          data: "still do not care about the response"
-      -
-        think: 1
+    - name: "Simulate lobby processing"
+      engine: "socketio"
+      flow:
+        - loop:
+            - function: "setPlayer"
+            - emit:
+                channel: "joinGame"
+                data: ""
+            - emit:
+                channel: "newPlayer"
+                data: "{{ player }}"
+            - think: 1
+          count: 50

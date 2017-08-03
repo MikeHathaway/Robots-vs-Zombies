@@ -1,5 +1,7 @@
 FROM node:alpine
 
+LABEL alias "Robots-VS-Zombies"
+
 MAINTAINER Mike Hathaway
 
 RUN mkdir -p /usr/Civilization-Zombie/frontend-service

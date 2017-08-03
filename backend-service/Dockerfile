@@ -1,5 +1,7 @@
 FROM node:alpine
 
+LABEL alias "Robot-Zombie-Server"
+
 MAINTAINER Mike Hathaway
 
 RUN mkdir -p /usr/Civilization-Zombie/backend-service

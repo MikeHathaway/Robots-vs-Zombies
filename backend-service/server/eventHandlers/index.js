@@ -30,6 +30,7 @@ function setEventHandlers(socket){
   socket.on('disconnecting', lobbyHandlers.onDisconnecting)
   socket.on('disconnect', lobbyHandlers.onSocketDisconnect)
 
+
   socket.on('error', (error) => console.error(error))
   socket.on('test', (data) => console.log('test successful',data))
 }

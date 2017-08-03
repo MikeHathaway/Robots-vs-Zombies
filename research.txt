@@ -146,3 +146,7 @@ Use for strategic view and or capital tactical traversal ->
 
   Setting dynamic rooms
       https://gist.github.com/crtr0/2896891
+
+  CI/CD
+    https://hackernoon.com/continuous-integration-circleci-vs-travis-ci-vs-jenkins-41a1c2bd95f5
+    http://mherman.org/blog/2015/03/06/node-with-docker-continuous-integration-and-delivery/#.WYJBB3XyuV4
