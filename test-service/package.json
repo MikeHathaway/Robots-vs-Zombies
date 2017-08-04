@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "artillery run game.yml"
+    "test": "artillery run game-tests.yml"
   },
   "author": "Mike Hathaway",
   "license": "ISC",

@@ -3,8 +3,8 @@
 config:
   target: "http://127.0.0.1:4000"
   phases:
-    - duration: 20
-      arrivalRate: 5
+    - duration: 30
+      arrivalRate: 10
   processor: "./tests"
 
 scenarios:
@@ -19,6 +19,13 @@ scenarios:
             - emit:
                 channel: "newPlayer"
                 data: "{{ player }}"
+            - think: 1
+          count: 10
+
+    - name: "Simulate Enemy Actions"
+      engine: "socketio"
+      flow:
+        - loop:
             - function: "setEnemy"
             - emit:
                 channel: "newEnemy"
@@ -28,4 +35,4 @@ scenarios:
                 channel: "newEnemy"
                 data: "{{ movingEnemy }}"
             - think: 1
-          count: 50
+          count: 10
