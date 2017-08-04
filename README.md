@@ -6,13 +6,8 @@ Top-Down, Multi-player, Zombie Survival Shooter built with Phaser & Socket.io.
 
 How long can you survive?
 
-<!-- ## [Play Now](frontend-service-zuggxwcygk.now.sh) -->
-
-
-## Demo
+## Watch the Demo
 [![Watch the demo](https://raw.github.com/MikeHathaway/Robots-vs-Zombies/master/frontend-service/public/assets/demoPic.png)](https://vimeo.com/227139667)
-
-<!-- https://vimeo.com/227139667 -->
 
 
 ## Real-Time Infrastructure
@@ -33,13 +28,11 @@ Mike Hathaway
 
 ### Deployment
 
-```
-sudo docker-compose up
-```  
+```sudo docker-compose up```  
 
 ### Tests
 
-Inside of test-service, run npm test
+``` cd ./test-service && npm test ```  
 
 ### Acknowledgments
 
