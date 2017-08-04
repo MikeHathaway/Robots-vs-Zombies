@@ -1,5 +1,5 @@
 
-# [Robots Vs. Zombies](frontend-service-zuggxwcygk.now.sh)
+# [Robots Vs. Zombies](https://robots-vs-zombies.now.sh/)
 
 <!-- # Rebuild Civilization. Overcome the Zombies. -->
 Top-Down, Multi-player, Zombie Survival Shooter built with Phaser & Socket.io.
@@ -38,11 +38,7 @@ Mike Hathaway
 
 * Artwork provided by: [Conor Oberlander](http://www.ambo-studios.com/)
 
-<!-- * https://medium.com/the-backlog-by-nimbo-x/creating-a-serverless-web-app-with-node-js-ember-js-and-paas-services-hyperdev-surge-sh-8e3ebe263a76
-
-* https://www.joshmorony.com/creating-animated-scoring-in-an-html5-phaser-game/
-
-* Buch for Space themed terrain http://blog-buch.rhcloud.com -->
+* Scoring sytem inspired by: [Josh Morony](https://www.joshmorony.com/creating-animated-scoring-in-an-html5-phaser-game/)
 
 
 ### License
