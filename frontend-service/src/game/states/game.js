@@ -15,7 +15,7 @@ import playerHandlers from '../eventHandlers/playerHandlers'
 
 
 
-  /* ----- Declares global variables ----- */
+  /* ----- PHaser Global Variables ----- */
   let map
     , layer
     , players
@@ -97,12 +97,21 @@ import playerHandlers from '../eventHandlers/playerHandlers'
     checkScore()
   }
 
+  /** Global Event Listeners*/
+  playerObs.on('removePlayer', removeOperations)
+  playerObs.on('movingPlayer', playerHandlers.movePlayerOperation)
+  playerObs.on('shootPlayer', shootOperation)
+  playerObs.on('movingEnemy', enemyHandlers.moveEnemyOperation)
+  playerObs.on('addPlayer', addPlayersToGame)
+  playerObs.on('enemyGroup',addEnemiesToGroup)
+  playerObs.on('error', errorHandler)
+
+
   function render(){
 	   if (localPlayer) this.game.debug.text("Player Health: " + localPlayer.health + " / " + localPlayer.maxHealth, 32, 32);
      if (localPlayer) this.game.debug.text("Lives Remaining:  " + localPlayer.lives, 32, 64);
      if (localPlayer) this.game.debug.text("Enemies Remaining:  " + enemies.children.length, 32, 96);
      if (localPlayer) this.game.debug.text("Level:  " + currentWave, 32, 128);
-
   }
 
 
@@ -247,11 +256,6 @@ import playerHandlers from '../eventHandlers/playerHandlers'
 
    =============== =============== =============== */
 
-
-   //http://phaser.io/examples/v2/input/cursor-key-movement
-   //http://examples.phaser.io/_site/view_full.html?d=arcade%20physics&f=angular+velocity.js&t=angular%20velocity)
-   //https://phaser.io/examples/v2/arcade-physics/shoot-the-pointer
-   //https://github.com/tlmader/theodoric/blob/master/js/Game.js
   function checkPlayerInputs(player){
 
     player.rotation = game.physics.arcade.angleToPointer(player)
@@ -412,16 +416,6 @@ import playerHandlers from '../eventHandlers/playerHandlers'
     }
   }
 
-  function findClosestPlayer(enemy){
-    if(enemy.body) {
-      for(let player = 0; player < players.children.length; player++){
-        if(Math.abs(enemy.body.x) - Math.abs(players.children[player].body.x) < 500){
-          return players.children[player]
-        }
-      }
-    }
-  }
-
   function enemyOperations(enemy){
     if(enemy.isAlive()){
       if(checkTimeSinceLastMove(enemy)){
@@ -433,6 +427,16 @@ import playerHandlers from '../eventHandlers/playerHandlers'
     }
     // return enemy.kill()
     return enemy.destroy()
+  }
+
+  function findClosestPlayer(enemy){
+    if(enemy.body) {
+      for(let player = 0; player < players.children.length; player++){
+        if(Math.abs(enemy.body.x) - Math.abs(players.children[player].body.x) < 500){
+          return players.children[player]
+        }
+      }
+    }
   }
 
   function checkTimeSinceLastMove(enemy){
@@ -449,18 +453,15 @@ function checkGameOver(){
     // refresh socket after game over: socket.emit('disconnect')
     socket.emit('gameOver', {gameID: globalGameID[0]})
     CivZombie.game.state.start('GameOver')
-
   }
 }
 
 function checkWaveComplete(){
   if(enemies.children.length === 0 && globalGameID[0] && enemiesAdded) {
-    // currentWave++
     announceLevel()
     currentWave++
     setTimeout(() => socket.emit('waveComplete', {gameID: globalGameID[0], curWave: currentWave}), 3000)
 
-    // socket.emit('waveComplete', {gameID: globalGameID[0], curWave: currentWave})
     console.log('WAVE COMPLETE!!!!!!')
     enemiesAdded = false
     window._level = currentWave
@@ -500,7 +501,6 @@ function announceLevel(){
     bullet.rotation = data.r
   }
 
-
   function addPlayersToGame(player){
     players.add(player)
     game.playerMap[player.id] = player
@@ -515,15 +515,10 @@ function announceLevel(){
     }
   }
 
-
   function removeOperations(removePlayer){
     console.log('removing player!', removePlayer)
     removePlayer.kill()
     delete game.playerMap[removePlayer.id]
-  }
-
-  function errorHandler(error){
-    console.error('Event Emitter Error: ',error)
   }
 
   function addEnemiesToGroup(data){
@@ -532,15 +527,13 @@ function announceLevel(){
   }
 
 
+  function errorHandler(error){
+    console.error('Event Emitter Error: ',error)
+  }
 
-  /** Event Listeners outside of update loop*/
-  playerObs.on('removePlayer', removeOperations)
-  playerObs.on('movingPlayer', playerHandlers.movePlayerOperation)
-  playerObs.on('shootPlayer', shootOperation)
-  playerObs.on('movingEnemy', enemyHandlers.moveEnemyOperation)
-  playerObs.on('addPlayer', addPlayersToGame)
-  playerObs.on('enemyGroup',addEnemiesToGroup)
-  playerObs.on('error', errorHandler)
+
+
+
 
 
 

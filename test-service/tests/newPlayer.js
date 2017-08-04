@@ -11,7 +11,7 @@ const player = {
 
 
 function* generateRandomStr(){
-  const possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
   yield possible.charAt(Math.floor(Math.random() * possible.length))
 }
 
@@ -22,7 +22,6 @@ function callGenerator(){
     const nextChar = strGenerator.next().value
     console.log('nextChar',nextChar)
     str += nextChar
-    // str = str.concat(nextChar)
   }
   console.log('outputstr!', str)
   return str

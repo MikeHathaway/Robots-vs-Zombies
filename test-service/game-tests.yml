@@ -22,7 +22,7 @@ scenarios:
             - think: 1
           count: 10
 
-    - name: "Simulate Enemy Actions"
+    - name: "Simulate enemy actions"
       engine: "socketio"
       flow:
         - loop:
