@@ -23,5 +23,9 @@ scenarios:
             - emit:
                 channel: "newEnemy"
                 data: "{{ enemy }}"
+            - function: "moveEnemy"
+            - emit:
+                channel: "newEnemy"
+                data: "{{ movingEnemy }}"
             - think: 1
           count: 50

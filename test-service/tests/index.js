@@ -7,7 +7,8 @@ const moveEnemyData = require('./moveEnemy')
 
 module.exports = {
   setPlayer: setPlayer,
-  setEnemy: setEnemy
+  setEnemy: setEnemy,
+  moveEnemy: moveEnemy
 }
 
 
@@ -20,5 +21,10 @@ function setPlayer(context, events, done) {
 function setEnemy(context, events, done){
   // make it available to templates as "newEnemy"
   context.vars.enemy = newEnemyData
+  return done()
+}
+
+function moveEnemy(context, events, done){
+  context.vars.movingEnemy = moveEnemyData
   return done()
 }
